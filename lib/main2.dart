@@ -440,7 +440,7 @@ class FindMatchPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Dog image, name, breed, gender
+            // Dog image, name, breed, gender, and owner info
             Expanded(
               flex: 3,
               child: Container(
@@ -484,6 +484,44 @@ class FindMatchPage extends StatelessWidget {
                               fontSize: 16.0,
                             ),
                           ),
+                          SizedBox(height: 8.0),
+                          Row(
+                            children: [
+                              Container(
+                                width: 40.0,
+                                height: 40.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/placeholder-profile-image.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Owner Name',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Age, Distance',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -492,49 +530,22 @@ class FindMatchPage extends StatelessWidget {
               ),
             ),
 
-            // Owner image, name, age, distance
+            // Like and dislike buttons
             Expanded(
-              flex: 2,
-              child: Container(
-                margin: EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 80.0,
-                      height: 80.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage(
-                              'assets/images/placeholder-profile-image.png'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 16.0),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Owner Name',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Age',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        Text(
-                          'Distance',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.thumb_down),
+                    onPressed: () {},
+                  ),
+                  SizedBox(width: 64.0),
+                  IconButton(
+                    icon: Icon(Icons.thumb_up),
+                    onPressed: () {},
+                  ),
+                ],
               ),
             ),
           ],
@@ -574,54 +585,6 @@ class FindMatchPage extends StatelessWidget {
     );
   }
 }
-
-/*class FindMatchPage extends StatelessWidget {
-  const FindMatchPage({super.key});
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Find Match'),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: 'Match Chat',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          label: 'Friends',
-        ),
-      ],
-      currentIndex: 0,
-      selectedItemColor: Theme.of(context).colorScheme.secondary,
-      onTap: (index) {
-        if (index == 0) {
-          // Navigate to the profile page
-          Navigator.pushNamed(context, '/profile');
-        } else if (index == 1) {
-          // Navigate to the match chat page
-          Navigator.pushNamed(context, '/match-chat');
-        }
-      },
-    );
-  }
-}
-*/
 
 class ViewProfilePage extends StatelessWidget {
   const ViewProfilePage({super.key});
