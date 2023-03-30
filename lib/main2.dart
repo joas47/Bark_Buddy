@@ -537,12 +537,14 @@ class FindMatchPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.thumb_down),
+                    icon: Icon(Icons.thumb_down, color: Colors.red),
+                    iconSize: 64.0,
                     onPressed: () {},
                   ),
                   SizedBox(width: 64.0),
                   IconButton(
-                    icon: Icon(Icons.thumb_up),
+                    icon: Icon(Icons.thumb_up, color: Colors.green),
+                    iconSize: 64.0,
                     onPressed: () {},
                   ),
                 ],
@@ -609,6 +611,35 @@ class ViewProfilePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Image.asset(
+              'assets/images/placeholder-dog-image2.png',
+              height: 200.0,
+              width: 200.0,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(height: 10.0),
+            Text(
+              'Max',
+              style: TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10.0),
+            Text(
+              'Golden Retriever',
+              style: TextStyle(
+                fontSize: 18.0,
+              ),
+            ),
+            SizedBox(height: 10.0),
+            Text(
+              'Male',
+              style: TextStyle(
+                fontSize: 18.0,
+              ),
+            ),
+            SizedBox(height: 20.0),
             CircleAvatar(
               radius: 50.0,
               backgroundImage:
@@ -637,12 +668,6 @@ class ViewProfilePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10.0),
-            Text(
-              'Likes: Pizza, hiking, and reading',
-              style: TextStyle(
-                fontSize: 18.0,
-              ),
-            ),
           ],
         ),
       ),
