@@ -21,44 +21,155 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterPage(),
         '/make-profile': (context) => MakeProfilePage(),
         '/find-match': (context) => FindMatchPage(),
-        '/profile': (context) => ProfilePage(),
+        '/profile': (context) => ViewProfilePage(),
         '/match-chat': (context) => MatchChatPage(),
         '/settings': (context) => SettingsPage(),
+        '/register-dog': (context) => RegisterDogPage(),
       },
       home: LoginPage(),
     );
   }
 }
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class RegisterDogPage extends StatefulWidget {
+  @override
+  _RegisterDogPageState createState() => _RegisterDogPageState();
+}
+
+class _RegisterDogPageState extends State<RegisterDogPage> {
+  String _name = '';
+  String _breed = '';
+  int _age = 0;
+  String _gender = '';
+  String _imageUrl = '';
+
+  final List<String> _genderOptions = ['Male', 'Female'];
+
+  final _nameController = TextEditingController();
+  final _breedController = TextEditingController();
+  final _ageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: Text('Register your dog'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+      body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 100.0),
+                Text(
+                  'Enter your dog\'s information',
+                  style: TextStyle(fontSize: 24.0),
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                  ),
+                  keyboardType: TextInputType.name,
+                  onChanged: (value) {
+                    _name = value;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  controller: _breedController,
+                  decoration: InputDecoration(
+                    labelText: 'Breed',
+                  ),
+                  keyboardType: TextInputType.text,
+                  onChanged: (value) {
+                    _breed = value;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  controller: _ageController,
+                  decoration: InputDecoration(
+                    labelText: 'Age',
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _age = int.tryParse(value) ?? 0;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: _genderOptions
+                      .map((option) => Row(
+                            children: [
+                              Radio(
+                                value: option,
+                                groupValue: _gender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _gender = value.toString();
+                                  });
+                                },
+                              ),
+                              Text(option),
+                              SizedBox(width: 16.0),
+                            ],
+                          ))
+                      .toList(),
+                ),
+                SizedBox(height: 16.0),
+                _buildImageUploadButton(),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: save dog information
+                    Navigator.pushNamed(context, '/find-match');
+                  },
+                  child: Text('Register'),
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+
+  Widget _buildImageUploadButton() {
+    return Container(
+      child: Column(
+        children: [
+          _imageUrl.isEmpty
+              ? Container()
+              : Container(
+                  width: 200.0,
+                  height: 200.0,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(_imageUrl),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+          SizedBox(height: 16.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Upload dog picture',
+                style: TextStyle(fontSize: 18.0),
               ),
-            ),
-            SizedBox(height: 32.0),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/login');
-              },
-              child: Text('Logout'),
-            ),
-          ],
-        ),
+              SizedBox(width: 16.0),
+              IconButton(
+                onPressed: () {
+                  // TODO: handle image upload
+                },
+                icon: Icon(Icons.upload),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -96,6 +207,7 @@ class LoginPage extends StatelessWidget {
               ),
               SizedBox(height: 32.0),
               TextField(
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
@@ -156,6 +268,7 @@ class RegisterPage extends StatelessWidget {
                 ),
                 SizedBox(height: 32.0),
                 TextField(
+                  keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                     labelText: 'Name',
                     border: OutlineInputBorder(),
@@ -163,6 +276,7 @@ class RegisterPage extends StatelessWidget {
                 ),
                 SizedBox(height: 16.0),
                 TextField(
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -199,6 +313,8 @@ class RegisterPage extends StatelessWidget {
 }
 
 class MakeProfilePage extends StatefulWidget {
+  const MakeProfilePage({super.key});
+
   @override
   _MakeProfilePageState createState() => _MakeProfilePageState();
 }
@@ -207,6 +323,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
   String _name = '';
   int _age = 0;
   String _gender = '';
+  String _profilePictureUrl = '';
 
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
@@ -226,10 +343,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
           children: [
             Text(
               'Tell us more about yourself!',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24.0),
             ),
             SizedBox(height: 16.0),
             TextField(
@@ -275,10 +389,12 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
                   .toList(),
             ),
             SizedBox(height: 16.0),
+            _buildProfilePictureUploadButton(),
+            SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 // TODO: save profile
-                Navigator.pushNamed(context, '/find-match');
+                Navigator.pushNamed(context, '/register-dog');
               },
               child: Text('Save profile'),
             ),
@@ -287,10 +403,31 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
       ),
     );
   }
+
+  Widget _buildProfilePictureUploadButton() {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Upload profile picture',
+            style: TextStyle(fontSize: 18.0),
+          ),
+          SizedBox(width: 16.0),
+          IconButton(
+            onPressed: () {
+              // TODO: handle profile picture upload
+            },
+            icon: Icon(Icons.upload),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class FindMatchPage extends StatelessWidget {
-  const FindMatchPage({super.key});
+  const FindMatchPage({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -300,41 +437,194 @@ class FindMatchPage extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: Center(
-        child: Text('Find your perfect match!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Dog image, name, breed, gender
+            Expanded(
+              flex: 3,
+              child: Container(
+                margin: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  image: DecorationImage(
+                    image:
+                        AssetImage('assets/images/placeholder-dog-image.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(16.0),
+                          bottomRight: Radius.circular(16.0),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Dog Name',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Breed, Gender',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Owner image, name, age, distance
+            Expanded(
+              flex: 2,
+              child: Container(
+                margin: EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 80.0,
+                      height: 80.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage(
+                              'assets/images/placeholder-profile-image.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.0),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Owner Name',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Age',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        Text(
+                          'Distance',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Match Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Friends',
-          ),
-        ],
-        currentIndex: 0,
-        selectedItemColor: Theme.of(context).colorScheme.secondary,
-        onTap: (index) {
-          if (index == 0) {
-            // Navigate to the profile page
-            Navigator.pushNamed(context, '/profile');
-          } else if (index == 1) {
-            // Navigate to the match chat page
-            Navigator.pushNamed(context, '/match-chat');
-          }
-        },
-      ),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat),
+          label: 'Match Chat',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.star),
+          label: 'Friends',
+        ),
+      ],
+      currentIndex: 0,
+      selectedItemColor: Theme.of(context).colorScheme.secondary,
+      onTap: (index) {
+        if (index == 0) {
+          // Navigate to the profile page
+          Navigator.pushNamed(context, '/profile');
+        } else if (index == 1) {
+          // Navigate to the match chat page
+          Navigator.pushNamed(context, '/match-chat');
+        }
+      },
     );
   }
 }
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+/*class FindMatchPage extends StatelessWidget {
+  const FindMatchPage({super.key});
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Find Match'),
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat),
+          label: 'Match Chat',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.star),
+          label: 'Friends',
+        ),
+      ],
+      currentIndex: 0,
+      selectedItemColor: Theme.of(context).colorScheme.secondary,
+      onTap: (index) {
+        if (index == 0) {
+          // Navigate to the profile page
+          Navigator.pushNamed(context, '/profile');
+        } else if (index == 1) {
+          // Navigate to the match chat page
+          Navigator.pushNamed(context, '/match-chat');
+        }
+      },
+    );
+  }
+}
+*/
+
+class ViewProfilePage extends StatelessWidget {
+  const ViewProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +687,43 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Settings',
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 32.0),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/login');
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class MatchChatPage extends StatelessWidget {
+  const MatchChatPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -424,6 +750,7 @@ class MatchChatPage extends StatelessWidget {
   }
 }
 
+// with some basic API calls
 /*class MatchChatPage extends StatelessWidget {
   final String matchId;
 
@@ -492,4 +819,5 @@ class MatchChatPage extends StatelessWidget {
       ),
     );
   }
-}*/
+}
+*/
