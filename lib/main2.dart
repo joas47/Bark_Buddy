@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Dating App',
+      title: 'Bark Buddy',
       theme: ThemeData(
         primarySwatch: Colors.brown,
       ),
@@ -74,55 +74,60 @@ class LoginPage extends StatelessWidget {
         title: Text('Login'),
         automaticallyImplyLeading: false,
       ),
-      body: Center(
-          child: Container(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/bark_buddy_logo.png',
-              height: 100.0,
-            ),
-            Text(
-              'Welcome to Bark Buddy!',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Center(
+            child: Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 64.0),
+              Image.asset(
+                'assets/images/bark_buddy_logo.png',
+                height: 100,
               ),
-            ),
-            SizedBox(height: 32.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+              SizedBox(height: 64.0),
+              Text(
+                'Welcome to Bark Buddy!',
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
+              SizedBox(height: 32.0),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement login functionality.
-                Navigator.pushNamed(context, '/make-profile');
-              },
-              child: Text('Login'),
-            ),
-            SizedBox(height: 16.0),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text('Don\'t have an account? Register here.'),
-            ),
-          ],
-        ),
-      )),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {
+                  // TODO: Implement login functionality.
+                  Navigator.pushNamed(context, '/make-profile');
+                },
+                child: Text('Login'),
+              ),
+              SizedBox(height: 16.0),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text('Don\'t have an account? Register here.'),
+              ),
+            ],
+          ),
+        )),
+      ),
     );
   }
 }
@@ -133,72 +138,89 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Create your account!',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 32.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement registration functionality.
-              },
-              child: Text('Register'),
-            ),
-            SizedBox(height: 16.0),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Already have an account? Login here.'),
-            ),
-          ],
+        appBar: AppBar(
+          title: Text('Register'),
         ),
-      ),
-    );
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Create your account!',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 32.0),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement registration functionality.
+                    Navigator.pushNamed(context, '/make-profile');
+                  },
+                  child: Text('Register'),
+                ),
+                SizedBox(height: 16.0),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Already have an account? Login here.'),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }
 
-class MakeProfilePage extends StatelessWidget {
-  const MakeProfilePage({super.key});
+class MakeProfilePage extends StatefulWidget {
+  @override
+  _MakeProfilePageState createState() => _MakeProfilePageState();
+}
+
+class _MakeProfilePageState extends State<MakeProfilePage> {
+  String _name = '';
+  int _age = 0;
+  String _gender = '';
+
+  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
+
+  final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Make Profile'),
+        title: Text('Make profile'),
       ),
-      body: Center(
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -209,41 +231,56 @@ class MakeProfilePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 32.0),
+            SizedBox(height: 16.0),
             TextField(
+              controller: _nameController,
               decoration: InputDecoration(
                 labelText: 'Name',
-                border: OutlineInputBorder(),
               ),
+              keyboardType: TextInputType.name,
+              onChanged: (value) {
+                _name = value;
+              },
             ),
             SizedBox(height: 16.0),
             TextField(
+              controller: _ageController,
               decoration: InputDecoration(
                 labelText: 'Age',
-                border: OutlineInputBorder(),
               ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                _age = int.tryParse(value) ?? 0;
+              },
             ),
             SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Gender',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Hobbies',
-                border: OutlineInputBorder(),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _genderOptions
+                  .map((option) => Row(
+                        children: [
+                          Radio(
+                            value: option,
+                            groupValue: _gender,
+                            onChanged: (value) {
+                              setState(() {
+                                _gender = value.toString();
+                              });
+                            },
+                          ),
+                          Text(option),
+                          SizedBox(width: 16.0),
+                        ],
+                      ))
+                  .toList(),
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                // TODO: Implement save profile functionality.
+                // TODO: save profile
                 Navigator.pushNamed(context, '/find-match');
               },
-              child: Text('Save Profile'),
+              child: Text('Save profile'),
             ),
           ],
         ),
@@ -251,42 +288,6 @@ class MakeProfilePage extends StatelessWidget {
     );
   }
 }
-
-/*class FindMatchPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Find Match'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Find your perfect match!',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement find match functionality.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MatchChatPage()),
-                );
-              },
-              child: Text('Find Match'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/
 
 class FindMatchPage extends StatelessWidget {
   const FindMatchPage({super.key});
@@ -296,6 +297,7 @@ class FindMatchPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Find Match'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Text('Find your perfect match!'),
@@ -356,8 +358,8 @@ class ProfilePage extends StatelessWidget {
           children: <Widget>[
             CircleAvatar(
               radius: 50.0,
-              backgroundImage: AssetImage(
-                  'assets/images/placeholder-profile-image.png'),
+              backgroundImage:
+                  AssetImage('assets/images/placeholder-profile-image.png'),
             ),
             SizedBox(height: 10.0),
             Text(
