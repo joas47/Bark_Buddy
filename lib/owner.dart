@@ -1,4 +1,4 @@
-import 'dog.dart';
+import 'package:cross_platform_test/dog.dart';
 
 class Owner {
   final String _name;
@@ -6,7 +6,6 @@ class Owner {
   final String _email;
   final String _password;
 
-  // list of dogs
   List<Dog> dogs = [];
 
   Owner(this._name, this._age, this._email, this._password);

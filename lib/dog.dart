@@ -1,4 +1,4 @@
-import 'Owner.dart';
+import 'package:cross_platform_test/Owner.dart';
 
 class Dog {
   final String _name;

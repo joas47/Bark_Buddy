@@ -9,10 +9,22 @@ import 'package:cross_platform_test/register_dog_page.dart';
 import 'package:cross_platform_test/find_match_page.dart';
 import 'package:cross_platform_test/make_profile_page.dart';
 
+// firebase stuff, don't remove
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 // for the MatchChatPage
 //import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() => runApp(const BarkBuddy());
+void main() async {
+  // TODO: Firebase initialization
+/*  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );*/
+
+  // Run the app
+  runApp(const BarkBuddy());
+}
 
 class BarkBuddy extends StatelessWidget {
   const BarkBuddy({super.key});

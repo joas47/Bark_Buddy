@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "698936412686",
+    "project_id": "bark-buddy",
+    "storage_bucket": "bark-buddy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698936412686:android:954a57834c2a60b09b4a5f",
+        "android_client_info": {
+          "package_name": "com.example.cross_platform_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698936412686-g8ta96jimjlt4k40vn91jd8ufrdk4l23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcjLMugp4vjGGZswCPmMz2xK1w7vdH41o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698936412686-g8ta96jimjlt4k40vn91jd8ufrdk4l23.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698936412686-k5r9g6ongfv4151k6kqbqip02d1tj3ls.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.crossPlatformTest"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
