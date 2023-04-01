@@ -18,10 +18,10 @@ import 'firebase_options.dart';
 
 void main() async {
   // TODO: Firebase initialization
-/*  await Firebase.initializeApp(
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  );*/
-
+  );
   // Run the app
   runApp(const BarkBuddy());
 }
