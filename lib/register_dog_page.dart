@@ -1,5 +1,6 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cross_platform_test/file_selector_handler.dart';
 
 class RegisterDogPage extends StatefulWidget {
   const RegisterDogPage({super.key});
@@ -13,7 +14,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   String _breed = '';
   int _age = 0;
   String _gender = '';
-  String _imageUrl = '';
+  String _profilePic = '';
 
   final List<String> _genderOptions = ['Male', 'Female'];
 
@@ -27,31 +28,31 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
       appBar: AppBar(
         title: const Text('Register your dog'),
       ),
-      body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 100.0),
-                const Text(
-                  'Enter your dog\'s information',
-                  style: TextStyle(fontSize: 24.0),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                  ),
-                  keyboardType: TextInputType.name,
-                  onChanged: (value) {
-                    _name = value;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: _breedController,
+      body: SingleChildScrollView(
+          child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 100.0),
+            const Text(
+              'Enter your dog\'s information',
+              style: TextStyle(fontSize: 24.0),
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+              ),
+              keyboardType: TextInputType.name,
+              onChanged: (value) {
+                _name = value;
+              },
+            ),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _breedController,
                   decoration: const InputDecoration(
                     labelText: 'Breed',
                   ),
@@ -111,28 +112,17 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
     );
   }
 
-  void _openFileSelector() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null) {
-      PlatformFile file = result.files.first;
-      // Handle the selected file here.
-    } else {
-      // User canceled the file selection.
-    }
-  }
-
   Widget _buildImageUploadButton() {
     return Column(
       children: [
-        _imageUrl.isEmpty
+        _profilePic.isEmpty
             ? Container()
             : Container(
                 width: 200.0,
                 height: 200.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(_imageUrl),
+                    image: NetworkImage(_profilePic),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -147,9 +137,9 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             ),
             const SizedBox(width: 16.0),
             IconButton(
-              onPressed: () {
+              onPressed: () async {
                 // TODO: handle image upload
-                _openFileSelector();
+                final selectedImage = await FileSelectorHandler.selectImage();
               },
               icon: const Icon(Icons.upload),
             ),

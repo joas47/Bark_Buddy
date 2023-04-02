@@ -9,29 +9,30 @@ class RegisterPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Register'),
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Create your account!',
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Create your account!',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32.0),
-                const TextField(
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 32.0),
+                  const TextField(
+                    keyboardType: TextInputType.name,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16.0),
-                const TextField(
+                  const SizedBox(height: 16.0),
+                  const TextField(
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -45,23 +46,25 @@ class RegisterPage extends StatelessWidget {
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                   ),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: Implement registration functionality.
-                    Navigator.pushNamed(context, '/make-profile');
-                  },
-                  child: const Text('Register'),
-                ),
-                const SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Already have an account? Login here.'),
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      // TODO: Implement registration functionality.
+                      // TODO: check if everything is filled out before allowing to continue
+                      Navigator.pushNamed(context, '/make-profile');
+                    },
+                    child: const Text('Register'),
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Already have an account? Login here.'),
+                  ),
+                ],
+              ),
             ),
           ),
         ));

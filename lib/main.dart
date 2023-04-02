@@ -1,13 +1,13 @@
 import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_profile_page.dart';
-import 'package:flutter/material.dart';
-
 import 'package:cross_platform_test/login_page.dart';
 import 'package:cross_platform_test/register_page.dart';
 import 'package:cross_platform_test/register_dog_page.dart';
 import 'package:cross_platform_test/find_match_page.dart';
 import 'package:cross_platform_test/make_profile_page.dart';
+
+import 'package:flutter/material.dart';
 
 // firebase stuff, don't remove
 import 'package:firebase_core/firebase_core.dart';

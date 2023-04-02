@@ -1,5 +1,7 @@
-import 'package:file_picker/file_picker.dart';
+import 'package:cross_platform_test/database_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'file_selector_handler.dart';
 
 class MakeProfilePage extends StatefulWidget {
   const MakeProfilePage({super.key});
@@ -12,7 +14,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
   String _name = '';
   int _age = 0;
   String _gender = '';
-  String _profilePictureUrl = '';
+  late XFile _profilePic;
 
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
@@ -25,29 +27,30 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
       appBar: AppBar(
         title: const Text('Make profile'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Tell us more about yourself!',
-              style: TextStyle(fontSize: 24.0),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Tell us more about yourself!',
+                style: TextStyle(fontSize: 24.0),
               ),
-              keyboardType: TextInputType.name,
-              onChanged: (value) {
-                _name = value;
-              },
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _ageController,
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                ),
+                keyboardType: TextInputType.name,
+                onChanged: (value) {
+                  _name = value;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: _ageController,
               decoration: const InputDecoration(
                 labelText: 'Age',
               ),
@@ -60,54 +63,56 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: _genderOptions
-                  .map((option) => Row(
-                        children: [
-                          Radio(
-                            value: option,
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value.toString();
-                              });
-                            },
-                          ),
-                          Text(option),
-                          const SizedBox(width: 16.0),
-                        ],
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 16.0),
-            _buildProfilePictureUploadButton(),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                if (_name.isNotEmpty || !_age.isNegative) {
-                  // TODO: save owner to database
-                  //Owner owner = Owner(_name, _age, _gender);
-                  Navigator.pushNamed(context, '/register-dog');
-                } else {
-                  // TODO: fields cannot be empty message
-                }
-              },
-              child: const Text('Save profile'),
-            ),
-          ],
+                    .map((option) => Row(
+                          children: [
+                            Radio(
+                              value: option,
+                              groupValue: _gender,
+                              onChanged: (value) {
+                                setState(() {
+                                  _gender = value.toString();
+                                });
+                              },
+                            ),
+                            Text(option),
+                            const SizedBox(width: 16.0),
+                          ],
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 16.0),
+              _buildProfilePictureUploadButton(),
+              const SizedBox(height: 16.0),
+              Builder(builder: (BuildContext context) {
+                return ElevatedButton(
+                  onPressed: () {
+                    if (_name.isNotEmpty &&
+                        !_age.isNegative &&
+                        !_age.isNaN &&
+                        _gender.isNotEmpty &&
+                        _profilePic.path.isNotEmpty) {
+                      // TODO: save owner to database
+                      //Owner owner = Owner(_name, _age, _gender);
+                      DatabaseHandler.addUserToDatabase(
+                          _name, _age, _gender, _profilePic);
+                      Navigator.pushNamed(context, '/register-dog');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'You must fill out all the fields before continuing.'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Save profile'),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  // TODO: refactor this into a separate file to be reused in other pages
-  void _openFileSelector() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null) {
-      PlatformFile file = result.files.first;
-      // TODO: Handle the selected file here.
-    } else {
-      // User canceled the file selection.
-    }
   }
 
   Widget _buildProfilePictureUploadButton() {
@@ -120,9 +125,9 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
         ),
         const SizedBox(width: 16.0),
         IconButton(
-          onPressed: () {
-            // TODO: handle profile picture upload
-            _openFileSelector();
+          onPressed: () async {
+            // TODO: handle the selected image
+            _profilePic = await FileSelectorHandler.selectImage();
           },
           icon: const Icon(Icons.upload),
         ),
