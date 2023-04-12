@@ -9,7 +9,7 @@ class Dog {
   Dog(this._name, this._age, this._breed, this._owner);
 // test Fredrik
   String get breed => _breed;
-
+//Test Cassandra
   int get age => _age;
 
   String get name => _name;
