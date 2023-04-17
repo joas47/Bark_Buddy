@@ -19,8 +19,8 @@ class LoginPage extends StatelessWidget {
             children: [
               const SizedBox(height: 64.0),
               Image.asset(
-                'assets/images/bark_buddy_logo.png',
-                height: 100,
+                'assets/images/logo.png',
+                height: 150,
               ),
               const SizedBox(height: 64.0),
               const Text(
