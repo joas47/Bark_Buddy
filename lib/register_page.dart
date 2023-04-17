@@ -16,6 +16,7 @@ class RegisterPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 64.0),
                   const Text(
                     'Create your account!',
                     style: TextStyle(
@@ -33,19 +34,19 @@ class RegisterPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16.0),
                   const TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16.0),
-                const TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
+                  const SizedBox(height: 16.0),
+                  const TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(

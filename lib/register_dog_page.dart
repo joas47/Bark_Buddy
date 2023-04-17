@@ -53,62 +53,62 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             const SizedBox(height: 16.0),
             TextField(
               controller: _breedController,
-                  decoration: const InputDecoration(
-                    labelText: 'Breed',
-                  ),
-                  keyboardType: TextInputType.text,
-                  onChanged: (value) {
-                    _breed = value;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: _ageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Age',
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    _age = int.tryParse(value) ?? 0;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _genderOptions
-                      .map((option) => Row(
-                            children: [
-                              Radio(
-                                value: option,
-                                groupValue: _gender,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _gender = value.toString();
-                                  });
-                                },
-                              ),
-                              Text(option),
-                              const SizedBox(width: 16.0),
-                            ],
-                          ))
-                      .toList(),
-                ),
-                const SizedBox(height: 16.0),
-                _buildImageUploadButton(),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: save dog information somewhere
-                    //Owner owner = Owner()
-                    //Dog dog = Dog(_name, _age, _breed, owner);
-                    //print(dog);
-                    Navigator.pushNamed(context, '/find-match');
-                  },
-                  child: const Text('Register'),
-                ),
-              ],
+              decoration: const InputDecoration(
+                labelText: 'Breed',
+              ),
+              keyboardType: TextInputType.text,
+              onChanged: (value) {
+                _breed = value;
+              },
             ),
-          )),
+            const SizedBox(height: 16.0),
+            TextField(
+              controller: _ageController,
+              decoration: const InputDecoration(
+                labelText: 'Age',
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                _age = int.tryParse(value) ?? 0;
+              },
+            ),
+            const SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _genderOptions
+                  .map((option) => Row(
+                        children: [
+                          Radio(
+                            value: option,
+                            groupValue: _gender,
+                            onChanged: (value) {
+                              setState(() {
+                                _gender = value.toString();
+                              });
+                            },
+                          ),
+                          Text(option),
+                          const SizedBox(width: 16.0),
+                        ],
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 16.0),
+            _buildImageUploadButton(),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: save dog information somewhere
+                //Owner owner = Owner()
+                //Dog dog = Dog(_name, _age, _breed, owner);
+                //print(dog);
+                Navigator.pushNamed(context, '/find-match');
+              },
+              child: const Text('Register'),
+            ),
+          ],
+        ),
+      )),
     );
   }
 

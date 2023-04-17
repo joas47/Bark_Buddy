@@ -33,6 +33,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 64.0),
               const Text(
                 'Tell us more about yourself!',
                 style: TextStyle(fontSize: 24.0),
@@ -51,18 +52,18 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
               const SizedBox(height: 16.0),
               TextField(
                 controller: _ageController,
-              decoration: const InputDecoration(
-                labelText: 'Age',
+                decoration: const InputDecoration(
+                  labelText: 'Age',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  _age = int.tryParse(value) ?? 0;
+                },
               ),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                _age = int.tryParse(value) ?? 0;
-              },
-            ),
-            const SizedBox(height: 16.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _genderOptions
+              const SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: _genderOptions
                     .map((option) => Row(
                           children: [
                             Radio(
