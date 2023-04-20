@@ -7,14 +7,14 @@ class MakeProfilePage extends StatefulWidget {
   const MakeProfilePage({super.key});
 
   @override
-  _MakeProfilePageState createState() => _MakeProfilePageState();
+  State<MakeProfilePage> createState() => _MakeProfilePageState();
 }
 
 class _MakeProfilePageState extends State<MakeProfilePage> {
   String _name = '';
   int _age = 0;
   String _gender = '';
-  late XFile _profilePic;
+  XFile? _profilePic;
 
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
@@ -91,11 +91,11 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
                         !_age.isNegative &&
                         !_age.isNaN &&
                         _gender.isNotEmpty &&
-                        _profilePic.path.isNotEmpty) {
+                        _profilePic != null) {
                       // TODO: save owner to database
                       //Owner owner = Owner(_name, _age, _gender);
                       DatabaseHandler.addUserToDatabase(
-                          _name, _age, _gender, _profilePic);
+                          _name, _age, _gender, _profilePic!);
                       Navigator.pushNamed(context, '/register-dog');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
