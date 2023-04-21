@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:cross_platform_test/file_selector_handler.dart';
 
+import 'database_handler.dart';
+
 class RegisterDogPage extends StatefulWidget {
   const RegisterDogPage({super.key});
 
@@ -14,8 +16,11 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   String _breed = '';
   int _age = 0;
   String _gender = '';
+
+  // TODO: make this a file
   String _profilePic = '';
 
+  // TODO: add more options for gender - neutered or not
   final List<String> _genderOptions = ['Male', 'Female'];
 
   final _nameController = TextEditingController();
@@ -98,11 +103,23 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                // TODO: save dog information somewhere
-                //Owner owner = Owner()
-                //Dog dog = Dog(_name, _age, _breed, owner);
-                //print(dog);
-                Navigator.pushNamed(context, '/find-match');
+                // TODO: get the owner email from the database or from the login page
+                // TODO: add more fields to the dog
+                if (_name.isNotEmpty &&
+                    _breed.isNotEmpty &&
+                    !_age.isNaN &&
+                    _gender.isNotEmpty) {
+                  // TODO: reference the current user to add the dog to the database
+                  DatabaseHandler.addDogToDatabase(
+                      _name, _breed, "john@doe.com", _gender);
+                  Navigator.pushNamed(context, '/find-match');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill out all the fields'),
+                    ),
+                  );
+                }
               },
               child: const Text('Register'),
             ),
