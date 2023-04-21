@@ -18,28 +18,70 @@ class DatabaseHandler {
     users.doc(userId).delete();
   }
 
+  static Future<void> removeOwnerFromDatabase(String emailDocumentId) async {
+    // Get a reference to the Firestore instance
+    final firestoreInstance = FirebaseFirestore.instance;
+
+    // Define a list to store the references of the dog documents to be removed
+    final List<DocumentReference> dogReferencesToRemove = [];
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Get a reference to the email document to be removed
+    final emailDocumentRef =
+        firestoreInstance.collection('emails').doc(emailDocumentId);
+
+    // Retrieve the array field 'dogs' from the email document
+    final emailDocumentSnapshot = await emailDocumentRef.get();
+    final dogReferences = emailDocumentSnapshot.get('dogs');
+
+    // Iterate through the 'dogs' array and add the corresponding document references to the list
+    for (final dogReference in dogReferences) {
+      final dogDocumentRef = dogReference as DocumentReference;
+      dogReferencesToRemove.add(dogDocumentRef);
+    }
+
+    // Remove the email document from the 'emails' collection
+    batch.delete(emailDocumentRef);
+
+    // Remove the corresponding dog documents from the 'Dogs' collection
+    for (final dogRefToRemove in dogReferencesToRemove) {
+      batch.delete(dogRefToRemove);
+    }
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
   // add a dog to the database
   // link it to an owner
-  // breed, gender, name, owner (email)
-  // TODO: link the dog to the owner with a reference
+  // TODO: link the dog to the owner with a reference instead of the owner's email
   static Future<void> addDogToDatabase(
       String name, String breed, String ownerEmail, String gender) async {
-    CollectionReference dogs = FirebaseFirestore.instance.collection('Dogs');
-    // add the dog to the database and save the reference
-    DocumentReference dogRef = await dogs.add({
+    final firestoreInstance = FirebaseFirestore.instance;
+    final dogsCollectionRef = firestoreInstance.collection('Dogs');
+    final emailsCollectionRef = firestoreInstance.collection('emails');
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Add the dog document to the 'Dogs' collection
+    final dogDocumentRef = dogsCollectionRef.doc();
+    batch.set(dogDocumentRef, {
       'Breed': breed,
       'Gender': gender,
       'Name': name,
       'owner': ownerEmail,
     });
 
-    // add the dog reference to the owner's array of dogs
-    CollectionReference emails =
-        FirebaseFirestore.instance.collection('emails');
-    emails.doc(ownerEmail).update({
-      'dogs': FieldValue.arrayUnion([dogRef])
+    // Add the dog reference to the owner's array of dogs in the 'emails' collection
+    final emailDocumentRef = emailsCollectionRef.doc(ownerEmail);
+    batch.update(emailDocumentRef, {
+      'dogs': FieldValue.arrayUnion([dogDocumentRef])
     });
-  }
 
-// remove a dog from the database
+    // Commit the batch write operation
+    await batch.commit();
+  }
 }
