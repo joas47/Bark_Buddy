@@ -3,6 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
 
+/*
+Layout:
+Namn field
+Efternamn field
+Kön radio buttons
+Ålder field
+Om dig textbox
+Ladda upp Bild button
+Registrera din profil button
+ */
+
 class MakeProfilePage extends StatefulWidget {
   const MakeProfilePage({super.key});
 
@@ -11,14 +22,16 @@ class MakeProfilePage extends StatefulWidget {
 }
 
 class _MakeProfilePageState extends State<MakeProfilePage> {
-  String _name = '';
+  String _fName = '';
+  String _lName = '';
   int _age = 0;
   String _gender = '';
   XFile? _profilePic;
 
-  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
+  final List<String> _genderOptions = ['Man', 'Kvinna', 'Annan'];
 
-  final _nameController = TextEditingController();
+  final _fNameController = TextEditingController();
+  final _lNameController = TextEditingController();
   final _ageController = TextEditingController();
 
   @override
@@ -34,33 +47,32 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 64.0),
-              const Text(
-                'Tell us more about yourself!',
-                style: TextStyle(fontSize: 24.0),
-              ),
               const SizedBox(height: 16.0),
               TextField(
-                controller: _nameController,
+                controller: _fNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Name',
+                  labelText: 'Namn',
+                  border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.name,
                 onChanged: (value) {
-                  _name = value;
+                  _fName = value;
                 },
               ),
               const SizedBox(height: 16.0),
               TextField(
-                controller: _ageController,
-                decoration: const InputDecoration(
-                  labelText: 'Age',
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  _age = int.tryParse(value) ?? 0;
-                },
-              ),
+                  controller: _lNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Efternamn',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.name,
+                  onChanged: (value) {
+                    _lName = value;
+                  }),
               const SizedBox(height: 16.0),
+              // TODO: move this Text so it's next to the radio buttons instead of above.
+              const Text('Kön'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
@@ -82,12 +94,33 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
                     .toList(),
               ),
               const SizedBox(height: 16.0),
+              TextField(
+                controller: _ageController,
+                decoration: const InputDecoration(
+                  labelText: 'Ålder',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  _age = int.tryParse(value) ?? 0;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              const TextField(
+                keyboardType: TextInputType.multiline,
+                minLines: 4,
+                maxLines: null,
+                decoration: InputDecoration(
+                  labelText: 'Om dig',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               _buildProfilePictureUploadButton(),
               const SizedBox(height: 16.0),
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
-                    if (_name.isNotEmpty &&
+                    if (_fName.isNotEmpty &&
                         !_age.isNegative &&
                         !_age.isNaN &&
                         _gender.isNotEmpty &&
@@ -95,7 +128,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
                       // TODO: save owner to database
                       //Owner owner = Owner(_name, _age, _gender);
                       DatabaseHandler.addUserToDatabase(
-                          _name, _age, _gender, _profilePic!);
+                          _fName, _age, _gender, _profilePic!);
                       Navigator.pushNamed(context, '/register-dog');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
