@@ -40,7 +40,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Make profile'),
+        title: const Text('Skapa profil'),
       ),
       body: SingleChildScrollView(
         child: Padding(
