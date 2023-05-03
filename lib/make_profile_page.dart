@@ -24,8 +24,9 @@ class MakeProfilePage extends StatefulWidget {
 class _MakeProfilePageState extends State<MakeProfilePage> {
   String _fName = '';
   String _lName = '';
-  int _age = 0;
   String _gender = '';
+  int _age = -1;
+  String _bio = '';
   XFile? _profilePic;
 
   final List<String> _genderOptions = ['Man', 'Kvinna', 'Annan'];
@@ -33,6 +34,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
   final _fNameController = TextEditingController();
   final _lNameController = TextEditingController();
   final _ageController = TextEditingController();
+  final _bioController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -102,18 +104,22 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
-                  _age = int.tryParse(value) ?? 0;
+                  _age = int.tryParse(value) ?? -1;
                 },
               ),
               const SizedBox(height: 16.0),
-              const TextField(
+              TextField(
+                controller: _bioController,
                 keyboardType: TextInputType.multiline,
                 minLines: 4,
                 maxLines: null,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Om dig',
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  _bio = value;
+                },
               ),
               _buildProfilePictureUploadButton(),
               const SizedBox(height: 16.0),
@@ -121,14 +127,14 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
                 return ElevatedButton(
                   onPressed: () {
                     if (_fName.isNotEmpty &&
+                        _lName.isNotEmpty &&
+                        _gender.isNotEmpty &&
                         !_age.isNegative &&
                         !_age.isNaN &&
-                        _gender.isNotEmpty &&
+                        _bio.isNotEmpty &&
                         _profilePic != null) {
-                      // TODO: save owner to database
-                      //Owner owner = Owner(_name, _age, _gender);
-                      DatabaseHandler.addUserToDatabase(
-                          _fName, _age, _gender, _profilePic!);
+                      // TODO: save owner to database (uncomment the line below)
+                      //DatabaseHandler.addUserToDatabase(_fName, _lName, _gender, _age, _bio, _profilePic!);
                       Navigator.pushNamed(context, '/register-dog');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

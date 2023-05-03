@@ -17,7 +17,7 @@ import 'firebase_options.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
-  // TODO: Firebase initialization
+  // Firebase initialization
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -47,7 +47,9 @@ class BarkBuddy extends StatelessWidget {
           '/match-chat': (context) => const MatchChatPage(),
           '/settings': (context) => const SettingsPage(),
         },
-        home: const LoginPage());
+        // TODO: change this to the login page when time for merge
+        //home: const LoginPage());
+        home: const MakeProfilePage());
   }
 }
 

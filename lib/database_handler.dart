@@ -3,13 +3,14 @@ import 'package:image_picker/image_picker.dart';
 
 class DatabaseHandler {
   // TODO: profilePic not used yet
-  static Future<void> addUserToDatabase(
-      String name, int age, String gender, XFile profilePic) async {
+  // TODO: handle lName and bio
+  static Future<void> addUserToDatabase(String fName, String lName,
+      String gender, int age, String bio, XFile profilePic) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     await users.add({
-      'name': name,
-      'age': age,
+      'name': fName,
       'gender': gender,
+      'age': age,
     });
   }
 
