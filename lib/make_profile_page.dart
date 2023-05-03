@@ -3,17 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
 
-/*
-Layout:
-Namn field
-Efternamn field
-Kön radio buttons
-Ålder field
-Om dig textbox
-Ladda upp Bild button
-Registrera din profil button
- */
-
 class MakeProfilePage extends StatefulWidget {
   const MakeProfilePage({super.key});
 

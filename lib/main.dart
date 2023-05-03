@@ -34,7 +34,7 @@ class BarkBuddy extends StatelessWidget {
     return MaterialApp(
         title: 'Bark Buddy',
         theme: ThemeData(
-          primarySwatch: Colors.brown,
+          primarySwatch: Colors.grey,
         ),
         initialRoute: '/',
         routes: {
