@@ -49,7 +49,7 @@ class BarkBuddy extends StatelessWidget {
         },
         // TODO: change this to the login page when time for merge
         //home: const LoginPage());
-        home: const MakeProfilePage());
+        home: const ViewProfilePage());
   }
 }
 

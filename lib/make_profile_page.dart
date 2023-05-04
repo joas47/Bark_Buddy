@@ -1,4 +1,3 @@
-import 'package:cross_platform_test/database_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
