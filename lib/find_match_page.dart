@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'bottom_navigation_bar.dart';
+
 class FindMatchPage extends StatelessWidget {
   const FindMatchPage({super.key});
 
@@ -127,37 +129,7 @@ class FindMatchPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: 'Match Chat',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          label: 'Friends',
-        ),
-      ],
-      currentIndex: 0,
-      selectedItemColor: Theme.of(context).colorScheme.secondary,
-      onTap: (index) {
-        if (index == 0) {
-          // Navigate to the profile page
-          Navigator.pushNamed(context, '/profile');
-        } else if (index == 1) {
-          // Navigate to the match chat page
-          Navigator.pushNamed(context, '/match-chat');
-        }
-      },
+      bottomNavigationBar: BottomNavigationBarCustom.build(context),
     );
   }
 }
