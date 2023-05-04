@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
 
-class MakeProfilePage extends StatefulWidget {
-  const MakeProfilePage({super.key});
+class MakeOwnerProfilePage extends StatefulWidget {
+  const MakeOwnerProfilePage({super.key});
 
   @override
-  State<MakeProfilePage> createState() => _MakeProfilePageState();
+  State<MakeOwnerProfilePage> createState() => _MakeOwnerProfilePageState();
 }
 
-class _MakeProfilePageState extends State<MakeProfilePage> {
+class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   String _fName = '';
   String _lName = '';
   String _gender = '';

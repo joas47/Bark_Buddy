@@ -3,9 +3,9 @@ import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:cross_platform_test/login_page.dart';
 import 'package:cross_platform_test/register_page.dart';
-import 'package:cross_platform_test/register_dog_page.dart';
+import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:cross_platform_test/find_match_page.dart';
-import 'package:cross_platform_test/make_profile_page.dart';
+import 'package:cross_platform_test/make_owner_profile_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 
 import 'package:flutter/material.dart';
@@ -41,7 +41,9 @@ class BarkBuddy extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginPage(),
           '/register': (context) => const RegisterPage(),
-          '/make-profile': (context) => const MakeProfilePage(),
+          '/make-owner-profile': (context) => const MakeOwnerProfilePage(),
+          //'/make-dog-profile': (context) => const MakeDogProfilePage(),
+          //'/edit-owner-profile': (context) => const EditOwnerProfile(),
           '/register-dog': (context) => const RegisterDogPage(),
           '/find-match': (context) => const FindMatchPage(),
           '/profile': (context) => const ViewDogProfilePage(),
@@ -50,8 +52,7 @@ class BarkBuddy extends StatelessWidget {
           '/owner-profile': (context) => const ViewOwnerProfile(),
         },
         // TODO: change this to the login page when time for merge
-        //home: const LoginPage());
-        home: const ViewDogProfilePage());
+        home: const RegisterDogPage());
   }
 }
 

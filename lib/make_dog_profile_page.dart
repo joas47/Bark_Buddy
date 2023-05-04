@@ -4,6 +4,18 @@ import 'package:cross_platform_test/file_selector_handler.dart';
 
 import 'database_handler.dart';
 
+/*
+Namn
+Kön (kastrerad eller ej)
+Ålder
+Ras
+Aktivitetsnivå
+Storlek
+Om hunden (fritext)
+Bild
+Spara
+ */
+
 class RegisterDogPage extends StatefulWidget {
   const RegisterDogPage({super.key});
 
@@ -17,11 +29,14 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   int _age = 0;
   String _gender = '';
 
+  bool _isChecked = false;
+
   // TODO: make this a file
   String _profilePic = '';
 
-  // TODO: add more options for gender - neutered or not
-  final List<String> _genderOptions = ['Male', 'Female'];
+  final List<String> _genderOptions = ['Tik', 'Hane'];
+  final List<String> _activityOptions = ['Låg', 'Medel', 'Hög'];
+  final List<String> _sizeOptions = ['Liten', 'Medel', 'Stor'];
 
   final _nameController = TextEditingController();
   final _breedController = TextEditingController();
@@ -39,11 +54,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 100.0),
-            const Text(
-              'Enter your dog\'s information',
-              style: TextStyle(fontSize: 24.0),
-            ),
             const SizedBox(height: 16.0),
             TextField(
               controller: _nameController,
@@ -78,6 +88,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
               },
             ),
             const SizedBox(height: 16.0),
+            Text("Kön"),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: _genderOptions
@@ -89,16 +100,96 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                             onChanged: (value) {
                               setState(() {
                                 _gender = value.toString();
-                              });
-                            },
-                          ),
-                          Text(option),
-                          const SizedBox(width: 16.0),
-                        ],
-                      ))
+                          });
+                        },
+                      ),
+                      Text(option),
+                      const SizedBox(width: 16.0),
+                    ],
+                  ))
+                  .toList(),
+            ),
+            CheckboxListTile(
+              title: const Text('Kastrerad'),
+              value: _isChecked,
+              onChanged: (value) {
+                setState(() {
+                  _isChecked = value!;
+                });
+              },
+            ),
+            const Text("Aktivitetsnivå"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _activityOptions
+                  .map((option) =>
+                  Row(
+                    children: [
+                      Radio(
+                        value: option,
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
+                          });
+                        },
+                      ),
+                      Text(option),
+                      const SizedBox(width: 16.0),
+                    ],
+                  ))
                   .toList(),
             ),
             const SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text("Storlek"),
+                // TODO: add a tooltip
+                Icon(
+                  Icons.info,
+                  color: Colors.blue,
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _sizeOptions
+                  .map((option) =>
+                  Row(
+                    children: [
+                      Radio(
+                        value: option,
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
+                          });
+                        },
+                      ),
+                      Text(option),
+                      const SizedBox(width: 16.0),
+                    ],
+                  ))
+                  .toList(),
+            ),
+            const SizedBox(
+              //height: 500.0,
+              width: 300.0,
+              child: TextField(
+                keyboardType: TextInputType.multiline,
+                minLines: 4,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  // TODO: get this information from the database
+                  hintText: 'Om din hund',
+                  border: OutlineInputBorder(),
+                ),
+                style: TextStyle(
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
             _buildImageUploadButton(),
             const SizedBox(height: 16.0),
             ElevatedButton(
