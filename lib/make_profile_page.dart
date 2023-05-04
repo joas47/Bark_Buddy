@@ -115,6 +115,7 @@ class _MakeProfilePageState extends State<MakeProfilePage> {
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
+                    // TODO: divide into multiple checks, give more specific error messages
                     if (_fName.isNotEmpty &&
                         _lName.isNotEmpty &&
                         _gender.isNotEmpty &&
