@@ -1,11 +1,12 @@
 import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/settings_page.dart';
-import 'package:cross_platform_test/view_profile_page.dart';
+import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:cross_platform_test/login_page.dart';
 import 'package:cross_platform_test/register_page.dart';
 import 'package:cross_platform_test/register_dog_page.dart';
 import 'package:cross_platform_test/find_match_page.dart';
 import 'package:cross_platform_test/make_profile_page.dart';
+import 'package:cross_platform_test/view_owner_profile_page.dart';
 
 import 'package:flutter/material.dart';
 //test Morgan
@@ -43,13 +44,14 @@ class BarkBuddy extends StatelessWidget {
           '/make-profile': (context) => const MakeProfilePage(),
           '/register-dog': (context) => const RegisterDogPage(),
           '/find-match': (context) => const FindMatchPage(),
-          '/profile': (context) => const ViewProfilePage(),
+          '/profile': (context) => const ViewDogProfilePage(),
           '/match-chat': (context) => const MatchChatPage(),
           '/settings': (context) => const SettingsPage(),
+          '/owner-profile': (context) => const ViewOwnerProfile(),
         },
         // TODO: change this to the login page when time for merge
         //home: const LoginPage());
-        home: const ViewProfilePage());
+        home: const ViewDogProfilePage());
   }
 }
 

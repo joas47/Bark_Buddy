@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'bottom_navigation_bar.dart';
 
-class ViewProfilePage extends StatelessWidget {
-  const ViewProfilePage({super.key});
+class ViewDogProfilePage extends StatelessWidget {
+  const ViewDogProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Min profil'),
+        title: const Text('Hund'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -21,22 +21,39 @@ class ViewProfilePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Align(
-              alignment: Alignment.topRight,
+      body: Stack(alignment: Alignment.center, children: <Widget>[
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <
+            Widget>[
+          Align(
+            alignment: Alignment.topLeft,
+            child: ElevatedButton(
+              child: const Text('Lägg till plats'),
+              onPressed: () {},
+            ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/owner-profile');
+              },
               child: CircleAvatar(
                 radius: 50.0,
                 backgroundImage:
+                    // TODO: get this information from the database
                     AssetImage('assets/images/placeholder-profile-image.png'),
               ),
             ),
+          ),
+        ]),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
             const SizedBox(height: 10.0),
             const CircleAvatar(
               radius: 100.0,
               backgroundImage:
+                  // TODO: get this information from the database
                   AssetImage('assets/images/placeholder-dog-image2.png'),
             ),
             const Text(
@@ -54,7 +71,7 @@ class ViewProfilePage extends StatelessWidget {
                 minLines: 1,
                 maxLines: 5,
                 decoration: InputDecoration(
-                  // TODO: get this information from the database
+                    // TODO: get this information from the database
                     hintText:
                         '• Tik \n• Stor \n• Golden Retriever\n• Hög aktivitetsnivå',
                     border: const OutlineInputBorder(),
@@ -89,7 +106,7 @@ class ViewProfilePage extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      ]),
       bottomNavigationBar: BottomNavigationBarCustom.build(context),
     );
   }
