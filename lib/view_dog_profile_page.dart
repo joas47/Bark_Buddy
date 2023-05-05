@@ -37,7 +37,7 @@ class ViewDogProfilePage extends StatelessWidget {
               onTap: () {
                 Navigator.pushNamed(context, '/owner-profile');
               },
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 radius: 50.0,
                 backgroundImage:
                     // TODO: get this information from the database

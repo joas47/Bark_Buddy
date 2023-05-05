@@ -38,8 +38,8 @@ class ViewOwnerProfile extends StatelessWidget {
                     //Navigator.pushNamed(context, '/profile');
                     Navigator.pop(context);
                   },
-              child: CircleAvatar(
-                radius: 50.0,
+              child: const CircleAvatar(
+                    radius: 50.0,
                     backgroundImage:
                         // TODO: get this information from the database
                         AssetImage('assets/images/placeholder-dog-image2.png'),
