@@ -14,9 +14,8 @@ class _RegisterPageState extends State<RegisterPage> {
   String _email = '';
   String _password = '';
 
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,55 +36,25 @@ class _RegisterPageState extends State<RegisterPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 32.0),
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.name,
-                  onChanged: (value) {
-                    _name = value;
-                  },
+                Form(
+                  key: _formKey,
+                  autovalidateMode: _autoValidate
+                      ? AutovalidateMode.onUserInteraction
+                      : AutovalidateMode.disabled,
+                  child: formUI(),
                 ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    _email = value;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    _password = value;
-                  },
-                ),
-                const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_name.isNotEmpty &&
-                        _email.isNotEmpty &&
-                        _password.isNotEmpty) {
-                      createUser();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please fill out all fields.'),
-                        ),
-                      );
+                  onPressed: () async {
+                    // TODO: uncomment this
+                    if (_validateInputs()) {
+                      final createAccSuccessful = await createUser();
+                      if (createAccSuccessful) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const MakeOwnerProfilePage()));
+                      }
                     }
                   },
                   child: const Text('Register'),
@@ -103,17 +72,14 @@ class _RegisterPageState extends State<RegisterPage> {
         ));
   }
 
-  Future<void> createUser() async {
+  Future<bool> createUser() async {
     try {
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _email,
         password: _password,
       );
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const MakeOwnerProfilePage()));
+      return credential.user != null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,5 +101,75 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       }
     }
+    return false;
+  }
+
+  bool _validateInputs() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      return true;
+    } else {
+      setState(() {
+        _autoValidate = true;
+      });
+      return false;
+    }
+  }
+
+  Widget formUI() {
+    return Column(children: [
+      const SizedBox(height: 32.0),
+      TextFormField(
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your name.';
+          }
+          return null;
+        },
+        decoration: const InputDecoration(
+          labelText: 'Name',
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.name,
+        onChanged: (value) {
+          _name = value;
+        },
+      ),
+      const SizedBox(height: 16.0),
+      TextFormField(
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your email.';
+          }
+          return null;
+        },
+        keyboardType: TextInputType.emailAddress,
+        decoration: const InputDecoration(
+          labelText: 'Email',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (value) {
+          _email = value;
+        },
+      ),
+      const SizedBox(height: 16.0),
+      TextFormField(
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your password.';
+          }
+          return null;
+        },
+        obscureText: true,
+        decoration: const InputDecoration(
+          labelText: 'Password',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (value) {
+          _password = value;
+        },
+      ),
+      const SizedBox(height: 16.0),
+    ]);
   }
 }
