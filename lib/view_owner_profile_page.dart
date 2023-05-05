@@ -9,7 +9,7 @@ class ViewOwnerProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ägare'),
+        title: const Text('Ägarprofil'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -35,14 +35,15 @@ class ViewOwnerProfile extends StatelessWidget {
             alignment: Alignment.topRight,
             child: InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/profile');
-              },
+                    //Navigator.pushNamed(context, '/profile');
+                    Navigator.pop(context);
+                  },
               child: CircleAvatar(
                 radius: 50.0,
-                backgroundImage:
-                    // TODO: get this information from the database
-                    AssetImage('assets/images/placeholder-profile-image.png'),
-              ),
+                    backgroundImage:
+                        // TODO: get this information from the database
+                        AssetImage('assets/images/placeholder-dog-image2.png'),
+                  ),
             ),
           ),
         ]),
@@ -54,10 +55,10 @@ class ViewOwnerProfile extends StatelessWidget {
               radius: 100.0,
               backgroundImage:
                   // TODO: get this information from the database
-                  AssetImage('assets/images/placeholder-dog-image2.png'),
+                  AssetImage('assets/images/placeholder-profile-image.png'),
             ),
             const Text(
-              'Max',
+              'John',
               style: TextStyle(
                 fontSize: 22.0,
                 fontWeight: FontWeight.bold,
@@ -73,7 +74,7 @@ class ViewOwnerProfile extends StatelessWidget {
                 decoration: InputDecoration(
                     // TODO: get this information from the database
                     hintText:
-                        '• Tik \n• Stor \n• Golden Retriever\n• Hög aktivitetsnivå',
+                        '• Man \n• Stor \n• Golden Retriever lover\n• Hög aktivitetsnivå',
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.edit),

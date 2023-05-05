@@ -9,7 +9,7 @@ class ViewDogProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hund'),
+        title: const Text('Hundprofil'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),

@@ -51,8 +51,7 @@ class BarkBuddy extends StatelessWidget {
           '/settings': (context) => const SettingsPage(),
           '/owner-profile': (context) => const ViewOwnerProfile(),
         },
-        // TODO: change this to the login page when time for merge
-        home: const RegisterDogPage());
+        home: const LoginPage());
   }
 }
 

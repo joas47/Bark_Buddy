@@ -4,18 +4,6 @@ import 'package:cross_platform_test/file_selector_handler.dart';
 
 import 'database_handler.dart';
 
-/*
-Namn
-Kön (kastrerad eller ej)
-Ålder
-Ras
-Aktivitetsnivå
-Storlek
-Om hunden (fritext)
-Bild
-Spara
- */
-
 class RegisterDogPage extends StatefulWidget {
   const RegisterDogPage({super.key});
 
@@ -29,7 +17,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   int _age = 0;
   String _gender = '';
 
-  bool _isChecked = false;
+  bool _isCastratedChecked = false;
 
   // TODO: make this a file
   String _profilePic = '';
@@ -46,7 +34,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register your dog'),
+        title: const Text('Registrera din hund'),
       ),
       body: SingleChildScrollView(
           child: Padding(
@@ -54,7 +42,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 16.0),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -65,7 +52,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 _name = value;
               },
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 10.0),
             TextField(
               controller: _breedController,
               decoration: const InputDecoration(
@@ -76,7 +63,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 _breed = value;
               },
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 10.0),
             TextField(
               controller: _ageController,
               decoration: const InputDecoration(
@@ -87,7 +74,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 _age = int.tryParse(value) ?? 0;
               },
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 10.0),
             Text("Kön"),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -100,21 +87,21 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                             onChanged: (value) {
                               setState(() {
                                 _gender = value.toString();
-                          });
-                        },
-                      ),
-                      Text(option),
-                      const SizedBox(width: 16.0),
-                    ],
+                              });
+                            },
+                          ),
+                          Text(option),
+                          const SizedBox(width: 10.0),
+                        ],
                   ))
                   .toList(),
             ),
             CheckboxListTile(
               title: const Text('Kastrerad'),
-              value: _isChecked,
+              value: _isCastratedChecked,
               onChanged: (value) {
                 setState(() {
-                  _isChecked = value!;
+                  _isCastratedChecked = value!;
                 });
               },
             ),
@@ -175,7 +162,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             ),
             const SizedBox(
               //height: 500.0,
-              width: 300.0,
+              //width: 300.0,
               child: TextField(
                 keyboardType: TextInputType.multiline,
                 minLines: 4,
@@ -196,14 +183,16 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
               onPressed: () {
                 // TODO: get the owner email from the database or from the login page
                 // TODO: add more fields to the dog
-                if (_name.isNotEmpty &&
+                // TODO: uncomment this, only for testing
+                if (/*_name.isNotEmpty &&
                     _breed.isNotEmpty &&
                     !_age.isNaN &&
-                    _gender.isNotEmpty) {
+                    _gender.isNotEmpty*/
+                    true) {
                   // TODO: reference the current user to add the dog to the database
-                  DatabaseHandler.addDogToDatabase(
-                      _name, _breed, "john@doe.com", _gender);
-                  Navigator.pushNamed(context, '/find-match');
+                  //DatabaseHandler.addDogToDatabase(_name, _breed, "john@doe.com", _gender);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/profile', (route) => false);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -212,7 +201,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   );
                 }
               },
-              child: const Text('Register'),
+              child: const Text('Registrera'),
             ),
           ],
         ),
@@ -240,7 +229,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Upload dog picture',
+              'Ladda upp en bild',
               style: TextStyle(fontSize: 18.0),
             ),
             const SizedBox(width: 16.0),

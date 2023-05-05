@@ -115,13 +115,15 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                 return ElevatedButton(
                   onPressed: () {
                     // TODO: divide into multiple checks, give more specific error messages
-                    if (_fName.isNotEmpty &&
+                    // TODO: remove the true in the if statement, only for testing
+                    if (/*_fName.isNotEmpty &&
                         _lName.isNotEmpty &&
                         _gender.isNotEmpty &&
                         !_age.isNegative &&
                         !_age.isNaN &&
                         _bio.isNotEmpty &&
-                        _profilePic != null) {
+                        _profilePic != null*/
+                        true) {
                       // TODO: save owner to database (uncomment the line below)
                       //DatabaseHandler.addUserToDatabase(_fName, _lName, _gender, _age, _bio, _profilePic!);
                       Navigator.pushNamed(context, '/register-dog');

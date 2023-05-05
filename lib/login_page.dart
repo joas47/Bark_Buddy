@@ -9,8 +9,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email = '';
-  String _password = '';
+  // TODO: remove these hardcoded values
+  String _email = 'john@doe.com';
+  String _password = 'password123';
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -102,8 +103,9 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _email, password: _password);
-      // TODO: fix this error
-      Navigator.pushNamed(context, '/make-profile');
+      // TODO: if user has not made a profile, redirect to make profile page
+      // TODO: if user has made a profile, redirect to home page
+      Navigator.pushNamed(context, '/make-owner-profile');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
