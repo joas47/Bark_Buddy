@@ -45,7 +45,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    // TODO: uncomment this
                     if (_validateInputs()) {
                       final createAccSuccessful = await _createUser();
                       if (createAccSuccessful) {
