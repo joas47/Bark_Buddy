@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
@@ -67,20 +68,20 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
                     .map((option) => Row(
-                          children: [
-                            Radio(
-                              value: option,
-                              groupValue: _gender,
-                              onChanged: (value) {
-                                setState(() {
-                                  _gender = value.toString();
-                                });
-                              },
-                            ),
-                            Text(option),
-                            const SizedBox(width: 16.0),
-                          ],
-                        ))
+                  children: [
+                    Radio(
+                      value: option,
+                      groupValue: _gender,
+                      onChanged: (value) {
+                        setState(() {
+                          _gender = value.toString();
+                        });
+                      },
+                    ),
+                    Text(option),
+                    const SizedBox(width: 16.0),
+                  ],
+                ))
                     .toList(),
               ),
               const SizedBox(height: 16.0),
@@ -123,10 +124,13 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                         !_age.isNaN &&
                         _bio.isNotEmpty &&
                         _profilePic != null*/
-                        true) {
+                    true) {
                       // TODO: save owner to database (uncomment the line below)
                       //DatabaseHandler.addUserToDatabase(_fName, _lName, _gender, _age, _bio, _profilePic!);
-                      Navigator.pushNamed(context, '/register-dog');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterDogPage()));
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

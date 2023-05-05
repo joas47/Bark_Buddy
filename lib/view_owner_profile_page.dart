@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/settings_page.dart';
 import 'package:flutter/material.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
@@ -14,7 +15,10 @@ class ViewOwnerProfile extends StatelessWidget {
             onPressed: () {
               // TODO: Implement settings functionality.
               // goto settings page
-              Navigator.pushNamed(context, '/settings');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsPage()));
             },
           ),
         ],
@@ -34,14 +38,13 @@ class ViewOwnerProfile extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: InkWell(
                   onTap: () {
-                    //Navigator.pushNamed(context, '/profile');
                     Navigator.pop(context);
                   },
                   child: const CircleAvatar(
                     radius: 50.0,
                     backgroundImage:
-                        // TODO: get this information from the database
-                        AssetImage('assets/images/placeholder-dog-image2.png'),
+                    // TODO: get this information from the database
+                    AssetImage('assets/images/placeholder-dog-image2.png'),
                   ),
                 ),
               ),
@@ -53,8 +56,8 @@ class ViewOwnerProfile extends StatelessWidget {
             const CircleAvatar(
               radius: 100.0,
               backgroundImage:
-                  // TODO: get this information from the database
-                  AssetImage('assets/images/placeholder-profile-image.png'),
+              // TODO: get this information from the database
+              AssetImage('assets/images/placeholder-profile-image.png'),
             ),
             const Text(
               'John',
@@ -71,14 +74,14 @@ class ViewOwnerProfile extends StatelessWidget {
                 minLines: 1,
                 maxLines: 5,
                 decoration: InputDecoration(
-                    // TODO: get this information from the database
+                  // TODO: get this information from the database
                     hintText:
-                        '• Man \n• Stor \n• Golden Retriever lover\n• Hög aktivitetsnivå',
+                    '• Man \n• Stor \n• Golden Retriever lover\n• Hög aktivitetsnivå',
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.edit),
                       onPressed: () {
-                        Navigator.pushNamed(context, '/edit-profile');
+                        //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
                       },
                     )),
                 style: const TextStyle(

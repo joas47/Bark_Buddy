@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/login_page.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -24,7 +25,11 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: 32.0),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/login');
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                      (route) => false);
                 },
                 child: const Text('Logout'),
               ),

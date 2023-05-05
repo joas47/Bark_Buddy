@@ -1,3 +1,5 @@
+import 'package:cross_platform_test/settings_page.dart';
+import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:flutter/material.dart';
 
 class ViewDogProfilePage extends StatelessWidget {
@@ -14,7 +16,10 @@ class ViewDogProfilePage extends StatelessWidget {
             onPressed: () {
               // TODO: Implement settings functionality.
               // goto settings page
-              Navigator.pushNamed(context, '/settings');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsPage()));
             },
           ),
         ],
@@ -33,13 +38,16 @@ class ViewDogProfilePage extends StatelessWidget {
             alignment: Alignment.topRight,
             child: InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/owner-profile');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ViewOwnerProfile()));
               },
               child: const CircleAvatar(
                 radius: 50.0,
                 backgroundImage:
-                    // TODO: get this information from the database
-                    AssetImage('assets/images/placeholder-profile-image.png'),
+                // TODO: get this information from the database
+                AssetImage('assets/images/placeholder-profile-image.png'),
               ),
             ),
           ),
@@ -51,8 +59,8 @@ class ViewDogProfilePage extends StatelessWidget {
             const CircleAvatar(
               radius: 100.0,
               backgroundImage:
-                  // TODO: get this information from the database
-                  AssetImage('assets/images/placeholder-dog-image2.png'),
+              // TODO: get this information from the database
+              AssetImage('assets/images/placeholder-dog-image2.png'),
             ),
             const Text(
               'Max',
@@ -69,14 +77,14 @@ class ViewDogProfilePage extends StatelessWidget {
                 minLines: 1,
                 maxLines: 5,
                 decoration: InputDecoration(
-                    // TODO: get this information from the database
+                  // TODO: get this information from the database
                     hintText:
-                        '• Tik \n• Stor \n• Golden Retriever\n• Hög aktivitetsnivå',
+                    '• Tik \n• Stor \n• Golden Retriever\n• Hög aktivitetsnivå',
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.edit),
                       onPressed: () {
-                        Navigator.pushNamed(context, '/edit-profile');
+                        //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
                       },
                     )),
                 style: const TextStyle(

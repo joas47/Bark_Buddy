@@ -1,4 +1,5 @@
 import 'package:cross_platform_test/home_page.dart';
+import 'package:cross_platform_test/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +77,11 @@ class _LoginPageState extends State<LoginPage> {
                     // TODO: if user has not made a profile, redirect to make profile page
                     // TODO: if user has made a profile, redirect to home page
                     if (loginSuccessful) {
-                      Navigator.pushReplacementNamed(context, '/home-page');
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()),
+                          (route) => false);
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -91,8 +96,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 16.0),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/register');
-                    },
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterPage()));
+                },
                     child: const Text('Don\'t have an account? Register here.'),
                   ),
                 ],

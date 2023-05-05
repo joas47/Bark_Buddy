@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/make_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -109,8 +110,10 @@ class _RegisterPageState extends State<RegisterPage> {
         email: _email,
         password: _password,
       );
-      // TODO: fix this error
-      Navigator.pushNamed(context, '/make-profile');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const MakeOwnerProfilePage()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(

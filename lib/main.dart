@@ -1,18 +1,6 @@
-import 'package:cross_platform_test/home_page.dart';
-import 'package:cross_platform_test/match_chat_page.dart';
-import 'package:cross_platform_test/settings_page.dart';
-import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:cross_platform_test/login_page.dart';
-import 'package:cross_platform_test/register_page.dart';
-import 'package:cross_platform_test/make_dog_profile_page.dart';
-import 'package:cross_platform_test/find_match_page.dart';
-import 'package:cross_platform_test/make_owner_profile_page.dart';
-import 'package:cross_platform_test/view_owner_profile_page.dart';
-
 import 'package:flutter/material.dart';
 
-//test Morgan
-// firebase stuff, don't remove
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -39,21 +27,6 @@ class BarkBuddy extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blueGrey,
         ),
-        initialRoute: '/',
-        routes: {
-          '/login': (context) => const LoginPage(),
-          '/register': (context) => const RegisterPage(),
-          '/make-owner-profile': (context) => const MakeOwnerProfilePage(),
-          //'/make-dog-profile': (context) => const MakeDogProfilePage(),
-          //'/edit-owner-profile': (context) => const EditOwnerProfile(),
-          '/register-dog': (context) => const RegisterDogPage(),
-          '/find-match': (context) => const FindMatchPage(),
-          '/profile': (context) => const ViewDogProfilePage(),
-          '/match-chat': (context) => const MatchChatPage(),
-          '/settings': (context) => const SettingsPage(),
-          '/owner-profile': (context) => const ViewOwnerProfile(),
-          '/home-page': (context) => const HomePage(),
-        },
         home: const LoginPage());
   }
 }
