@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 
-class MatchChatPage extends StatelessWidget {
-  const MatchChatPage({super.key});
+class FriendPage extends StatelessWidget {
+  const FriendPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Match-chat'),
+        title: const Text('Vänner'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
             Text(
-              'Chat with your match!',
+              'Dina vänner',
               style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
             SizedBox(height: 32.0),
-            // TODO: Implement chat UI.
           ],
         ),
       ),

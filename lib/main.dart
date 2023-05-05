@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
@@ -9,6 +10,7 @@ import 'package:cross_platform_test/make_owner_profile_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 
 import 'package:flutter/material.dart';
+
 //test Morgan
 // firebase stuff, don't remove
 import 'package:firebase_core/firebase_core.dart';
@@ -35,7 +37,7 @@ class BarkBuddy extends StatelessWidget {
     return MaterialApp(
         title: 'Bark Buddy',
         theme: ThemeData(
-          primarySwatch: Colors.grey,
+          primarySwatch: Colors.blueGrey,
         ),
         initialRoute: '/',
         routes: {
@@ -50,6 +52,7 @@ class BarkBuddy extends StatelessWidget {
           '/match-chat': (context) => const MatchChatPage(),
           '/settings': (context) => const SettingsPage(),
           '/owner-profile': (context) => const ViewOwnerProfile(),
+          '/home-page': (context) => const HomePage(),
         },
         home: const LoginPage());
   }

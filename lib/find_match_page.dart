@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'bottom_navigation_bar.dart';
-
 class FindMatchPage extends StatelessWidget {
   const FindMatchPage({super.key});
 
@@ -129,7 +127,6 @@ class FindMatchPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBarCustom.build(context),
     );
   }
 }

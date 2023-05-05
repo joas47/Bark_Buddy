@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -26,86 +27,86 @@ class _LoginPageState extends State<LoginPage> {
       body: SingleChildScrollView(
         child: Center(
             child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 64.0),
-              Image.asset(
-                'assets/images/logo.png',
-                height: 150,
-              ),
-              const SizedBox(height: 64.0),
-              const Text(
-                'Welcome to Bark Buddy!',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 32.0),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  _email = value;
-                },
-              ),
-              const SizedBox(height: 16.0),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  _password = value;
-                },
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement login functionality.
-                  // make sure fields are not empty
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 64.0),
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 150,
+                  ),
+                  const SizedBox(height: 64.0),
+                  const Text(
+                    'Welcome to Bark Buddy!',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 32.0),
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      _email = value;
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      _password = value;
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () async {
                   if (_email.isNotEmpty && _password.isNotEmpty) {
-                    // call login function
-                    login();
+                    final loginSuccessful = await login();
+                    // TODO: if user has not made a profile, redirect to make profile page
+                    // TODO: if user has made a profile, redirect to home page
+                    if (loginSuccessful) {
+                      Navigator.pushReplacementNamed(context, '/home-page');
+                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Please fill out all fields.'),
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Login'),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Login'),
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/register');
+                    },
+                    child: const Text('Don\'t have an account? Register here.'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16.0),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/register');
-                },
-                child: const Text('Don\'t have an account? Register here.'),
-              ),
-            ],
-          ),
-        )),
+            )),
       ),
     );
   }
 
-  Future<void> login() async {
+  Future<bool> login() async {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _email, password: _password);
-      // TODO: if user has not made a profile, redirect to make profile page
-      // TODO: if user has made a profile, redirect to home page
-      Navigator.pushNamed(context, '/make-owner-profile');
+      return credential.user != null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -127,5 +128,6 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     }
+    return false;
   }
 }
