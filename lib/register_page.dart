@@ -41,13 +41,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   autovalidateMode: _autoValidate
                       ? AutovalidateMode.onUserInteraction
                       : AutovalidateMode.disabled,
-                  child: formUI(),
+                  child: _formUI(),
                 ),
                 ElevatedButton(
                   onPressed: () async {
                     // TODO: uncomment this
                     if (_validateInputs()) {
-                      final createAccSuccessful = await createUser();
+                      final createAccSuccessful = await _createUser();
                       if (createAccSuccessful) {
                         Navigator.push(
                             context,
@@ -72,7 +72,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ));
   }
 
-  Future<bool> createUser() async {
+  Future<bool> _createUser() async {
     try {
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -116,7 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Widget formUI() {
+  Widget _formUI() {
     return Column(children: [
       const SizedBox(height: 32.0),
       TextFormField(
