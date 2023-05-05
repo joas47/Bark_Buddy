@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'bottom_navigation_bar.dart';
-
 class ViewDogProfilePage extends StatelessWidget {
   const ViewDogProfilePage({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +105,6 @@ class ViewDogProfilePage extends StatelessWidget {
           ],
         ),
       ]),
-      bottomNavigationBar: BottomNavigationBarCustom.build(context),
     );
   }
 }

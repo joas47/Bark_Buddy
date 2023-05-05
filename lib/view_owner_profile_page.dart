@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'bottom_navigation_bar.dart';
-
 class ViewOwnerProfile extends StatelessWidget {
   const ViewOwnerProfile({super.key});
 
@@ -22,31 +20,32 @@ class ViewOwnerProfile extends StatelessWidget {
         ],
       ),
       body: Stack(alignment: Alignment.center, children: <Widget>[
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <
-            Widget>[
-          Align(
-            alignment: Alignment.topLeft,
-            child: ElevatedButton(
-              child: const Text('Lägg till plats'),
-              onPressed: () {},
-            ),
-          ),
-          Align(
-            alignment: Alignment.topRight,
-            child: InkWell(
-              onTap: () {
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topLeft,
+                child: ElevatedButton(
+                  child: const Text('Lägg till plats'),
+                  onPressed: () {},
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onTap: () {
                     //Navigator.pushNamed(context, '/profile');
                     Navigator.pop(context);
                   },
-              child: const CircleAvatar(
+                  child: const CircleAvatar(
                     radius: 50.0,
                     backgroundImage:
                         // TODO: get this information from the database
                         AssetImage('assets/images/placeholder-dog-image2.png'),
                   ),
-            ),
-          ),
-        ]),
+                ),
+              ),
+            ]),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -108,7 +107,6 @@ class ViewOwnerProfile extends StatelessWidget {
           ],
         ),
       ]),
-      bottomNavigationBar: BottomNavigationBarCustom.build(context),
     );
   }
 }

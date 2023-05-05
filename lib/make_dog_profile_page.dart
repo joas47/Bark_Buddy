@@ -93,7 +93,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                           Text(option),
                           const SizedBox(width: 10.0),
                         ],
-                  ))
+                      ))
                   .toList(),
             ),
             CheckboxListTile(
@@ -109,22 +109,21 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: _activityOptions
-                  .map((option) =>
-                  Row(
-                    children: [
-                      Radio(
-                        value: option,
-                        groupValue: _gender,
-                        onChanged: (value) {
-                          setState(() {
-                            _gender = value.toString();
-                          });
-                        },
-                      ),
-                      Text(option),
-                      const SizedBox(width: 16.0),
-                    ],
-                  ))
+                  .map((option) => Row(
+                        children: [
+                          Radio(
+                            value: option,
+                            groupValue: _gender,
+                            onChanged: (value) {
+                              setState(() {
+                                _gender = value.toString();
+                              });
+                            },
+                          ),
+                          Text(option),
+                          const SizedBox(width: 16.0),
+                        ],
+                      ))
                   .toList(),
             ),
             const SizedBox(height: 16.0),
@@ -142,22 +141,21 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: _sizeOptions
-                  .map((option) =>
-                  Row(
-                    children: [
-                      Radio(
-                        value: option,
-                        groupValue: _gender,
-                        onChanged: (value) {
-                          setState(() {
-                            _gender = value.toString();
-                          });
-                        },
-                      ),
-                      Text(option),
-                      const SizedBox(width: 16.0),
-                    ],
-                  ))
+                  .map((option) => Row(
+                        children: [
+                          Radio(
+                            value: option,
+                            groupValue: _gender,
+                            onChanged: (value) {
+                              setState(() {
+                                _gender = value.toString();
+                              });
+                            },
+                          ),
+                          Text(option),
+                          const SizedBox(width: 16.0),
+                        ],
+                      ))
                   .toList(),
             ),
             const SizedBox(
