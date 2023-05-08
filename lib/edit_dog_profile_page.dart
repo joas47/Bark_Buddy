@@ -13,12 +13,14 @@ class EditDogProfile extends StatefulWidget {
 }
 
 class _EditDogProfileState extends State<EditDogProfile> {
+  // TODO: get this information from the database
   String _name = '';
   String _breed = '';
   int _age = 0;
   String _gender = '';
-
-  bool _isCastratedChecked = false;
+  String _activity = '';
+  String _size = '';
+  bool _isCastrated = false;
 
   // TODO: make this a file
   String _profilePic = '';
@@ -35,7 +37,7 @@ class _EditDogProfileState extends State<EditDogProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registrera din hund'),
+        title: const Text('Edit your dog profile'),
       ),
       body: SingleChildScrollView(
           child: Padding(
@@ -99,10 +101,10 @@ class _EditDogProfileState extends State<EditDogProfile> {
             ),
             CheckboxListTile(
               title: const Text('Kastrerad'),
-              value: _isCastratedChecked,
+              value: _isCastrated,
               onChanged: (value) {
                 setState(() {
-                  _isCastratedChecked = value!;
+                  _isCastrated = value!;
                 });
               },
             ),
@@ -114,10 +116,10 @@ class _EditDogProfileState extends State<EditDogProfile> {
                         children: [
                           Radio(
                             value: option,
-                            groupValue: _gender,
+                            groupValue: _activity,
                             onChanged: (value) {
                               setState(() {
-                                _gender = value.toString();
+                                _activity = value.toString();
                               });
                             },
                           ),
@@ -146,10 +148,10 @@ class _EditDogProfileState extends State<EditDogProfile> {
                         children: [
                           Radio(
                             value: option,
-                            groupValue: _gender,
+                            groupValue: _size,
                             onChanged: (value) {
                               setState(() {
-                                _gender = value.toString();
+                                _size = value.toString();
                               });
                             },
                           ),
@@ -167,7 +169,6 @@ class _EditDogProfileState extends State<EditDogProfile> {
                 minLines: 4,
                 maxLines: 5,
                 decoration: InputDecoration(
-                  // TODO: get this information from the database
                   hintText: 'Om din hund',
                   border: OutlineInputBorder(),
                 ),
@@ -203,7 +204,7 @@ class _EditDogProfileState extends State<EditDogProfile> {
                   );
                 }
               },
-              child: const Text('Registrera'),
+              child: const Text('Save'),
             ),
           ],
         ),
