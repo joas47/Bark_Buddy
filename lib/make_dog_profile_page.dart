@@ -189,7 +189,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     _gender.isNotEmpty*/
                     true) {
                   // TODO: reference the current user to add the dog to the database
-                  //DatabaseHandler.addDogToDatabase(_name, _breed, "john@doe.com", _gender);
+                  DatabaseHandler.addDogToDatabase(_name, _breed, _gender);
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(

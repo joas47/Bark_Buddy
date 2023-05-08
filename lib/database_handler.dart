@@ -68,10 +68,13 @@ class DatabaseHandler {
   // link it to an owner
   // TODO: link the dog to the owner with a reference instead of the owner's email
   static Future<void> addDogToDatabase(
-      String name, String breed, String ownerEmail, String gender) async {
+      String name, String breed, String gender) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');
-    final emailsCollectionRef = firestoreInstance.collection('emails');
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
 
     // Create a batch write operation
     final batch = firestoreInstance.batch();
@@ -82,12 +85,12 @@ class DatabaseHandler {
       'Breed': breed,
       'Gender': gender,
       'Name': name,
-      'owner': ownerEmail,
+      'owner': usersCollectionRef.doc(userUid),
     });
 
     // Add the dog reference to the owner's array of dogs in the 'emails' collection
-    final emailDocumentRef = emailsCollectionRef.doc(ownerEmail);
-    batch.update(emailDocumentRef, {
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
       'dogs': FieldValue.arrayUnion([dogDocumentRef])
     });
 
