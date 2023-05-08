@@ -14,14 +14,15 @@ class RegisterDogPage extends StatefulWidget {
 }
 
 class _RegisterDogPageState extends State<RegisterDogPage> {
+
   String _name = '';
   String _breed = '';
-  int _age = 0;
   String _gender = '';
   String _activity = '';
+  int _age = 0;
   String _size = '';
-
   bool _isCastrated = false;
+  String _bio = '';
 
   // TODO: make this a file
   String _profilePic = '';
@@ -33,6 +34,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   final _nameController = TextEditingController();
   final _breedController = TextEditingController();
   final _ageController = TextEditingController();
+  final _bioController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +77,9 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   ),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
+                    //changed below from "//int.tryParse(value) ?? 0;" to "int.parse(value);"
                     _age = int.tryParse(value) ?? 0;
+
                   },
                 ),
                 const SizedBox(height: 10.0),
@@ -162,10 +166,11 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   ))
                       .toList(),
                 ),
-                const SizedBox(
+                SizedBox(
                   //height: 500.0,
                   //width: 300.0,
                   child: TextField(
+                    controller: _bioController,
                     keyboardType: TextInputType.multiline,
                     minLines: 4,
                     maxLines: 5,
@@ -176,22 +181,32 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     style: TextStyle(
                       fontSize: 18.0,
                     ),
+                    onChanged: (value) {
+                      _bio = value;
+                    },
                   ),
                 ),
                 _buildImageUploadButton(),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: add more fields to the dog
+                    // TODO: add more fields to the dog // this was done but i kept the comment anyway
                     // TODO: uncomment this, only for testing
-                    if (/*_name.isNotEmpty &&
+                    if (_name.isNotEmpty &&
                     _breed.isNotEmpty &&
                     !_age.isNaN &&
-                    _gender.isNotEmpty*/
-                    true) {
-                  //TODO: handle all fields
+                    _gender.isNotEmpty &&
+                    _isCastrated != null &&
+                    _activity.isNotEmpty &&
+                    _size.isNotEmpty &&
+                    _bio.isNotEmpty
+
+                    ) {
+                  //TODO: handle all fields //this was done but i kept the comment anyway
                   // TODO: uncomment this
-                  /*DatabaseHandler.addDogToDatabase(_name, _breed, _gender);*/
+
+                  DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender, _isCastrated, _activity, _size, _bio);
+
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const HomePage()),

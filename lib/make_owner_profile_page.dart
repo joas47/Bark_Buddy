@@ -84,8 +84,8 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                     if (/*_validateInputs() &&
                         _gender.isNotEmpty*/ /*&& _profilePic != null */ true) {
                       // TODO: save owner to database  (uncomment the line below)
-                      /*DatabaseHandler.addUserToDatabase(
-                          _fName, _lName, _gender, _age, _bio, _profilePic);*/
+                      DatabaseHandler.addUserToDatabase(
+                          _fName, _lName, _gender, _age, _bio, _profilePic);
                       Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -66,7 +66,7 @@ class DatabaseHandler {
 
   // TODO: handle all the other fields
   static Future<void> addDogToDatabase(
-      String name, String breed, String gender) async {
+      String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -80,9 +80,14 @@ class DatabaseHandler {
     // Add the dog document to the 'Dogs' collection
     final dogDocumentRef = dogsCollectionRef.doc();
     batch.set(dogDocumentRef, {
-      'Breed': breed,
-      'Gender': gender,
       'Name': name,
+      'Breed': breed,
+      'Age': age,
+      'Gender': gender,
+      'Is castrated': isCastrated,
+      'Activity Level': activity,
+      'Size': size,
+      'Biography': biography,
       'owner': usersCollectionRef.doc(userUid),
     });
 
