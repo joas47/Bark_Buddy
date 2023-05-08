@@ -2,6 +2,8 @@ import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:flutter/material.dart';
 
+import 'edit_dog_profile_page.dart';
+
 class ViewDogProfilePage extends StatelessWidget {
   const ViewDogProfilePage({super.key});
 
@@ -97,6 +99,10 @@ class ViewDogProfilePage extends StatelessWidget {
                       icon: const Icon(Icons.edit),
                       onPressed: () {
                         //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const EditDogProfile()));
                       },
                     )),
                 style: const TextStyle(
