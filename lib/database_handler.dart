@@ -64,9 +64,7 @@ class DatabaseHandler {
     await batch.commit();
   }
 
-  // add a dog to the database
-  // link it to an owner
-  // TODO: link the dog to the owner with a reference instead of the owner's email
+  // TODO: handle all the other fields
   static Future<void> addDogToDatabase(
       String name, String breed, String gender) async {
     final firestoreInstance = FirebaseFirestore.instance;
