@@ -17,8 +17,10 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   String _breed = '';
   int _age = 0;
   String _gender = '';
+  String _activity = '';
+  String _size = '';
 
-  bool _isCastratedChecked = false;
+  bool _isCastrated = false;
 
   // TODO: make this a file
   String _profilePic = '';
@@ -66,28 +68,28 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 ),
                 const SizedBox(height: 10.0),
                 TextField(
-                  controller: _ageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Age',
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    _age = int.tryParse(value) ?? 0;
-                  },
-                ),
-                const SizedBox(height: 10.0),
-                Text("Kön"),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _genderOptions
-                      .map((option) => Row(
-                    children: [
-                      Radio(
-                        value: option,
-                        groupValue: _gender,
-                        onChanged: (value) {
-                          setState(() {
-                            _gender = value.toString();
+              controller: _ageController,
+              decoration: const InputDecoration(
+                labelText: 'Age',
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                _age = int.tryParse(value) ?? 0;
+              },
+            ),
+            const SizedBox(height: 10.0),
+            const Text("Kön"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _genderOptions
+                  .map((option) => Row(
+                        children: [
+                          Radio(
+                            value: option,
+                            groupValue: _gender,
+                            onChanged: (value) {
+                              setState(() {
+                                _gender = value.toString();
                           });
                         },
                       ),
@@ -99,13 +101,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 ),
                 CheckboxListTile(
                   title: const Text('Kastrerad'),
-                  value: _isCastratedChecked,
-                  onChanged: (value) {
-                    setState(() {
-                      _isCastratedChecked = value!;
-                    });
-                  },
-                ),
+              value: _isCastrated,
+              onChanged: (value) {
+                setState(() {
+                  _isCastrated = value!;
+                });
+              },
+            ),
                 const Text("Aktivitetsnivå"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -114,13 +116,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     children: [
                       Radio(
                         value: option,
-                        groupValue: _gender,
-                        onChanged: (value) {
-                          setState(() {
-                            _gender = value.toString();
-                          });
-                        },
-                      ),
+                            groupValue: _activity,
+                            onChanged: (value) {
+                              setState(() {
+                                _activity = value.toString();
+                              });
+                            },
+                          ),
                       Text(option),
                       const SizedBox(width: 16.0),
                     ],
@@ -146,13 +148,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     children: [
                       Radio(
                         value: option,
-                        groupValue: _gender,
-                        onChanged: (value) {
-                          setState(() {
-                            _gender = value.toString();
-                          });
-                        },
-                      ),
+                            groupValue: _size,
+                            onChanged: (value) {
+                              setState(() {
+                                _size = value.toString();
+                              });
+                            },
+                          ),
                       Text(option),
                       const SizedBox(width: 16.0),
                     ],
@@ -180,7 +182,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: get the owner email from the database or from the login page
                     // TODO: add more fields to the dog
                     // TODO: uncomment this, only for testing
                     if (/*_name.isNotEmpty &&
@@ -188,7 +189,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     !_age.isNaN &&
                     _gender.isNotEmpty*/
                     true) {
-                  // TODO: reference the current user to add the dog to the database
+                      //TODO: handle all fields
                   DatabaseHandler.addDogToDatabase(_name, _breed, _gender);
                   Navigator.pushAndRemoveUntil(
                       context,
