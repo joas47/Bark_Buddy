@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 class DatabaseHandler {
@@ -6,8 +7,11 @@ class DatabaseHandler {
   // TODO: handle lName and bio
   static Future<void> addUserToDatabase(String fName, String lName,
       String gender, int age, String bio, String? profilePic) async {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
-    await users.add({
+    final userDocumentRef = users.doc(userUid );
+    await userDocumentRef.set({
       'name': fName,
       'gender': gender,
       'age': age,
