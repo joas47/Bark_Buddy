@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
+import 'database_handler.dart';
 
 class MakeOwnerProfilePage extends StatefulWidget {
   const MakeOwnerProfilePage({super.key});
@@ -74,9 +75,9 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                 return ElevatedButton(
                   onPressed: () {
                     // TODO: uncomment this
-                    if (/*_validateInputs() && _gender.isNotEmpty && _profilePic != null*/ true) {
+                    if (_validateInputs() && _gender.isNotEmpty /*&& _profilePic != null true*/) {
                       // TODO: save owner to database (uncomment the line below)
-                      //DatabaseHandler.addUserToDatabase(_fName, _lName, _gender, _age, _bio, _profilePic!);
+                      DatabaseHandler.addUserToDatabase(_fName, _lName, _gender, _age, _bio);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
