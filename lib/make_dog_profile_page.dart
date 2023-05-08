@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:flutter/material.dart';
 
@@ -68,28 +69,28 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 ),
                 const SizedBox(height: 10.0),
                 TextField(
-              controller: _ageController,
-              decoration: const InputDecoration(
-                labelText: 'Age',
-              ),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                _age = int.tryParse(value) ?? 0;
-              },
-            ),
-            const SizedBox(height: 10.0),
-            const Text("Kön"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _genderOptions
-                  .map((option) => Row(
-                        children: [
-                          Radio(
-                            value: option,
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value.toString();
+                  controller: _ageController,
+                  decoration: const InputDecoration(
+                    labelText: 'Age',
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _age = int.tryParse(value) ?? 0;
+                  },
+                ),
+                const SizedBox(height: 10.0),
+                const Text("Kön"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: _genderOptions
+                      .map((option) => Row(
+                    children: [
+                      Radio(
+                        value: option,
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
                           });
                         },
                       ),
@@ -101,13 +102,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 ),
                 CheckboxListTile(
                   title: const Text('Kastrerad'),
-              value: _isCastrated,
-              onChanged: (value) {
-                setState(() {
-                  _isCastrated = value!;
-                });
-              },
-            ),
+                  value: _isCastrated,
+                  onChanged: (value) {
+                    setState(() {
+                      _isCastrated = value!;
+                    });
+                  },
+                ),
                 const Text("Aktivitetsnivå"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -116,13 +117,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     children: [
                       Radio(
                         value: option,
-                            groupValue: _activity,
-                            onChanged: (value) {
-                              setState(() {
-                                _activity = value.toString();
-                              });
-                            },
-                          ),
+                        groupValue: _activity,
+                        onChanged: (value) {
+                          setState(() {
+                            _activity = value.toString();
+                          });
+                        },
+                      ),
                       Text(option),
                       const SizedBox(width: 16.0),
                     ],
@@ -148,13 +149,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     children: [
                       Radio(
                         value: option,
-                            groupValue: _size,
-                            onChanged: (value) {
-                              setState(() {
-                                _size = value.toString();
-                              });
-                            },
-                          ),
+                        groupValue: _size,
+                        onChanged: (value) {
+                          setState(() {
+                            _size = value.toString();
+                          });
+                        },
+                      ),
                       Text(option),
                       const SizedBox(width: 16.0),
                     ],
@@ -169,7 +170,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     minLines: 4,
                     maxLines: 5,
                     decoration: InputDecoration(
-                      // TODO: get this information from the database
                       hintText: 'Om din hund',
                       border: OutlineInputBorder(),
                     ),
@@ -189,12 +189,12 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     !_age.isNaN &&
                     _gender.isNotEmpty*/
                     true) {
-                      //TODO: handle all fields
-                  DatabaseHandler.addDogToDatabase(_name, _breed, _gender);
+                  //TODO: handle all fields
+                  // TODO: uncomment this
+                  /*DatabaseHandler.addDogToDatabase(_name, _breed, _gender);*/
                   Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const ViewDogProfilePage()),
+                      MaterialPageRoute(builder: (context) => const HomePage()),
                       (route) => false);
                 } else {
                       ScaffoldMessenger.of(context).showSnackBar(
