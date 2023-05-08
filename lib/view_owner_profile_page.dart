@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
-  const ViewOwnerProfile({Key? key});
+  const ViewOwnerProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
