@@ -68,7 +68,7 @@ class DatabaseHandler {
   // link it to an owner
   // TODO: link the dog to the owner with a reference instead of the owner's email
   static Future<void> addDogToDatabase(
-      String name, String breed, String ownerEmail, String gender) async {
+      String name, String breed, String ownerEmail, String gender, String activityLevel, String size, String bio) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');
     final emailsCollectionRef = firestoreInstance.collection('emails');
@@ -83,6 +83,10 @@ class DatabaseHandler {
       'Gender': gender,
       'Name': name,
       'owner': ownerEmail,
+      'ActivityLevel': activityLevel,
+      'Size': size,
+      'About': bio,
+
     });
 
     // Add the dog reference to the owner's array of dogs in the 'emails' collection
