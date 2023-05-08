@@ -5,15 +5,15 @@ class DatabaseHandler {
   // TODO: profilePic not used yet
   // TODO: handle lName and bio
   static Future<void> addUserToDatabase(String fName, String lName,
-      String gender, int age, String bio) async {
+      String gender, int age, String bio, String? profilePic) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
-    print('kör metoden' + fName + lName + gender + bio);
     await users.add({
       'name': fName,
       'gender': gender,
       'age': age,
       'surname': lName,
       'about' : bio,
+      'picture' : profilePic
     })
     .then((value) => print("Student data Added"))
         .catchError((error) => print("Student couldn't be added."));
