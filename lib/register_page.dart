@@ -46,9 +46,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ElevatedButton(
                   onPressed: () async {
                     // TODO: uncomment this
-                    if (true /*_validateInputs()*/) {
-                      /*final createAccSuccessful = await _createUser();*/
-                      if (true /*createAccSuccessful*/) {
+                    if (_validateInputs()) {
+                      final createAccSuccessful = await _createUser();
+                      if (createAccSuccessful) {
                         Navigator.push(
                             context,
                             MaterialPageRoute(

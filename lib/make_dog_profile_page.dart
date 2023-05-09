@@ -114,7 +114,8 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   },
                 ),
                 const Text("Aktivitetsnivå"),
-                Row(
+                // TODO: add a tooltip
+            Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: _activityOptions
                       .map((option) => Row(
