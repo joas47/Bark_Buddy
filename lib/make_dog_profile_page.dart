@@ -207,7 +207,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   //TODO: handle all fields //this was done but i kept the comment anyway
                   // TODO: uncomment this
 
-                  DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender, _isCastrated, _activity, _size, _bio);
+                  DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender, _isCastrated, _activity, _size, _bio, _profilePic);
 
                   Navigator.pushAndRemoveUntil(
                       context,

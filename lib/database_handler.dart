@@ -66,7 +66,7 @@ class DatabaseHandler {
 
   // TODO: handle all the other fields
   static Future<void> addDogToDatabase(
-      String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography) async {
+      String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography, String? profilePic) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -89,6 +89,7 @@ class DatabaseHandler {
       'Size': size,
       'Biography': biography,
       'owner': usersCollectionRef.doc(userUid),
+      'picture': profilePic,
     });
 
     // Add the dog reference to the owner's array of dogs in the 'emails' collection
