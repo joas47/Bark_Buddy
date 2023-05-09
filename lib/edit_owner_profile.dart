@@ -32,14 +32,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
-  // TODO: get the current gender and set it as the default value
-  @override
-  void initState() {
-    super.initState();
-    //_gender = newGender()!;
-    //value = _gender;
-  }
-
   @override
   Widget build(BuildContext context) {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
@@ -69,14 +61,12 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
             final age = userData.get('age') as int;
             _age = age;
             final gender = userData.get('gender');
-            //_gender = gender;
+            if (_gender.isEmpty) {
+              _gender = gender;
+            }
             final String profilePic = userData.get('picture');
             _profilePic = profilePic;
             final String dogRef = userData.get('dogs') as String;
-
-            String newGender() {
-              return gender;
-            }
 
             return Stack(
               alignment: Alignment.center,
