@@ -14,7 +14,6 @@ class DatabaseHandler {
 
     final userData = await userDocumentRef.get();
 
-    print(userData);
   }
 
   static Future<void> addUserToDatabase(String fName, String lName,
@@ -23,17 +22,14 @@ class DatabaseHandler {
     late final userUid = currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     final userDocumentRef = users.doc(userUid);
-    await userDocumentRef
-        .set({
-          'name': fName,
-          'gender': gender,
-          'age': age,
-          'surname': lName,
-          'about': bio,
-          'picture': profilePic
-        })
-        .then((value) => print("Student data Added"))
-        .catchError((error) => print("Student couldn't be added."));
+    await userDocumentRef.set({
+      'name': fName,
+      'gender': gender,
+      'age': age,
+      'surname': lName,
+      'about': bio,
+      'picture': profilePic
+    });
   }
 
   static Future<void> updateUser(String fName, String lName, String gender,
@@ -42,18 +38,15 @@ class DatabaseHandler {
     late final userUid = currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     final userDocumentRef = users.doc(userUid);
-    await userDocumentRef
-        .set({
-          'name': fName,
-          'gender': gender,
-          'age': age,
-          'surname': lName,
-          'about': bio,
-          'picture': profilePic,
-          'dogs': dogRef
-        })
-        .then((value) => print("Student data Added"))
-        .catchError((error) => print("Student couldn't be added."));
+    await userDocumentRef.set({
+      'name': fName,
+      'gender': gender,
+      'age': age,
+      'surname': lName,
+      'about': bio,
+      'picture': profilePic,
+      'dogs': dogRef
+    });
   }
 
   static Future<void> removeUserFromDatabase(String userId) async {
@@ -145,8 +138,6 @@ class DatabaseHandler {
     final userDocumentRef = usersCollectionRef.doc(userUid);
     final dogDocumentRef = userDocumentRef.collection('dogs');
     String? dogID = (await dogDocumentRef.get()).docs[0].id;
-    //String? dogID = dogDocumentRef.id;
-    print(dogID);
     return dogID;
   }
 
@@ -157,9 +148,6 @@ class DatabaseHandler {
     DocumentSnapshot documentSnapshot = await users.doc(userUid).get();
     if (documentSnapshot.exists) {
       dogRef = documentSnapshot.get('dogs');
-      print("dogRef:$dogRef");
-    } else {
-      print('Document does not exist on the database');
     }
     return dogRef;
   }
@@ -188,11 +176,8 @@ class DatabaseHandler {
 
   static Future<String?>? getOwnerPic() {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
-    print(userUid);
     final dogs = FirebaseFirestore.instance.collection('users');
-    print(dogs);
     final pic = dogs.doc(userUid).get().then((doc) => doc.get('picture') as String?);
-    print(pic);
     if (pic != null) {
       return pic;
     } else {
