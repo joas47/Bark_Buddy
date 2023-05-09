@@ -111,8 +111,23 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     });
                   },
                 ),
-                const Text("Activity Level"),
-                // TODO: add a tooltip
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:  [
+                    const Text("Activity Level"),
+                    // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+                    IconButton(
+                      icon: const Icon(Icons.help_outline),
+                      onPressed: () {
+                        // Call the callback function to show the info sheet.
+                        _showActivityLevelInfoSheet();
+                      },
+                    ),
+
+                  ],
+                ),
+
             Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: _activityOptions
@@ -136,13 +151,16 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 const SizedBox(height: 16.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children:  [
                     Text("Size"),
-                    // TODO: add a tooltip
-                    Icon(
-                      Icons.info,
-                      color: Colors.blue,
-                    )
+                    // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+                    IconButton(
+                      icon: const Icon(Icons.help_outline),
+                      onPressed: () {
+                        // Call the callback function to show the info sheet.
+                        _showSizeInfoSheet();
+                      },
+                    ),
                   ],
                 ),
                 Row(
@@ -217,6 +235,74 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
           )),
     );
   }
+
+
+  void _showSizeInfoSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 300,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+
+              Text('Small dog', style: Theme.of(context).textTheme.bodyLarge),
+              Text('up to 10kg'),
+
+              Text('Medium dog', style: Theme.of(context).textTheme.bodyLarge),
+              Text('10 - 25kg'),
+
+              Text('Large dog',style: Theme.of(context).textTheme.bodyLarge),
+              Text('More than 25kg'),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showActivityLevelInfoSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Low activity level:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('For dogs who prefer shorter walks'),
+
+              Text('Moderate activity level:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('For dogs who need a moderate amount of exercise and '
+                  'will be happy with a 1-2 hour walk. '),
+
+              Text('High activity level: ', style: Theme.of(context).textTheme.bodyLarge),
+              Text('For dogs who require a large amount of exercise. '
+                  'For example longer walks or activities such as running or swimming.'),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
 
   Widget _buildImageUploadButton() {
     String storageUrl = "gs://bark-buddy.appspot.com";
