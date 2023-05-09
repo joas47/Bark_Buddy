@@ -80,9 +80,12 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
+                    // TODO: feedback to the user if not selected gender and profile picture
+                    // TODO: age must be at least 18, or else feedback to the user
                     if (_validateInputs() &&
                         _gender.isNotEmpty &&
-                        _profilePic != null) {
+                        _profilePic != null &&
+                        _profilePic!.isNotEmpty) {
                       DatabaseHandler.addUserToDatabase(
                           _fName, _lName, _gender, _age, _bio, _profilePic);
                       Navigator.push(
