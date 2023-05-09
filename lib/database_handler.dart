@@ -131,4 +131,17 @@ class DatabaseHandler {
     }
     return dogRef;
   }
+  static Stream<String?> getDogId3() async* {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final users = FirebaseFirestore.instance.collection('users');
+    final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
+    if (dogs != null) {
+      yield dogs.toString();
+
+
+    } else {
+      yield null;
+    }
+  }
+
 }
