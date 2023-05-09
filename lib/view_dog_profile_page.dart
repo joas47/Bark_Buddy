@@ -281,7 +281,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.edit),
                           onPressed: () {
-                            //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfile()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
                           },
                         ),
                       ),
