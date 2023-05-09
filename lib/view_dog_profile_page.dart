@@ -4,6 +4,7 @@ import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'database_handler.dart';
 
 import 'edit_dog_profile_page.dart';
 
@@ -147,30 +148,36 @@ import 'edit_dog_profile_page.dart';
   }
 }*/
 
-class ViewDogProfilePage extends StatelessWidget {
-  const ViewDogProfilePage({super.key});
+class ViewDogProfilePage extends StatefulWidget {
+  const ViewDogProfilePage({Key? key}) : super(key: key);
+
+  @override
+  _ViewDogProfilePageState createState() => _ViewDogProfilePageState();
+}
+
+class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
+  String? _dogId;
+
+  @override
+  void initState() {
+    super.initState();
+    DatabaseHandler.getDogId3().listen((dogId) {
+      setState(() {
+        _dogId = dogId;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dog profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()));
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
+        appBar: AppBar(
+          title: const Text('View Dog Profile'),
+        ),
+        body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Dogs')
-              .doc("Vd0N0VgeXqlmsYCOaV9A")
+              .doc(_dogId ?? 'dummy')
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -180,47 +187,51 @@ class ViewDogProfilePage extends StatelessWidget {
               return const Text('Document does not exist');
             }
 
-            final dogData = snapshot.data!;
+          final dogData = snapshot.data!;
+          final activityLevel = dogData.get('Activity Level');
+          final age = dogData.get('Age') as int?;
+          final bio = dogData.get('Biography');
+          final breed = dogData.get('Breed') as String?;
+          final gender = dogData.get('Gender') as String?;
+          final isCastrated = dogData.get('Is castrated') as bool?;
+          final name = dogData.get('Name');
+          final size = dogData.get('Size') as String?;
+          final String? profilePic = dogData.get('picture') as String?;
 
-            final activityLevel = dogData.get('Activity Level');
-            final age = dogData.get('Age') as int?;
-            final bio = dogData.get('Biography');
-            final breed = dogData.get('Breed');
-            final gender = dogData.get('Gender');
-            final isCastrated = dogData.get('Is castrated') as bool?;
-            final name = dogData.get('Name');
-            final size = dogData.get('Size');
-            final String? profilePic = dogData.get('picture') as String?;
-
-            return Stack(alignment: Alignment.center, children: <Widget>[
+          return Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: ElevatedButton(
-                        child: const Text('Add location'),
-                        onPressed: () {},
-                      ),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: ElevatedButton(
+                      child: const Text('Add location'),
+                      onPressed: () {},
                     ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ViewOwnerProfile()));
-                        },
-                        child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: AssetImage(
-                              'assets/images/placeholder-profile-image.png'),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ViewOwnerProfile(),
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 50.0,
+                        backgroundImage: AssetImage(
+                          'assets/images/placeholder-profile-image.png',
                         ),
                       ),
                     ),
-                  ]),
+                  ),
+                ],
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -229,11 +240,11 @@ class ViewDogProfilePage extends StatelessWidget {
                     backgroundImage: profilePic != null
                         ? NetworkImage(profilePic)
                         : AssetImage(
-                                'assets/images/placeholder-profile-image.png')
-                            as ImageProvider<Object>,
+                      'assets/images/placeholder-profile-image.png',
+                    ) as ImageProvider<Object>,
                   ),
                   Text(
-                    name + ', ' + age.toString(),
+                    name ?? '',
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
@@ -246,19 +257,20 @@ class ViewDogProfilePage extends StatelessWidget {
                       minLines: 1,
                       maxLines: 6,
                       decoration: InputDecoration(
-                          hintText: '• $breed\n'
-                                  '• $gender\n'
-                                  '• $size\n'
-                                  '• $activityLevel activity level\n'
-                                  '• ' +
-                              castradedString(isCastrated!),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-//Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfile()));
-                            },
-                          )),
+                        hintText: '• ${breed ?? ''}\n'
+                            '• ${gender ?? ''}\n'
+                            '• ${age.toString()} years\n'
+                            '• ${size ?? ''}\n'
+                            '• ${activityLevel ?? ''}\n'
+                            '• ${isCastrated ?? ''}',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfile()));
+                          },
+                        ),
+                      ),
                       style: const TextStyle(
                         fontSize: 18.0,
                       ),
@@ -283,17 +295,11 @@ class ViewDogProfilePage extends StatelessWidget {
                   ),
                 ],
               ),
-            ]);
-          }),
+            ],
+          );
+        },
+      )
     );
-  }
-
-  String castradedString(bool isCastrated) {
-    if (isCastrated == true) {
-      return 'Castrated';
-    } else {
-      return 'Not castrated';
-    }
   }
 
   void getDogID(void Function(String) onDogID) {
