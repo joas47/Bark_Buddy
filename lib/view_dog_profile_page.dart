@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -171,7 +172,7 @@ class ViewDogProfilePage extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Dogs')
-              .doc(getDogRef())
+              .doc(DatabaseHandler.getDogId())
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -181,7 +182,7 @@ class ViewDogProfilePage extends StatelessWidget {
             final dogData = snapshot.data!;
             final data = snapshot.data?.data();
             print(data.toString());
-            //final name = dogData.get('Name') as String?;
+            final name = dogData.get('Name') as String?;
             //final breed = dogData.get('Breed') as String?;
             //final age = dogData.get('Age') as int?;
             //final gender = dogData.get('Gender') as String?;
@@ -223,13 +224,13 @@ class ViewDogProfilePage extends StatelessWidget {
                         'assets/images/placeholder-profile-image.png')
                     as ImageProvider<Object>,
                   ),*/
-                  /*Text(
+                  Text(
                     name ?? '',
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),*/
+                  ),
                   /*SizedBox(
                     width: 300.0,
                     child: TextField(
@@ -258,15 +259,16 @@ class ViewDogProfilePage extends StatelessWidget {
     );
   }
 
-  String getDogRef() {
+  /*String getDogRef() {
+    DatabaseHandler.getDogId();
     Map<String, dynamic> dog;
     String dogRef = 'placeholder';
     final userUid = FirebaseAuth.instance.currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     users.doc(userUid).get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        //final data = documentSnapshot.data() as Map<String, dynamic>;
-        //print(data.toString());
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        print(data.toString());
 
         //dog = documentSnapshot.get('dogs');
         dogRef = documentSnapshot.get('dogs');
@@ -276,7 +278,7 @@ class ViewDogProfilePage extends StatelessWidget {
       }
     });
     return dogRef;
-  }
+  }*/
 }
 
 class ImageDialog extends StatefulWidget {
