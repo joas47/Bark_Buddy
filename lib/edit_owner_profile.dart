@@ -19,7 +19,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   int _age = -1;
   String _bio = '';
   String? _profilePic = '';
-  String? _updatedProfilePic = '';
+  String? _updatedProfilePic;
 
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
@@ -44,11 +44,13 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         title: const Text('Edit profile'),
       ),
       body: SingleChildScrollView(
-        child: FutureBuilder<DocumentSnapshot>(
-          future:
-              FirebaseFirestore.instance.collection('users').doc(userUid).get(),
+        child: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(userUid)
+              .snapshots(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (!snapshot.hasData) {
               return const CircularProgressIndicator();
             }
 

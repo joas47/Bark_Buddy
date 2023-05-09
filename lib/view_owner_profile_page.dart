@@ -28,6 +28,7 @@ class ViewOwnerProfile extends StatelessWidget {
         ],
       ),
       // TODO: This is a lot of reading from the database. Is there a better way?
+      // FutureBuilder is cheaper than StreamBuilder, but it breaks the edit profile page.
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('users')
