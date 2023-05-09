@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,12 +19,14 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   int _age = -1;
   String _bio = '';
   String? _profilePic = '';
+  String? _updatedProfilePic = '';
 
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
+  // TODO: get the current gender and set it as the default value
   @override
   void initState() {
     super.initState();
@@ -43,37 +44,36 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         title: const Text('Edit profile'),
       ),
       body: SingleChildScrollView(
-        child: StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc(userUid)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              }
+        child: FutureBuilder<DocumentSnapshot>(
+          future:
+              FirebaseFirestore.instance.collection('users').doc(userUid).get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
 
-              final userData = snapshot.data!;
-              final name = userData.get('name');
-              _fName = name;
-              final surname = userData.get('surname');
-              _lName = surname;
-              final about = userData.get('about') as String?;
-              _bio = about!;
-              final age = userData.get('age') as int;
-              _age = age;
-              final gender = userData.get('gender');
-              //_gender = gender;
+            final userData = snapshot.data!;
+            final name = userData.get('name');
+            _fName = name;
+            final surname = userData.get('surname');
+            _lName = surname;
+            final about = userData.get('about') as String?;
+            _bio = about!;
+            final age = userData.get('age') as int;
+            _age = age;
+            final gender = userData.get('gender');
+            //_gender = gender;
+            final String profilePic = userData.get('picture');
+            _profilePic = profilePic;
+            final String dogRef = userData.get('dogs') as String;
 
-              String newGender() {
-                return gender;
-              }
+            String newGender() {
+              return gender;
+            }
 
-              final String? profilePic = userData.get('picture') as String?;
-              _profilePic = profilePic;
-              final String dogRef = userData.get('dogs') as String;
-
-              return Stack(alignment: Alignment.center, children: <Widget>[
+            return Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -114,11 +114,12 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
                         onPressed: () {
-                          // TODO: uncomment this
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
                               _profilePic != null) {
-                            // TODO: save owner to database  (uncomment the line below)
+                            if (_updatedProfilePic != null) {
+                              _profilePic = _updatedProfilePic;
+                            }
                             DatabaseHandler.updateUser(_fName, _lName, _gender,
                                 _age, _bio, _profilePic, dogRef);
                             Navigator.pop(context);
@@ -136,8 +137,10 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     }),
                   ],
                 ),
-              ]);
-            }),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -153,7 +156,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
           }
           return null;
         },
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: 'First name',
           border: OutlineInputBorder(),
         ),
@@ -171,7 +174,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
           }
           return null;
         },
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: 'Last name',
           border: OutlineInputBorder(),
         ),
@@ -190,7 +193,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
           }
           return null;
         },
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: 'Age',
           border: OutlineInputBorder(),
         ),
@@ -214,7 +217,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         decoration: InputDecoration(
           labelText: 'About you',
           hintText: bio,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         onChanged: (value) {
           _bio = value;
@@ -256,7 +259,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage, storageUrl);
               setState(() {
-                _profilePic = imageUrl;
+                _updatedProfilePic = imageUrl;
               });
             }
           },
