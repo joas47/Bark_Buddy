@@ -49,7 +49,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
             final name = userData.get('name');
             final surname = userData.get('surname');
             final about = userData.get('about') as String?;
-            final age = userData.get('age');
+            final age = userData.get('age') as int;
             final gender = userData.get('gender');
             final bio = userData.get('about');
             final String? profilePic = userData.get('picture') as String?;
@@ -139,7 +139,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'First name',
-          //hintText: name,
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -149,6 +148,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
       ),
       const SizedBox(height: 16.0),
       TextFormField(
+        initialValue: surname,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter your last name.';
@@ -157,7 +157,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'Last name',
-          hintText: surname,
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -167,6 +166,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
       ),
       const SizedBox(height: 16.0),
       TextFormField(
+        //initialValue: age,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -176,7 +176,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'Age',
-          hintText: age.toString(),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
@@ -186,6 +185,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
       ),
       const SizedBox(height: 16.0),
       TextFormField(
+        initialValue: about,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter your bio.';

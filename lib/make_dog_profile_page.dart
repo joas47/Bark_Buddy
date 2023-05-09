@@ -28,9 +28,9 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   // TODO: make this a file
   String? _profilePic = '';
 
-  final List<String> _genderOptions = ['Tik', 'Hane'];
-  final List<String> _activityOptions = ['Låg', 'Medel', 'Hög'];
-  final List<String> _sizeOptions = ['Liten', 'Medel', 'Stor'];
+  final List<String> _genderOptions = ['She', 'He'];
+  final List<String> _activityOptions = ['Low', 'Medium', 'High'];
+  final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
   final _nameController = TextEditingController();
   final _breedController = TextEditingController();
@@ -41,7 +41,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registrera din hund'),
+        title: const Text('Create Dog Profile'),
       ),
       body: SingleChildScrollView(
           child: Padding(
@@ -78,13 +78,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   ),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    //changed below from "//int.tryParse(value) ?? 0;" to "int.parse(value);"
+
                     _age = int.tryParse(value) ?? 0;
 
                   },
                 ),
                 const SizedBox(height: 10.0),
-                const Text("Kön"),
+                const Text("Gender"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: _genderOptions
@@ -106,7 +106,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                       .toList(),
                 ),
                 CheckboxListTile(
-                  title: const Text('Kastrerad'),
+                  title: const Text('Castrated'),
                   value: _isCastrated,
                   onChanged: (value) {
                     setState(() {
@@ -114,7 +114,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     });
                   },
                 ),
-                const Text("Aktivitetsnivå"),
+                const Text("Activity Level"),
                 // TODO: add a tooltip
             Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -140,7 +140,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Text("Storlek"),
+                    Text("Size"),
                     // TODO: add a tooltip
                     Icon(
                       Icons.info,
@@ -177,7 +177,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     minLines: 4,
                     maxLines: 5,
                     decoration: InputDecoration(
-                      hintText: 'Om din hund',
+                      hintText: 'About your dog',
                       border: OutlineInputBorder(),
                     ),
                     style: TextStyle(
@@ -221,7 +221,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                       );
                     }
                   },
-                  child: const Text('Registrera'),
+                  child: const Text('Register'),
                 ),
               ],
             ),
