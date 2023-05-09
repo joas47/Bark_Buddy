@@ -25,7 +25,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   String? _profilePic = '';
 
 
-  final List<String> _genderOptions = ['Man', 'Kvinna', 'Annan'];
+  final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
@@ -34,7 +34,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Skapa profil'),
+        title: const Text('Create Owner Profile'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -52,7 +52,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               ),
               const SizedBox(height: 16.0),
               // TODO: move this Text so it's next to the radio buttons instead of above.
-              const Text('Kön'),
+              const Text('Gender'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
@@ -115,12 +115,12 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your Förnamn.';
+            return 'Please enter your First Name.';
           }
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'Förnamn',
+          labelText: 'FirstName',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -132,12 +132,12 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your Efternamn.';
+            return 'Please enter your LastName.';
           }
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'Efternamn',
+          labelText: 'LastName',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -155,7 +155,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'Ålder',
+          labelText: 'Age',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
@@ -167,7 +167,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your bio.';
+            return 'Please enter your Bio.';
           }
           return null;
         },
@@ -175,7 +175,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
         minLines: 4,
         maxLines: 8,
         decoration: const InputDecoration(
-          labelText: 'Om dig',
+          labelText: 'About you',
           border: OutlineInputBorder(),
         ),
         onChanged: (value) {

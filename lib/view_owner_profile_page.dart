@@ -52,7 +52,7 @@ class ViewOwnerProfile extends StatelessWidget {
                     Align(
                       alignment: Alignment.topLeft,
                       child: ElevatedButton(
-                        child: const Text('Lägg till plats'),
+                        child: const Text('Add place'),
                         onPressed: () {},
                       ),
                     ),
