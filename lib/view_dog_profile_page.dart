@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -215,7 +216,7 @@ class ViewDogProfilePage extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 50.0,
                           backgroundImage: AssetImage(
-                              'assets/images/placeholder-dog-image2.png'),
+                              'assets/images/placeholder-profile-image.png'),
                         ),
                       ),
                     ),

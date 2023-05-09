@@ -118,4 +118,17 @@ class DatabaseHandler {
     return dogID;
   }
 
+  static Future<String?> getDogId2() async {
+    String? dogRef;
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    DocumentSnapshot documentSnapshot = await users.doc(userUid).get();
+    if (documentSnapshot.exists) {
+      dogRef = documentSnapshot.get('dogs');
+      print("dogRef:$dogRef");
+    } else {
+      print('Document does not exist on the database');
+    }
+    return dogRef;
+  }
 }
