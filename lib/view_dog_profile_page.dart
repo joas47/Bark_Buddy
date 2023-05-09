@@ -215,24 +215,30 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     alignment: Alignment.topRight,
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ViewOwnerProfile(),
-                          ),
-                        );
-                      },
-                      child: FutureBuilder<String?>(
-                        future: DatabaseHandler.getOwnerPic(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          } else if (snapshot.hasData && snapshot.data != null) {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: NetworkImage(snapshot.data!),
-                            );
-                          } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ViewOwnerProfile(),
+                            ),
+                          );
+                        },
+                        // TODO: if an owner edits their profile picture, it should be updated here as well
+                        // now it only updates changing to another page in the bottom navigation bar
+                        // or when the app is restarted
+                        // might be fixed with a StreamBuilder instead of a FutureBuilder
+                        child: FutureBuilder<String?>(
+                          future: DatabaseHandler.getOwnerPic(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasData &&
+                                snapshot.data != null) {
+                              return CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: NetworkImage(snapshot.data!),
+                              );
+                            } else {
                             return CircleAvatar(
                               radius: 50.0,
                               backgroundImage: AssetImage(
