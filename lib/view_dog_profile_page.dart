@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -152,8 +151,6 @@ class ViewDogProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //String dogRef = getDogRef();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dog profile'),
@@ -172,21 +169,27 @@ class ViewDogProfilePage extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Dogs')
-              .doc(DatabaseHandler.getDogId())
+              .doc("GIlnMexXt9OKm7TuU7Np")
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator();
             }
+            if (!snapshot.data!.exists) {
+              return const Text('Document does not exist');
+            }
 
             final dogData = snapshot.data!;
-            final data = snapshot.data?.data();
-            print(data.toString());
-            final name = dogData.get('Name') as String?;
-            //final breed = dogData.get('Breed') as String?;
-            //final age = dogData.get('Age') as int?;
-            //final gender = dogData.get('Gender') as String?;
-            //final String? profilePic = dogData.get('picture') as String?;
+
+            final activityLevel = dogData.get('Activity Level');
+            final age = dogData.get('Age') as int?;
+            final bio = dogData.get('Biography');
+            final breed = dogData.get('Breed') as String?;
+            final gender = dogData.get('Gender') as String?;
+            final isCastrated = dogData.get('Is castrated') as bool?;
+            final name = dogData.get('Name');
+            final size = dogData.get('Size') as String?;
+            final String? profilePic = dogData.get('picture') as String?;
 
             return Stack(alignment: Alignment.center, children: <Widget>[
               Row(
@@ -216,14 +219,14 @@ class ViewDogProfilePage extends StatelessWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  /*CircleAvatar(
+                  CircleAvatar(
                     radius: 100.0,
                     backgroundImage: profilePic != null
                         ? NetworkImage(profilePic)
                         : AssetImage(
-                        'assets/images/placeholder-profile-image.png')
-                    as ImageProvider<Object>,
-                  ),*/
+                                'assets/images/placeholder-profile-image.png')
+                            as ImageProvider<Object>,
+                  ),
                   Text(
                     name ?? '',
                     style: const TextStyle(
@@ -231,7 +234,7 @@ class ViewDogProfilePage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  /*SizedBox(
+                  SizedBox(
                     width: 300.0,
                     child: TextField(
                       readOnly: true,
@@ -239,7 +242,7 @@ class ViewDogProfilePage extends StatelessWidget {
                       maxLines: 3,
                       decoration: InputDecoration(
                           hintText:
-                          '• ${breed ?? ''}\n• ${gender ?? ''}\n• ${age.toString()} years',
+                              '• ${breed ?? ''}\n• ${gender ?? ''}\n• ${age.toString()} years',
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.edit),
@@ -251,7 +254,7 @@ class ViewDogProfilePage extends StatelessWidget {
                         fontSize: 18.0,
                       ),
                     ),
-                  ),*/
+                  ),
                 ],
               ),
             ]);
@@ -259,26 +262,20 @@ class ViewDogProfilePage extends StatelessWidget {
     );
   }
 
-  /*String getDogRef() {
-    DatabaseHandler.getDogId();
-    Map<String, dynamic> dog;
-    String dogRef = 'placeholder';
+  void getDogID(void Function(String) onDogID) {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     users.doc(userUid).get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        final data = documentSnapshot.data() as Map<String, dynamic>;
-        print(data.toString());
-
-        //dog = documentSnapshot.get('dogs');
-        dogRef = documentSnapshot.get('dogs');
-        print(dogRef);
+        String dogRef = documentSnapshot.get('dogs');
+        print("dogRef:$dogRef");
+        onDogID(dogRef);
       } else {
         print('Document does not exist on the database');
+        onDogID('');
       }
     });
-    return dogRef;
-  }*/
+  }
 }
 
 class ImageDialog extends StatefulWidget {
