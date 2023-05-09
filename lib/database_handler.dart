@@ -3,6 +3,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 class DatabaseHandler {
+  static Future<void> getOwnerProfileData() async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+
+    final userData = await userDocumentRef.get();
+
+    print(userData);
+  }
+
   // TODO: profilePic not used yet
   // TODO: handle lName and bio
   static Future<void> addUserToDatabase(String fName, String lName,
@@ -10,16 +23,17 @@ class DatabaseHandler {
     final User? currentUser = FirebaseAuth.instance.currentUser;
     late final userUid = currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
-    final userDocumentRef = users.doc(userUid );
-    await userDocumentRef.set({
-      'name': fName,
+    final userDocumentRef = users.doc(userUid);
+    await userDocumentRef
+        .set({
+          'name': fName,
       'gender': gender,
       'age': age,
       'surname': lName,
       'about' : bio,
       'picture' : profilePic
     })
-    .then((value) => print("Student data Added"))
+        .then((value) => print("Student data Added"))
         .catchError((error) => print("Student couldn't be added."));
   }
 
@@ -40,7 +54,7 @@ class DatabaseHandler {
 
     // Get a reference to the email document to be removed
     final emailDocumentRef =
-        firestoreInstance.collection('emails').doc(emailDocumentId);
+    firestoreInstance.collection('emails').doc(emailDocumentId);
 
     // Retrieve the array field 'dogs' from the email document
     final emailDocumentSnapshot = await emailDocumentRef.get();
@@ -65,8 +79,7 @@ class DatabaseHandler {
   }
 
   // TODO: handle all the other fields
-  static Future<void> addDogToDatabase(
-      String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography, String? profilePic) async {
+  static Future<void> addDogToDatabase(String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography, String? profilePic) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -132,14 +145,13 @@ class DatabaseHandler {
     }
     return dogRef;
   }
+
   static Stream<String?> getDogId3() async* {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
     final users = FirebaseFirestore.instance.collection('users');
     final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
     if (dogs != null) {
       yield dogs.toString();
-
-
     } else {
       yield null;
     }
