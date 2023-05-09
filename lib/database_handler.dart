@@ -104,7 +104,7 @@ class DatabaseHandler {
     await batch.commit();
   }
 
-  static String? getDogId(){
+  static Future<String?> getDogId() async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
 
@@ -113,7 +113,8 @@ class DatabaseHandler {
 
     final userDocumentRef = usersCollectionRef.doc(userUid);
     final dogDocumentRef = userDocumentRef.collection('dogs');
-    String? dogID = dogDocumentRef.id;
+    String? dogID = (await dogDocumentRef.get()).docs[0].id;
+    //String? dogID = dogDocumentRef.id;
     print(dogID);
     return dogID;
   }
@@ -131,4 +132,17 @@ class DatabaseHandler {
     }
     return dogRef;
   }
+  static Stream<String?> getDogId3() async* {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final users = FirebaseFirestore.instance.collection('users');
+    final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
+    if (dogs != null) {
+      yield dogs.toString();
+
+
+    } else {
+      yield null;
+    }
+  }
+
 }

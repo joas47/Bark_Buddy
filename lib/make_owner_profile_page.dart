@@ -229,6 +229,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
         const SizedBox(width: 16.0),
         IconButton(
           onPressed: () async {
+
             // show dialog with options to choose image or take a new one
             final selectedImage = await ImageUtils.showImageSourceDialog(context);
 
