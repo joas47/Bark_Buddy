@@ -49,7 +49,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
             final name = userData.get('name');
             final surname = userData.get('surname');
             final about = userData.get('about') as String?;
-            final age = userData.get('age') as String;
+            final age = userData.get('age') as int;
             final gender = userData.get('gender');
             final bio = userData.get('about');
             final String? profilePic = userData.get('picture') as String?;
@@ -126,7 +126,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
     );
   }
 
-  Widget _formUI(String name, String surname, String? about, String age,
+  Widget _formUI(String name, String surname, String? about, int age,
       String gender, String bio) {
     return Column(children: [
       TextFormField(
@@ -166,7 +166,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
       ),
       const SizedBox(height: 16.0),
       TextFormField(
-        initialValue: age,
+        //initialValue: age,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         validator: (value) {
           if (value == null || value.isEmpty) {
