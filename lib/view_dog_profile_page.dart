@@ -151,17 +151,7 @@ class ViewDogProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> dog;
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-    users.doc(userUid).get().then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        dog = documentSnapshot.get('dogs');
-        print(dog);
-      } else {
-        print('Document does not exist on the database');
-      }
-    });
+    //String dogRef = getDogRef();
 
     return Scaffold(
       appBar: AppBar(
@@ -181,7 +171,7 @@ class ViewDogProfilePage extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Dogs')
-              .doc(dog)
+              .doc(getDogRef())
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -189,11 +179,13 @@ class ViewDogProfilePage extends StatelessWidget {
             }
 
             final dogData = snapshot.data!;
-            final name = dogData.get('Name') as String?;
-            final breed = dogData.get('Breed') as String?;
-            final age = dogData.get('Age') as int?;
-            final gender = dogData.get('Gender') as String?;
-            final String? profilePic = dogData.get('picture') as String?;
+            final data = snapshot.data?.data();
+            print(data.toString());
+            //final name = dogData.get('Name') as String?;
+            //final breed = dogData.get('Breed') as String?;
+            //final age = dogData.get('Age') as int?;
+            //final gender = dogData.get('Gender') as String?;
+            //final String? profilePic = dogData.get('picture') as String?;
 
             return Stack(alignment: Alignment.center, children: <Widget>[
               Row(
@@ -223,22 +215,22 @@ class ViewDogProfilePage extends StatelessWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  CircleAvatar(
+                  /*CircleAvatar(
                     radius: 100.0,
                     backgroundImage: profilePic != null
                         ? NetworkImage(profilePic)
                         : AssetImage(
                         'assets/images/placeholder-profile-image.png')
                     as ImageProvider<Object>,
-                  ),
-                  Text(
+                  ),*/
+                  /*Text(
                     name ?? '',
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  SizedBox(
+                  ),*/
+                  /*SizedBox(
                     width: 300.0,
                     child: TextField(
                       readOnly: true,
@@ -258,12 +250,32 @@ class ViewDogProfilePage extends StatelessWidget {
                         fontSize: 18.0,
                       ),
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ]);
           }),
     );
+  }
+
+  String getDogRef() {
+    Map<String, dynamic> dog;
+    String dogRef = 'placeholder';
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    users.doc(userUid).get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        //final data = documentSnapshot.data() as Map<String, dynamic>;
+        //print(data.toString());
+
+        //dog = documentSnapshot.get('dogs');
+        dogRef = documentSnapshot.get('dogs');
+        print(dogRef);
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
+    return dogRef;
   }
 }
 

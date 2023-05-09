@@ -96,7 +96,7 @@ class DatabaseHandler {
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
       //'dogs': FieldValue.arrayUnion([dogDocumentRef])
-      'dogs': dogDocumentRef
+      'dogs': dogDocumentRef.id
     });
 
     // Commit the batch write operation
