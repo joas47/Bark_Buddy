@@ -1,6 +1,7 @@
 import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:flutter/material.dart';
+import 'image_handler.dart';
 
 import 'package:cross_platform_test/file_selector_handler.dart';
 
@@ -25,7 +26,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   String _bio = '';
 
   // TODO: make this a file
-  String _profilePic = '';
+  String? _profilePic = '';
 
   final List<String> _genderOptions = ['Tik', 'Hane'];
   final List<String> _activityOptions = ['Låg', 'Medel', 'Hög'];
@@ -229,37 +230,29 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   }
 
   Widget _buildImageUploadButton() {
-    return Column(
+    String storageUrl = "gs://bark-buddy.appspot.com";
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _profilePic.isEmpty
-            ? Container()
-            : Container(
-          width: 200.0,
-          height: 200.0,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(_profilePic),
-              fit: BoxFit.cover,
-            ),
-          ),
+        const Text(
+          'Upload profile picture',
+          style: TextStyle(fontSize: 18.0),
         ),
-        const SizedBox(height: 16.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Ladda upp en bild',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            const SizedBox(width: 16.0),
-            IconButton(
-              onPressed: () async {
-                // TODO: handle image upload
-                final selectedImage = await FileSelectorHandler.selectImage();
-              },
-              icon: const Icon(Icons.upload),
-            ),
-          ],
+        const SizedBox(width: 16.0),
+        IconButton(
+          onPressed: () async {
+            // show dialog with options to choose image or take a new one
+            final selectedImage = await ImageUtils.showImageSourceDialog(context);
+
+            // upload image to Firebase Storage
+            if (selectedImage != null) {
+              final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+              setState(() {
+                _profilePic = imageUrl;
+              });
+            }
+          },
+          icon: const Icon(Icons.upload),
         ),
       ],
     );
