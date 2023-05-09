@@ -19,6 +19,12 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   int _age = -1;
   String _bio = '';
   String? _profilePic = '';
+
+  String? _updatedFName;
+  String? _updatedLName;
+  String? _updatedGender;
+  int? _updatedAge;
+  String? _updatedBio;
   String? _updatedProfilePic;
 
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
@@ -36,7 +42,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    //DatabaseHandler.getOwnerProfileData();
     final userUid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
@@ -122,6 +127,21 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                             if (_updatedProfilePic != null) {
                               _profilePic = _updatedProfilePic;
                             }
+                            if (_updatedFName != null) {
+                              _fName = _updatedFName!;
+                            }
+                            if (_updatedLName != null) {
+                              _lName = _updatedLName!;
+                            }
+                            if (_updatedAge != null) {
+                              _age = _updatedAge!;
+                            }
+                            if (_updatedBio != null) {
+                              _bio = _updatedBio!;
+                            }
+                            if (_updatedGender != null) {
+                              _gender = _updatedGender!;
+                            }
                             DatabaseHandler.updateUser(_fName, _lName, _gender,
                                 _age, _bio, _profilePic, dogRef);
                             Navigator.pop(context);
@@ -164,7 +184,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         ),
         keyboardType: TextInputType.name,
         onChanged: (value) {
-          _fName = value;
+          _updatedFName = value;
         },
       ),
       const SizedBox(height: 16.0),
@@ -182,7 +202,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         ),
         keyboardType: TextInputType.name,
         onChanged: (value) {
-          _lName = value;
+          _updatedLName = value;
         },
       ),
       const SizedBox(height: 16.0),
@@ -201,7 +221,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         ),
         keyboardType: TextInputType.number,
         onChanged: (value) {
-          _age = int.tryParse(value) ?? -1;
+          _updatedAge = int.tryParse(value) ?? -1;
         },
       ),
       const SizedBox(height: 16.0),
@@ -222,7 +242,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
           border: const OutlineInputBorder(),
         ),
         onChanged: (value) {
-          _bio = value;
+          _updatedBio = value;
         },
       ),
     ]);
