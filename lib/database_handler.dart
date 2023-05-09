@@ -99,7 +99,23 @@ class DatabaseHandler {
       'dogs': dogDocumentRef.id
     });
 
+
     // Commit the batch write operation
     await batch.commit();
   }
+
+  static String? getDogId(){
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    final dogDocumentRef = userDocumentRef.collection('dogs');
+    String? dogID = dogDocumentRef.id;
+    print(dogID);
+    return dogID;
+  }
+
 }

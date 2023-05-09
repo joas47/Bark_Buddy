@@ -44,6 +44,7 @@ class ViewOwnerProfile extends StatelessWidget {
             final gender = userData.get('gender');
             final String? profilePic = userData.get('picture') as String?;
 
+
             return Stack(alignment: Alignment.center, children: <Widget>[
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
