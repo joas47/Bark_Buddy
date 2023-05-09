@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
 class DatabaseHandler {
@@ -144,11 +145,12 @@ class DatabaseHandler {
       yield null;
     }
   }
-  static Future<String?>? getDogPic() {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-    final users = FirebaseFirestore.instance.collection('dogs');
-    final pic = users.doc(userUid).get().then((doc) => doc.get('picture') as String?);
-    if (pic != null) {
+  //funkar inte
+  static Future<String?>? getDogPic() async {
+    final dogUid = await getDogId3().first;
+    if (dogUid != null) {
+      final dogs = FirebaseFirestore.instance.collection('Dogs');
+      final pic = await dogs.doc(dogUid).get().then((doc) => doc.get('picture') as String?).catchError((error) => print("Error getting dog picture: $error"));;
       return pic;
     } else {
       return null;
@@ -157,8 +159,11 @@ class DatabaseHandler {
 
   static Future<String?>? getOwnerPic() {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
+    print(userUid);
     final dogs = FirebaseFirestore.instance.collection('users');
+    print(dogs);
     final pic = dogs.doc(userUid).get().then((doc) => doc.get('picture') as String?);
+    print(pic);
     if (pic != null) {
       return pic;
     } else {
