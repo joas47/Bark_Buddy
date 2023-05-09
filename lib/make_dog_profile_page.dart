@@ -1,9 +1,7 @@
 import 'package:cross_platform_test/home_page.dart';
-import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'image_handler.dart';
 
-import 'package:cross_platform_test/file_selector_handler.dart';
 
 import 'database_handler.dart';
 
