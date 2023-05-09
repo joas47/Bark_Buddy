@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'database_handler.dart';
 import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
@@ -63,10 +64,25 @@ class ViewOwnerProfile extends StatelessWidget {
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: AssetImage(
-                              'assets/images/placeholder-dog-image2.png'),
+                        child: FutureBuilder<String?>(
+                          future: DatabaseHandler.getDogPic(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasData && snapshot.data != null) {
+                              return CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: NetworkImage(snapshot.data!),
+                              );
+                            } else {
+                              return CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: AssetImage(
+                                  'assets/images/placeholder-profile-image.png',
+                                ),
+                              );
+                            }
+                          },
                         ),
                       ),
                     ),

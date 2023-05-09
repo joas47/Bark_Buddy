@@ -258,4 +258,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
       ],
     );
   }
+  String? getProfilePic() {
+    return _profilePic;
+  }
 }
