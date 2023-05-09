@@ -22,7 +22,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
 
   String? _updatedFName;
   String? _updatedLName;
-  String? _updatedGender;
   int? _updatedAge;
   String? _updatedBio;
   String? _updatedProfilePic;
@@ -128,9 +127,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                             }
                             if (_updatedBio != null) {
                               _bio = _updatedBio!;
-                            }
-                            if (_updatedGender != null) {
-                              _gender = _updatedGender!;
                             }
                             DatabaseHandler.updateUser(_fName, _lName, _gender,
                                 _age, _bio, _profilePic, dogRef);
