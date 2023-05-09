@@ -17,8 +17,6 @@ class DatabaseHandler {
     print(userData);
   }
 
-  // TODO: profilePic not used yet
-  // TODO: handle lName and bio
   static Future<void> addUserToDatabase(String fName, String lName,
       String gender, int age, String bio, String? profilePic) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -99,7 +97,6 @@ class DatabaseHandler {
     await batch.commit();
   }
 
-  // TODO: handle all the other fields
   static Future<void> addDogToDatabase(String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography, String? profilePic) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');

@@ -25,7 +25,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   bool _isCastrated = false;
   String _bio = '';
 
-  // TODO: make this a file
   String? _profilePic = '';
 
   final List<String> _genderOptions = ['She', 'He'];
@@ -176,13 +175,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     keyboardType: TextInputType.multiline,
                     minLines: 4,
                     maxLines: 5,
-                    decoration: InputDecoration(
-                      hintText: 'About your dog',
-                      border: OutlineInputBorder(),
-                    ),
-                    style: TextStyle(
-                      fontSize: 18.0,
-                    ),
+                    decoration: const InputDecoration(
+                  hintText: 'About your dog',
+                  border: OutlineInputBorder(),
+                ),
+                    style: const TextStyle(
+                  fontSize: 18.0,
+                ),
                     onChanged: (value) {
                       _bio = value;
                     },
@@ -192,33 +191,25 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: add more fields to the dog // this was done but i kept the comment anyway
-                    // TODO: uncomment this, only for testing
                     if (_name.isNotEmpty &&
                     _breed.isNotEmpty &&
                     !_age.isNaN &&
                     _gender.isNotEmpty &&
-                    _isCastrated != null &&
                     _activity.isNotEmpty &&
                     _size.isNotEmpty &&
-                    _bio.isNotEmpty
-
-                    ) {
-                  //TODO: handle all fields //this was done but i kept the comment anyway
-                  // TODO: uncomment this
-
-                  DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender, _isCastrated, _activity, _size, _bio, _profilePic);
-
+                    _bio.isNotEmpty) {
+                  DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender,
+                      _isCastrated, _activity, _size, _bio, _profilePic);
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const HomePage()),
                       (route) => false);
                 } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please fill out all the fields'),
-                        ),
-                      );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill out all the fields'),
+                    ),
+                  );
                     }
                   },
                   child: const Text('Register'),

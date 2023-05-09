@@ -80,11 +80,9 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
-                    // TODO: uncomment this
                     if (_validateInputs() &&
                         _gender.isNotEmpty &&
                         _profilePic != null) {
-                      // TODO: save owner to database  (uncomment the line below)
                       DatabaseHandler.addUserToDatabase(
                           _fName, _lName, _gender, _age, _bio, _profilePic);
                       Navigator.push(
@@ -197,26 +195,6 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
     }
   }
 
-/*  Widget _buildProfilePictureUploadButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'Upload profile picture',
-          style: TextStyle(fontSize: 18.0),
-        ),
-        const SizedBox(width: 16.0),
-        IconButton(
-          onPressed: () async {
-            // TODO: handle the selected image
-            _profilePic = await FileSelectorHandler.selectImage();
-          },
-          icon: const Icon(Icons.upload),
-        ),
-      ],
-    );
-  }
-}*/
   Widget _buildProfilePictureUploadButton() {
     String storageUrl = "gs://bark-buddy.appspot.com";
     return Row(

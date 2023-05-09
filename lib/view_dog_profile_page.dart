@@ -90,6 +90,7 @@ import 'edit_dog_profile_page.dart';
                         radius: 100.0,
                         backgroundImage:
 // TODO: get this information from the database
+
                             AssetImage(
                                 'assets/images/placeholder-dog-image2.png'),
                       )),

@@ -113,7 +113,6 @@ class ViewOwnerProfile extends StatelessWidget {
                       minLines: 1,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        // TODO: get this information from the database
                           hintText: '• ' + gender!,
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
@@ -140,7 +139,6 @@ class ViewOwnerProfile extends StatelessWidget {
                       minLines: 5,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        // TODO: get this information from the database
                         hintText: '• ' + about!,
                         border: OutlineInputBorder(),
                       ),

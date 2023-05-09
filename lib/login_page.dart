@@ -11,9 +11,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // TODO: remove these hardcoded values
-  String _email = 'john@doe.com';
-  String _password = 'password123';
+  String _email = '';
+  String _password = '';
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
