@@ -53,7 +53,7 @@ import 'edit_dog_profile_page.dart';
                     Align(
                       alignment: Alignment.topLeft,
                       child: ElevatedButton(
-                        child: const Text('Lägg till plats'),
+                        child: const Text('Add place'),
                         onPressed: () {},
                       ),
                     ),
@@ -222,11 +222,25 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                           ),
                         );
                       },
-                      child: CircleAvatar(
-                        radius: 50.0,
-                        backgroundImage: AssetImage(
-                          'assets/images/placeholder-profile-image.png',
-                        ),
+                      child: FutureBuilder<String?>(
+                        future: DatabaseHandler.getOwnerPic(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasData && snapshot.data != null) {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: NetworkImage(snapshot.data!),
+                            );
+                          } else {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: AssetImage(
+                                'assets/images/placeholder-profile-image.png',
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),

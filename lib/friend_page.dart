@@ -7,14 +7,14 @@ class FriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vänner'),
+        title: const Text('Friends'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
             Text(
-              'Dina vänner',
+              'Your Friends',
               style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,

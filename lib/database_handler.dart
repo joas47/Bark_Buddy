@@ -156,5 +156,26 @@ class DatabaseHandler {
       yield null;
     }
   }
+  static Future<String?>? getDogPic() {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final users = FirebaseFirestore.instance.collection('dogs');
+    final pic = users.doc(userUid).get().then((doc) => doc.get('picture') as String?);
+    if (pic != null) {
+      return pic;
+    } else {
+      return null;
+    }
+  }
+
+  static Future<String?>? getOwnerPic() {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final dogs = FirebaseFirestore.instance.collection('users');
+    final pic = dogs.doc(userUid).get().then((doc) => doc.get('picture') as String?);
+    if (pic != null) {
+      return pic;
+    } else {
+      return null;
+    }
+  }
 
 }
