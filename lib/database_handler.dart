@@ -95,7 +95,8 @@ class DatabaseHandler {
     // Add the dog reference to the owner's array of dogs in the 'emails' collection
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
-      'dogs': FieldValue.arrayUnion([dogDocumentRef])
+      //'dogs': FieldValue.arrayUnion([dogDocumentRef])
+      'dogs': dogDocumentRef
     });
 
     // Commit the batch write operation

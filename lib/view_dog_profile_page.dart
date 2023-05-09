@@ -151,7 +151,17 @@ class ViewDogProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> dog;
     final userUid = FirebaseAuth.instance.currentUser?.uid;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    users.doc(userUid).get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        dog = documentSnapshot.get('dogs');
+        print(dog);
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -170,8 +180,8 @@ class ViewDogProfilePage extends StatelessWidget {
       ),
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
-              .collection('dogs')
-              .doc(userUid)
+              .collection('Dogs')
+              .doc(dog)
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -218,8 +228,8 @@ class ViewDogProfilePage extends StatelessWidget {
                     backgroundImage: profilePic != null
                         ? NetworkImage(profilePic)
                         : AssetImage(
-                                'assets/images/placeholder-profile-image.png')
-                            as ImageProvider<Object>,
+                        'assets/images/placeholder-profile-image.png')
+                    as ImageProvider<Object>,
                   ),
                   Text(
                     name ?? '',
@@ -236,7 +246,7 @@ class ViewDogProfilePage extends StatelessWidget {
                       maxLines: 3,
                       decoration: InputDecoration(
                           hintText:
-                              '• ${breed ?? ''}\n• ${gender ?? ''}\n• ${age.toString()} years',
+                          '• ${breed ?? ''}\n• ${gender ?? ''}\n• ${age.toString()} years',
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.edit),
