@@ -43,17 +43,17 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.pets),
-            label: 'Hitta matchning',
+            label: 'Find match',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             //activeIcon: Icon(Icons.star),
-            label: 'Vänner',
+            label: 'Friends',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             //activeIcon: Icon(Icons.star),
-            label: 'Profil',
+            label: 'Profile',
           ),
         ],
       ),
