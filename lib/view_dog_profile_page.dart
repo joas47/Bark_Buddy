@@ -170,7 +170,7 @@ class ViewDogProfilePage extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Dogs')
-              .doc("GIlnMexXt9OKm7TuU7Np")
+              .doc("Vd0N0VgeXqlmsYCOaV9A")
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -185,11 +185,11 @@ class ViewDogProfilePage extends StatelessWidget {
             final activityLevel = dogData.get('Activity Level');
             final age = dogData.get('Age') as int?;
             final bio = dogData.get('Biography');
-            final breed = dogData.get('Breed') as String?;
-            final gender = dogData.get('Gender') as String?;
+            final breed = dogData.get('Breed');
+            final gender = dogData.get('Gender');
             final isCastrated = dogData.get('Is castrated') as bool?;
             final name = dogData.get('Name');
-            final size = dogData.get('Size') as String?;
+            final size = dogData.get('Size');
             final String? profilePic = dogData.get('picture') as String?;
 
             return Stack(alignment: Alignment.center, children: <Widget>[
@@ -233,7 +233,7 @@ class ViewDogProfilePage extends StatelessWidget {
                             as ImageProvider<Object>,
                   ),
                   Text(
-                    name ?? '',
+                    name + ', ' + age.toString(),
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
@@ -246,12 +246,12 @@ class ViewDogProfilePage extends StatelessWidget {
                       minLines: 1,
                       maxLines: 6,
                       decoration: InputDecoration(
-                          hintText: '• ${breed ?? ''}\n'
-                              '• ${gender ?? ''}\n'
-                              '• ${age.toString()} years\n'
-                              '• ${size ?? ''}\n'
-                              '• ${activityLevel ?? ''}\n'
-                              '• ${isCastrated ?? ''}',
+                          hintText: '• $breed\n'
+                                  '• $gender\n'
+                                  '• $size\n'
+                                  '• $activityLevel activity level\n'
+                                  '• ' +
+                              castradedString(isCastrated!),
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.edit),
@@ -286,6 +286,14 @@ class ViewDogProfilePage extends StatelessWidget {
             ]);
           }),
     );
+  }
+
+  String castradedString(bool isCastrated) {
+    if (isCastrated == true) {
+      return 'Castrated';
+    } else {
+      return 'Not castrated';
+    }
   }
 
   void getDogID(void Function(String) onDogID) {

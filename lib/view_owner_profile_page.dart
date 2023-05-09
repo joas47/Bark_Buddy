@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
@@ -81,7 +82,7 @@ class ViewOwnerProfile extends StatelessWidget {
                         'assets/images/placeholder-profile-image.png') as ImageProvider<Object>,
                   ),
                   Text(
-                    name + ' ' + surname,
+                    name + ' ' + surname + ', ' + age.toString(),
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
@@ -96,13 +97,16 @@ class ViewOwnerProfile extends StatelessWidget {
                       maxLines: 3,
                       decoration: InputDecoration(
                         // TODO: get this information from the database
-                          hintText:
-                          '• ' + gender! + '\n• ' + age.toString(),
+                          hintText: '• ' + gender!,
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.edit),
                             onPressed: () {
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const EditOwnerProfilePage()));
                             },
                           )),
                       style: const TextStyle(
