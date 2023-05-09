@@ -206,7 +206,11 @@ class ViewDogProfilePage extends StatelessWidget {
                       alignment: Alignment.topRight,
                       child: InkWell(
                         onTap: () {
-                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ViewOwnerProfile()));
                         },
                         child: CircleAvatar(
                           radius: 50.0,
@@ -239,10 +243,14 @@ class ViewDogProfilePage extends StatelessWidget {
                     child: TextField(
                       readOnly: true,
                       minLines: 1,
-                      maxLines: 3,
+                      maxLines: 6,
                       decoration: InputDecoration(
-                          hintText:
-                              '• ${breed ?? ''}\n• ${gender ?? ''}\n• ${age.toString()} years',
+                          hintText: '• ${breed ?? ''}\n'
+                              '• ${gender ?? ''}\n'
+                              '• ${age.toString()} years\n'
+                              '• ${size ?? ''}\n'
+                              '• ${activityLevel ?? ''}\n'
+                              '• ${isCastrated ?? ''}',
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.edit),
@@ -251,6 +259,23 @@ class ViewDogProfilePage extends StatelessWidget {
                             },
                           )),
                       style: const TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  SizedBox(
+                    //height: 500.0,
+                    width: 300.0,
+                    child: TextField(
+                      readOnly: true,
+                      minLines: 5,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        hintText: '• ' + bio!,
+                        border: OutlineInputBorder(),
+                      ),
+                      style: TextStyle(
                         fontSize: 18.0,
                       ),
                     ),
