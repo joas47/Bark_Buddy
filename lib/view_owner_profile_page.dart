@@ -12,7 +12,7 @@ class ViewOwnerProfile extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ownerprofile'),
+        title: const Text('Owner profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -25,6 +25,7 @@ class ViewOwnerProfile extends StatelessWidget {
           ),
         ],
       ),
+      // TODO: This is a lot of reading from the database. Is there a better way?
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('users')
