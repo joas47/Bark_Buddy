@@ -27,6 +27,13 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   bool _autoValidate = false;
 
   @override
+  void initState() {
+    super.initState();
+    //_gender = newGender()!;
+    //value = _gender;
+  }
+
+  @override
   Widget build(BuildContext context) {
     //DatabaseHandler.getOwnerProfileData();
     final userUid = FirebaseAuth.instance.currentUser?.uid;
@@ -56,9 +63,15 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
               final age = userData.get('age') as int;
               _age = age;
               final gender = userData.get('gender');
-              _gender = gender;
+              //_gender = gender;
+
+              String newGender() {
+                return gender;
+              }
+
               final String? profilePic = userData.get('picture') as String?;
               _profilePic = profilePic;
+              final String dogRef = userData.get('dogs') as String;
 
               return Stack(alignment: Alignment.center, children: <Widget>[
                 Column(
@@ -106,8 +119,8 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                               _gender.isNotEmpty &&
                               _profilePic != null) {
                             // TODO: save owner to database  (uncomment the line below)
-                            DatabaseHandler.addUserToDatabase(_fName, _lName,
-                                _gender, _age, _bio, _profilePic);
+                            DatabaseHandler.updateUser(_fName, _lName, _gender,
+                                _age, _bio, _profilePic, dogRef);
                             Navigator.pop(context);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(

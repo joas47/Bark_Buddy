@@ -27,12 +27,32 @@ class DatabaseHandler {
     await userDocumentRef
         .set({
           'name': fName,
-      'gender': gender,
-      'age': age,
-      'surname': lName,
-      'about' : bio,
-      'picture' : profilePic
-    })
+          'gender': gender,
+          'age': age,
+          'surname': lName,
+          'about': bio,
+          'picture': profilePic
+        })
+        .then((value) => print("Student data Added"))
+        .catchError((error) => print("Student couldn't be added."));
+  }
+
+  static Future<void> updateUser(String fName, String lName, String gender,
+      int age, String bio, String? profilePic, String dogRef) async {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    final userDocumentRef = users.doc(userUid);
+    await userDocumentRef
+        .set({
+          'name': fName,
+          'gender': gender,
+          'age': age,
+          'surname': lName,
+          'about': bio,
+          'picture': profilePic,
+          'dogs': dogRef
+        })
         .then((value) => print("Student data Added"))
         .catchError((error) => print("Student couldn't be added."));
   }
