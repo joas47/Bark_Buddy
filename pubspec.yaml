@@ -43,6 +43,7 @@ dependencies:
   permission_handler: ^10.2.0
   image_picker: ^0.8.7+1
   firebase_auth: ^4.4.2
+  easy_search_bar: ^2.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
