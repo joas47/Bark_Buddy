@@ -19,14 +19,28 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   String _gender = '';
   int _age = -1;
   String _bio = '';
+  String _size = '';
   String? _profilePic = '';
+  bool _isCastrated = false;
+  bool _initCastraded = false;
+  String _activity = '';
 
-  final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
+  String? _updatedName;
+  String? _updatedBreed;
+  int? _updatedAge;
+  String? _updatedBio;
+  String? _updatedProfilePic;
+
+  final List<String> _genderOptions = ['She', 'He'];
+  final List<String> _activityOptions = ['Low', 'Medium', 'High'];
+  final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
   String? _dogId;
+
+  final _bioController = TextEditingController();
 
   @override
   void initState() {
@@ -63,13 +77,27 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
               final dogData = snapshot.data!;
               final activityLevel = dogData.get('Activity Level');
+              if (_activity.isEmpty) {
+                _activity = activityLevel;
+              }
               final age = dogData.get('Age');
               final bio = dogData.get('Biography') as String?;
               final breed = dogData.get('Breed');
-              final gender = dogData.get('Gender') as String?;
-              final isCastrated = dogData.get('Is castrated') as bool?;
+              final gender = dogData.get('Gender');
+              if (_gender.isEmpty) {
+                _gender = gender;
+              }
+
+              final isCastrated = dogData.get('Is castrated');
+              if (_initCastraded == false) {
+                _isCastrated = isCastrated;
+                _initCastraded = true;
+              }
               final name = dogData.get('Name');
-              final size = dogData.get('Size') as String?;
+              final size = dogData.get('Size');
+              if (_size.isEmpty) {
+                _size = size;
+              }
               final String? profilePic = dogData.get('picture') as String?;
 
               _profilePic = profilePic;
@@ -87,30 +115,129 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                       child: _formUI(name, breed, age, bio),
                     ),
                     const SizedBox(height: 16.0),
-                    // TODO: move this Text so it's next to the radio buttons instead of above.
-                    const Text('Kön'),
+                    const Text("Gender"),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _genderOptions
                           .map((option) => Row(
-                        children: [
-                          Radio(
-                            value: option,
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value.toString();
-                              });
-                            },
-                          ),
-                          Text(option),
-                          const SizedBox(width: 16.0),
-                        ],
-                      ))
+                                children: [
+                                  Radio(
+                                    value: option,
+                                    groupValue: _gender,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _gender = value.toString();
+                                      });
+                                    },
+                                  ),
+                                  Text(option),
+                                  const SizedBox(width: 10.0),
+                                ],
+                              ))
+                          .toList(),
+                    ),
+                    CheckboxListTile(
+                      // TODO: shrink size
+                      title: const Text('Castrated'),
+                      value: _isCastrated,
+                      onChanged: (value) {
+                        setState(() {
+                          _isCastrated = value!;
+                        });
+                      },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Activity Level"),
+                        // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+                        IconButton(
+                          icon: const Icon(Icons.help_outline),
+                          onPressed: () {
+                            // Call the callback function to show the info sheet.
+                            _showActivityLevelInfoSheet();
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _activityOptions
+                          .map((option) => Row(
+                                children: [
+                                  Radio(
+                                    value: option,
+                                    groupValue: _activity,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _activity = value.toString();
+                                      });
+                                    },
+                                  ),
+                                  Text(option),
+                                  const SizedBox(width: 16.0),
+                                ],
+                              ))
                           .toList(),
                     ),
                     const SizedBox(height: 16.0),
-                    _buildProfilePictureUploadButton(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Size"),
+                        // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+                        IconButton(
+                          icon: const Icon(Icons.help_outline),
+                          onPressed: () {
+                            // Call the callback function to show the info sheet.
+                            _showSizeInfoSheet();
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _sizeOptions
+                          .map((option) => Row(
+                                children: [
+                                  Radio(
+                                    value: option,
+                                    groupValue: _size,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _size = value.toString();
+                                      });
+                                    },
+                                  ),
+                                  Text(option),
+                                  const SizedBox(width: 16.0),
+                                ],
+                              ))
+                          .toList(),
+                    ),
+                    SizedBox(
+                      //height: 500.0,
+                      //width: 300.0,
+                      child: TextField(
+                        controller: _bioController,
+                        keyboardType: TextInputType.multiline,
+                        minLines: 4,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          hintText: 'About your dog',
+                          border: OutlineInputBorder(),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                        ),
+                        onChanged: (value) {
+                          _updatedBio = value;
+                        },
+                      ),
+                    ),
+                    _buildImageUploadButton(),
+                    const SizedBox(height: 16.0),
+                    // TODO: move this Text so it's next to the radio buttons instead of above.
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
@@ -119,9 +246,32 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
                               _profilePic != null) {
-                            // TODO: save owner to database  (uncomment the line below)
-                            /*DatabaseHandler.updateDog(_name, _breed, _gender,
-                                _age, _bio, _profilePic);*/
+                            if (_updatedBio != null) {
+                              _bio = _updatedBio!;
+                            }
+                            if (_updatedName != null) {
+                              _name = _updatedName!;
+                            }
+                            if (_updatedBreed != null) {
+                              _breed = _updatedBreed!;
+                            }
+                            if (_updatedAge != null) {
+                              _age = _updatedAge!;
+                            }
+                            if (_updatedProfilePic != null) {
+                              _profilePic = _updatedProfilePic!;
+                            }
+                            DatabaseHandler.updateDog(
+                                _name,
+                                _breed,
+                                _gender,
+                                _age,
+                                _bio,
+                                _profilePic,
+                                _size,
+                                _isCastrated,
+                                _activity,
+                                _dogId!);
                             Navigator.pop(context);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -143,8 +293,70 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
     );
   }
 
-  Widget _formUI(String name, String breed, int age,
-       String? bio) {
+  void _showSizeInfoSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 300,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Small dog', style: Theme.of(context).textTheme.bodyLarge),
+              Text('up to 10kg'),
+              Text('Medium dog', style: Theme.of(context).textTheme.bodyLarge),
+              Text('10 - 25kg'),
+              Text('Large dog', style: Theme.of(context).textTheme.bodyLarge),
+              Text('More than 25kg'),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showActivityLevelInfoSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Low activity level:',
+                  style: Theme.of(context).textTheme.bodyLarge),
+              Text('For dogs who prefer shorter walks'),
+              Text('Moderate activity level:',
+                  style: Theme.of(context).textTheme.bodyLarge),
+              Text('For dogs who need a moderate amount of exercise and '
+                  'will be happy with a 1-2 hour walk. '),
+              Text('High activity level: ',
+                  style: Theme.of(context).textTheme.bodyLarge),
+              Text('For dogs who require a large amount of exercise. '
+                  'For example longer walks or activities such as running or swimming.'),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _formUI(String name, String breed, int age, String? bio) {
     return Column(children: [
       TextFormField(
         initialValue: name,
@@ -160,7 +372,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         ),
         keyboardType: TextInputType.name,
         onChanged: (value) {
-          _name = value;
+          _updatedName = value;
         },
       ),
       const SizedBox(height: 16.0),
@@ -178,7 +390,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         ),
         keyboardType: TextInputType.name,
         onChanged: (value) {
-          _breed = value;
+          _updatedBreed = value;
         },
       ),
       const SizedBox(height: 16.0),
@@ -197,28 +409,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         ),
         keyboardType: TextInputType.number,
         onChanged: (value) {
-          _age = int.tryParse(value) ?? -1;
-        },
-      ),
-      const SizedBox(height: 16.0),
-      TextFormField(
-        initialValue: bio,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter your bio.';
-          }
-          return null;
-        },
-        keyboardType: TextInputType.multiline,
-        minLines: 4,
-        maxLines: 8,
-        decoration: InputDecoration(
-          labelText: 'About dog',
-          hintText: bio,
-          border: OutlineInputBorder(),
-        ),
-        onChanged: (value) {
-          _bio = value;
+          _updatedAge = int.tryParse(value) ?? -1;
         },
       ),
     ]);
@@ -236,7 +427,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
     }
   }
 
-  Widget _buildProfilePictureUploadButton() {
+  Widget _buildImageUploadButton() {
     String storageUrl = "gs://bark-buddy.appspot.com";
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -250,14 +441,14 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+                await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage, storageUrl);
               setState(() {
-                _profilePic = imageUrl;
+                _updatedProfilePic = imageUrl;
               });
             }
           },
@@ -265,5 +456,9 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         ),
       ],
     );
+  }
+
+  String? getProfilePic() {
+    return _profilePic;
   }
 }

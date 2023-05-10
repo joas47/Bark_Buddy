@@ -278,7 +278,8 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       minLines: 1,
                       maxLines: 6,
                       decoration: InputDecoration(
-                        hintText: '• ${breed ?? ''}\n'
+                        // TODO: Display this information in a better way, e.g. "activitylevel + "activity level"
+                          hintText: '• ${breed ?? ''}\n'
                             '• ${gender ?? ''}\n'
                             '• ${age.toString()} years\n'
                             '• ${size ?? ''}\n'

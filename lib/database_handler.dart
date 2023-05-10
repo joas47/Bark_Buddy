@@ -123,8 +123,44 @@ class DatabaseHandler {
       'dogs': dogDocumentRef.id
     });
 
-
     // Commit the batch write operation
+    await batch.commit();
+  }
+
+  static Future<void> updateDog(
+      String name,
+      String breed,
+      String gender,
+      int age,
+      String bio,
+      String? profilePic,
+      String size,
+      bool isCastrated,
+      String activity,
+      String? dogRef) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final dogsCollectionRef = firestoreInstance.collection('Dogs');
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+
+    final batch = firestoreInstance.batch();
+
+    final dogDocumentRef = dogsCollectionRef.doc(dogRef);
+    batch.set(dogDocumentRef, {
+      'Name': name,
+      'Breed': breed,
+      'Age': age,
+      'Gender': gender,
+      'Is castrated': isCastrated,
+      'Activity Level': activity,
+      'Size': size,
+      'Biography': bio,
+      'owner': usersCollectionRef.doc(userUid),
+      'picture': profilePic,
+    });
+
     await batch.commit();
   }
 
