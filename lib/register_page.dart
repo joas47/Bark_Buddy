@@ -10,12 +10,15 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  String _name = '';
+
   String _email = '';
   String _password = '';
+  String _adult = '';
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
+
+  final List<String> _ageOptions = ['Yes', 'No'];
 
   @override
   Widget build(BuildContext context) {
@@ -46,13 +49,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_validateInputs()) {
-                      final createAccSuccessful = await _createUser();
-                      if (createAccSuccessful) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const MakeOwnerProfilePage()));
+                      if (_adult == 'Yes') {
+                        final createAccSuccessful = await _createUser();
+                        if (createAccSuccessful) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                  const MakeOwnerProfilePage()));
+                        }
                       }
                     }
                   },
@@ -118,22 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _formUI() {
     return Column(children: [
       const SizedBox(height: 32.0),
-      TextFormField(
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter your name.';
-          }
-          return null;
-        },
-        decoration: const InputDecoration(
-          labelText: 'Name',
-          border: OutlineInputBorder(),
-        ),
-        keyboardType: TextInputType.name,
-        onChanged: (value) {
-          _name = value;
-        },
-      ),
+
       const SizedBox(height: 16.0),
       TextFormField(
         validator: (value) {
@@ -168,6 +158,38 @@ class _RegisterPageState extends State<RegisterPage> {
           _password = value;
         },
       ),
+      const SizedBox(height: 16.0),
+
+      const SizedBox(height: 16.0),
+      const Text('Are you over 18?'),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: _ageOptions
+            .map((option) => Row(
+          children: [
+            Radio(
+              value: option,
+              groupValue: _adult,
+              onChanged: (value) {
+                setState(() {
+                  _adult = value.toString();
+                });
+              },
+            ),
+            Text(option),
+            const SizedBox(width: 10.0),
+          ],
+        ))
+            .toList(),
+      ),
+      if (_adult == 'No') // check if the user is under 18
+        const Text(
+          'Sorry, you must be 18 years of age or older to register.',
+          style: TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       const SizedBox(height: 16.0),
     ]);
   }
