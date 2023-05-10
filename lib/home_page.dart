@@ -14,14 +14,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  bool _showStartPage = true;
+
   final List<Widget> _pages = [
     const MatchChatPage(),
     const FindMatchPage(),
     const FriendPage(),
     const ViewDogProfilePage(),
   ];
-
-  bool _showStartPage = true;
 
   @override
   void initState() {
