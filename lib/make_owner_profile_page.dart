@@ -211,41 +211,25 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
             final selectedImage =
             await ImageUtils.showImageSourceDialog(context);
 
+            // upload image to Firebase Storage
             if (selectedImage != null) {
-              setState(() {
-                _profilePic = null; // clear the current profile picture
-              });
-
-              // upload image to Firebase Storage
-              final imageUrl =
-              await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
-
+              final imageUrl = await ImageUtils.uploadImageToFirebase(
+                  selectedImage, storageUrl);
               setState(() {
                 _profilePic = imageUrl;
               });
             }
           },
-          icon: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (_profilePic == null || _profilePic!.isEmpty)
-                const Icon(Icons.add_a_photo)
-              else
-                CircleAvatar(
-                  backgroundImage: _profilePic!.startsWith('http')
-                      ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                      : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-                  radius: 30,
-                  child: const Icon(Icons.check, color: Colors.white),
-                ),
-              if (_profilePic == null || _profilePic!.isEmpty)
-                const SizedBox()
-              else
-                Opacity(
-                  opacity: _profilePic == null ? 1.0 : 0.5,
-                  child: CircularProgressIndicator(),
-                ),
-            ],
+          icon: _profilePic == null || _profilePic!.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+            backgroundImage: _profilePic!.startsWith('http')
+                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+            radius: 30,
+            child: _profilePic!.isEmpty || _profilePic == null
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
           ),
         )
       ],

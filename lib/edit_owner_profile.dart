@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'database_handler.dart';
 import 'image_handler.dart';
-
+import 'dart:io';
 class EditOwnerProfilePage extends StatefulWidget {
   const EditOwnerProfilePage({super.key});
 
@@ -105,7 +105,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                           .toList(),
                     ),
                     const SizedBox(height: 16.0),
-                    _buildProfilePictureUploadButton(),
+                    _buildImageUploadButton(),
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
@@ -246,7 +246,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
     }
   }
 
-  Widget _buildProfilePictureUploadButton() {
+  Widget _buildImageUploadButton() {
     String storageUrl = "gs://bark-buddy.appspot.com";
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -260,7 +260,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-                await ImageUtils.showImageSourceDialog(context);
+            await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
@@ -271,8 +271,18 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
               });
             }
           },
-          icon: const Icon(Icons.upload),
-        ),
+          icon: _profilePic == null || _profilePic!.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+            backgroundImage: _profilePic!.startsWith('http')
+                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+            radius: 30,
+            child: _profilePic!.isEmpty || _profilePic == null
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+          ),
+        )
       ],
     );
   }
