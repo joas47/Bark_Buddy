@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'database_handler.dart';
 import 'image_handler.dart';
+import 'dart:io';
 
 class EditDogProfilePage extends StatefulWidget {
   const EditDogProfilePage({super.key});
@@ -441,7 +442,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-                await ImageUtils.showImageSourceDialog(context);
+            await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
@@ -452,8 +453,18 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               });
             }
           },
-          icon: const Icon(Icons.upload),
-        ),
+          icon: _profilePic == null || _profilePic!.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+            backgroundImage: _profilePic!.startsWith('http')
+                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+            radius: 30,
+            child: _profilePic!.isEmpty || _profilePic == null
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+          ),
+        )
       ],
     );
   }
