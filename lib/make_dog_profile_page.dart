@@ -1,7 +1,7 @@
 import 'package:cross_platform_test/home_page.dart';
 import 'package:flutter/material.dart';
 import 'image_handler.dart';
-
+import 'dart:io';
 
 import 'database_handler.dart';
 
@@ -315,20 +315,31 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
         const SizedBox(width: 16.0),
         IconButton(
           onPressed: () async {
-
             // show dialog with options to choose image or take a new one
-            final selectedImage = await ImageUtils.showImageSourceDialog(context);
+            final selectedImage =
+            await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
-              final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+              final imageUrl = await ImageUtils.uploadImageToFirebase(
+                  selectedImage, storageUrl);
               setState(() {
                 _profilePic = imageUrl;
               });
             }
           },
-          icon: const Icon(Icons.upload),
-        ),
+          icon: _profilePic == null || _profilePic!.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+            backgroundImage: _profilePic!.startsWith('http')
+                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+            radius: 30,
+            child: _profilePic!.isEmpty || _profilePic == null
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+          ),
+        )
       ],
     );
   }
