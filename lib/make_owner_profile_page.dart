@@ -82,6 +82,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                   onPressed: () {
                     // TODO: feedback to the user if not selected gender and profile picture
                     // TODO: age must be at least 18, or else feedback to the user
+                    // TODO: if you press Submit before the image is uploaded, you will get an error
                     if (_validateInputs() &&
                         _gender.isNotEmpty &&
                         _profilePic != null &&

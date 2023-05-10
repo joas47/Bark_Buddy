@@ -46,7 +46,8 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
+                // TODO: make this a form for the checks
+            TextField(
                   controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Name',
@@ -124,10 +125,8 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                         _showActivityLevelInfoSheet();
                       },
                     ),
-
                   ],
                 ),
-
             Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: _activityOptions
