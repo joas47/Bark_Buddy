@@ -40,8 +40,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
   String? _dogId;
 
-  final _bioController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -81,8 +79,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 _activity = activityLevel;
               }
               final age = dogData.get('Age');
+              _age = age;
               final bio = dogData.get('Biography') as String?;
+              _bio = bio!;
               final breed = dogData.get('Breed');
+              _breed = breed;
               final gender = dogData.get('Gender');
               if (_gender.isEmpty) {
                 _gender = gender;
@@ -94,12 +95,12 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 _initCastraded = true;
               }
               final name = dogData.get('Name');
+              _name = name;
               final size = dogData.get('Size');
               if (_size.isEmpty) {
                 _size = size;
               }
               final String? profilePic = dogData.get('picture') as String?;
-
               _profilePic = profilePic;
 
               return Stack(alignment: Alignment.center, children: <Widget>[
@@ -219,7 +220,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                       //height: 500.0,
                       //width: 300.0,
                       child: TextField(
-                        controller: _bioController,
+                        controller: TextEditingController(text: _bio),
                         keyboardType: TextInputType.multiline,
                         minLines: 4,
                         maxLines: 5,
@@ -456,9 +457,5 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         ),
       ],
     );
-  }
-
-  String? getProfilePic() {
-    return _profilePic;
   }
 }
