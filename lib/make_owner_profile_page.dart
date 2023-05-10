@@ -1,5 +1,3 @@
-
-
 import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +21,6 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   int _age = -1;
   String _bio = '';
   String? _profilePic = '';
-
 
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
@@ -56,22 +53,21 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
-                    .map((option) =>
-                    Row(
-                      children: [
-                        Radio(
-                          value: option,
-                          groupValue: _gender,
-                          onChanged: (value) {
-                            setState(() {
-                              _gender = value.toString();
-                            });
-                          },
-                        ),
-                        Text(option),
-                        const SizedBox(width: 16.0),
-                      ],
-                    ))
+                    .map((option) => Row(
+                          children: [
+                            Radio(
+                              value: option,
+                              groupValue: _gender,
+                              onChanged: (value) {
+                                setState(() {
+                                  _gender = value.toString();
+                                });
+                              },
+                            ),
+                            Text(option),
+                            const SizedBox(width: 16.0),
+                          ],
+                        ))
                     .toList(),
               ),
               const SizedBox(height: 16.0),
@@ -211,23 +207,48 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
         const SizedBox(width: 16.0),
         IconButton(
           onPressed: () async {
-
             // show dialog with options to choose image or take a new one
-            final selectedImage = await ImageUtils.showImageSourceDialog(context);
+            final selectedImage =
+            await ImageUtils.showImageSourceDialog(context);
 
-            // upload image to Firebase Storage
             if (selectedImage != null) {
-              final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+              setState(() {
+                _profilePic = null; // clear the current profile picture
+              });
+
+              // upload image to Firebase Storage
+              final imageUrl =
+              await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+
               setState(() {
                 _profilePic = imageUrl;
               });
             }
           },
-          icon: const Icon(Icons.upload),
-        ),
+          icon: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (_profilePic == null || _profilePic!.isEmpty)
+                const Icon(Icons.add_a_photo)
+              else
+                CircleAvatar(
+                  backgroundImage: _profilePic!.startsWith('http')
+                      ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                      : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+                  radius: 30,
+                  child: const Icon(Icons.check, color: Colors.white),
+                ),
+              if (_profilePic == null || _profilePic!.isEmpty)
+                const SizedBox()
+              else
+                Opacity(
+                  opacity: _profilePic == null ? 1.0 : 0.5,
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          ),
+        )
       ],
     );
   }
-
-
 }
