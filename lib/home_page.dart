@@ -1,6 +1,7 @@
 import 'package:cross_platform_test/find_match_page.dart';
 import 'package:cross_platform_test/friend_page.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
+import 'package:cross_platform_test/start_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 3;
+  int _selectedIndex = 0;
+  bool _showStartPage = true;
+
   final List<Widget> _pages = [
     const MatchChatPage(),
     const FindMatchPage(),
@@ -20,16 +23,43 @@ class _HomePageState extends State<HomePage> {
     const ViewDogProfilePage(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = 0;
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      if (_selectedIndex != 4) {
+        _showStartPage = false;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: Stack(
+        children: [
+          Offstage(
+            offstage: _showStartPage,
+            child: _pages[_selectedIndex],
+          ),
+          Offstage(
+            offstage: !_showStartPage,
+            child: StartPage(
+              onNavigate: () {
+                setState(() {
+                  _showStartPage = false;
+                });
+              },
+              onStart: () {},
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
@@ -38,22 +68,19 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            //activeIcon: Icon(Icons.chat_outlined),
             label: 'Match-chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.pets),
-            label: 'Hitta matchning',
+            label: 'Find match',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
-            //activeIcon: Icon(Icons.star),
-            label: 'Vänner',
+            label: 'Friends',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            //activeIcon: Icon(Icons.star),
-            label: 'Profil',
+            label: 'Profile',
           ),
         ],
       ),

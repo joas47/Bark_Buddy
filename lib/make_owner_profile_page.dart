@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'file_selector_handler.dart';
 import 'database_handler.dart';
+import 'image_handler.dart';
+import 'dart:io';
 
 class MakeOwnerProfilePage extends StatefulWidget {
   const MakeOwnerProfilePage({super.key});
@@ -18,9 +20,9 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   String _gender = '';
   int _age = -1;
   String _bio = '';
-  XFile? _profilePic;
+  String? _profilePic = '';
 
-  final List<String> _genderOptions = ['Man', 'Kvinna', 'Annan'];
+  final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
@@ -29,7 +31,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Skapa profil'),
+        title: const Text('Create Owner Profile'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -47,7 +49,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               ),
               const SizedBox(height: 16.0),
               // TODO: move this Text so it's next to the radio buttons instead of above.
-              const Text('Kön'),
+              const Text('Gender'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
@@ -74,10 +76,15 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
-                    // TODO: uncomment this
-                    if (_validateInputs() && _gender.isNotEmpty /*&& _profilePic != null true*/) {
-                      // TODO: save owner to database (uncomment the line below)
-                      DatabaseHandler.addUserToDatabase(_fName, _lName, _gender, _age, _bio);
+                    // TODO: feedback to the user if not selected gender and profile picture
+                    // TODO: age must be at least 18, or else feedback to the user
+                    // TODO: if you press Submit before the image is uploaded, you will get an error
+                    if (_validateInputs() &&
+                        _gender.isNotEmpty &&
+                        _profilePic != null &&
+                        _profilePic!.isNotEmpty) {
+                      DatabaseHandler.addUserToDatabase(
+                          _fName, _lName, _gender, _age, _bio, _profilePic);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -106,12 +113,12 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your Förnamn.';
+            return 'Please enter your First Name.';
           }
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'Förnamn',
+          labelText: 'FirstName',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -123,12 +130,12 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your Efternamn.';
+            return 'Please enter your LastName.';
           }
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'Efternamn',
+          labelText: 'LastName',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -146,7 +153,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'Ålder',
+          labelText: 'Age',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
@@ -158,7 +165,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your bio.';
+            return 'Please enter your Bio.';
           }
           return null;
         },
@@ -166,7 +173,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
         minLines: 4,
         maxLines: 8,
         decoration: const InputDecoration(
-          labelText: 'Om dig',
+          labelText: 'About you',
           border: OutlineInputBorder(),
         ),
         onChanged: (value) {
@@ -189,6 +196,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   }
 
   Widget _buildProfilePictureUploadButton() {
+    String storageUrl = "gs://bark-buddy.appspot.com";
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -199,11 +207,31 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
         const SizedBox(width: 16.0),
         IconButton(
           onPressed: () async {
-            // TODO: handle the selected image
-            _profilePic = await FileSelectorHandler.selectImage();
+            // show dialog with options to choose image or take a new one
+            final selectedImage =
+            await ImageUtils.showImageSourceDialog(context);
+
+            // upload image to Firebase Storage
+            if (selectedImage != null) {
+              final imageUrl = await ImageUtils.uploadImageToFirebase(
+                  selectedImage, storageUrl);
+              setState(() {
+                _profilePic = imageUrl;
+              });
+            }
           },
-          icon: const Icon(Icons.upload),
-        ),
+          icon: _profilePic == null || _profilePic!.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+            backgroundImage: _profilePic!.startsWith('http')
+                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+            radius: 30,
+            child: _profilePic!.isEmpty || _profilePic == null
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+          ),
+        )
       ],
     );
   }
