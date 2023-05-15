@@ -31,6 +31,23 @@ class DatabaseHandler {
       'picture': profilePic
     });
   }
+ //DatabaseHandler.addParksToDatabase(_lat, _long, _currentAddress, _bio, _locationPic);
+
+  static Future<void> addParksToDatabase(double lat, double long, String currentAddress, String bio, String? locationPic) async {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+    CollectionReference userparks = FirebaseFirestore.instance.collection('user-parks');
+
+    await userparks.add({
+      'uid': userUid,
+      'latitude': lat,
+      'logitude': long,
+      'address': currentAddress,
+      'about': bio,
+      'picture': locationPic
+    });
+  }
+
 
   static Future<void> updateUser(String fName, String lName, String gender,
       int age, String bio, String? profilePic, String dogRef) async {

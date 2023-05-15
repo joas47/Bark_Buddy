@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cross_platform_test/add_location_page.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'database_handler.dart';
 
 import 'edit_dog_profile_page.dart';
@@ -209,7 +211,13 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     alignment: Alignment.topLeft,
                     child: ElevatedButton(
                       child: const Text('Add location'),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute( builder: (context) => const AddLocationPage(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   Align(

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cross_platform_test/add_location_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'database_handler.dart';
@@ -55,8 +56,13 @@ class ViewOwnerProfile extends StatelessWidget {
                     Align(
                       alignment: Alignment.topLeft,
                       child: ElevatedButton(
-                        child: const Text('Add place'),
-                        onPressed: () {},
+                        child: const Text('Add location'),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AddLocationPage()));
+                        },
                       ),
                     ),
                     Align(
