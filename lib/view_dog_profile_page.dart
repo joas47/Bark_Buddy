@@ -197,6 +197,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
           final breed = dogData.get('Breed') as String?;
           final gender = dogData.get('Gender') as String?;
           final isCastrated = dogData.get('Is castrated') as bool?;
+          final isCastratedText = isCastrated != null ? (isCastrated ? 'Is Castrated' : 'Not Castrated') : '';
           final name = dogData.get('Name');
           final size = dogData.get('Size') as String?;
           final String? profilePic = dogData.get('picture') as String?;
@@ -209,8 +210,9 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                 children: <Widget>[
                   Align(
                     alignment: Alignment.topLeft,
-                    child: ElevatedButton(
-                      child: const Text('Add location'),
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.add_location),
+                      label: const Text('Add location'),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -231,11 +233,14 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             ),
                           );
                         },
-                        // TODO: if an owner edits their profile picture, it should be updated here as well
+                      // Below TODO: is done but i kept the code and the comment in case we need it later,
+                      //  the updated code is the "child: StreamBuilder<String?>(stream: DatabaseHandler.getOwnerPicStream(),"
+
+                      // TODO: if an owner edits their profile picture, it should be updated here as well
                         // now it only updates changing to another page in the bottom navigation bar
                         // or when the app is restarted
                         // might be fixed with a StreamBuilder instead of a FutureBuilder
-                        child: FutureBuilder<String?>(
+                        /*child: FutureBuilder<String?>(
                           future: DatabaseHandler.getOwnerPic(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
@@ -256,7 +261,28 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             );
                           }
                         },
+                      ),*/
+                      child: StreamBuilder<String?>(
+                        stream: DatabaseHandler.getOwnerPicStream(), // Replace with the appropriate stream method
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasData && snapshot.data != null) {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: NetworkImage(snapshot.data!),
+                            );
+                          } else {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: AssetImage(
+                                'assets/images/placeholder-profile-image.png',
+                              ),
+                            );
+                          }
+                        },
                       ),
+
                     ),
                   ),
                 ],
@@ -287,12 +313,13 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       maxLines: 6,
                       decoration: InputDecoration(
                         // TODO: Display this information in a better way, e.g. "activitylevel + "activity level"
-                          hintText: '• ${breed ?? ''}\n'
-                            '• ${gender ?? ''}\n'
-                            '• ${age.toString()} years\n'
-                            '• ${size ?? ''}\n'
-                            '• ${activityLevel ?? ''}\n'
-                            '• ${isCastrated ?? ''}',
+                        //above TODO is done,
+                          hintText: '• Breed: ${breed ?? ''}\n'
+                            '• Gender: ${gender ?? ''}\n'
+                            '• Age: ${age.toString()} years old\n'
+                            '• Size: ${size ?? ''}\n'
+                            '• Activity level: ${activityLevel ?? ''}\n'
+                            '• $isCastratedText',
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.edit),

@@ -55,8 +55,9 @@ class ViewOwnerProfile extends StatelessWidget {
                   children: <Widget>[
                     Align(
                       alignment: Alignment.topLeft,
-                      child: ElevatedButton(
-                        child: const Text('Add location'),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.add_location),
+                        label: const Text('Add location'),
                         onPressed: () {
                           Navigator.push(
                               context,

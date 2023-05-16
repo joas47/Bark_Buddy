@@ -227,7 +227,7 @@ class DatabaseHandler {
     }
   }
 
-  static Future<String?>? getOwnerPic() {
+  /*static Future<String?>? getOwnerPic() {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
     final dogs = FirebaseFirestore.instance.collection('users');
     final pic = dogs.doc(userUid).get().then((doc) => doc.get('picture') as String?);
@@ -236,6 +236,22 @@ class DatabaseHandler {
     } else {
       return null;
     }
+  }*/
+  // below is the updated code above, through this solution i fixed TODO comment of "View_dog_profile.dart" regarding the picture changes.
+  // i decided to keep the code above just in case we need it in the future.
+  static Stream<String?> getOwnerPicStream() {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final users = FirebaseFirestore.instance.collection('users');
+    final ownerDocumentRef = users.doc(userUid);
+
+    return ownerDocumentRef.snapshots().map((snapshot) {
+      if (snapshot.exists) {
+        return snapshot.data()?['picture'] as String?;
+      } else {
+        return null;
+      }
+    });
   }
+
 
 }
