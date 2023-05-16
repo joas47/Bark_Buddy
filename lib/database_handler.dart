@@ -13,7 +13,26 @@ class DatabaseHandler {
     final userDocumentRef = usersCollectionRef.doc(userUid);
 
     final userData = await userDocumentRef.get();
+  }
 
+  static Future<void> addFriend(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Add the dog reference to the owner's array of dogs in the 'emails' collection
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'friends': FieldValue.arrayUnion([friendUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
   }
 
   static Future<void> addUserToDatabase(String fName, String lName,
@@ -253,5 +272,16 @@ class DatabaseHandler {
     });
   }
 
-
+  // work in progress
+  static Future<dynamic> getFriends() async {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final users = FirebaseFirestore.instance.collection('users');
+    //final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
+    final friends = await users
+        .doc(userUid)
+        .get()
+        .then((doc) => doc.get('friends') as List<dynamic>?);
+    print(friends);
+    return friends;
+  }
 }
