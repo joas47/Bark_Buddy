@@ -4,6 +4,7 @@ import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/start_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:flutter/material.dart';
+import 'location_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage> {
         _showStartPage = false;
       }
     });
+    LocationHandler.grabAndSaveLocation();
   }
 
   @override
