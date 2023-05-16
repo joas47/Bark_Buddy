@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 
@@ -27,13 +28,17 @@ class _FriendPageState extends State<FriendPage> {
     'Zambia'
   ];
 
-  Future<List<String>> _fetchSuggestions(String searchValue) async {
+  // TODO: get friends from database
+  //Future<dynamic> _friends = DatabaseHandler.getFriends();
+
+  // not used, remove?
+  /*Future<List<String>> _fetchSuggestions(String searchValue) async {
     await Future.delayed(const Duration(milliseconds: 750));
 
     return _suggestions.where((element) {
       return element.toLowerCase().contains(searchValue.toLowerCase());
     }).toList();
-  }
+  }*/
 
   @override
   State<StatefulWidget> createState() {
@@ -46,6 +51,7 @@ class _FriendPageState extends State<FriendPage> {
         title: 'Friends',
         theme: ThemeData(primarySwatch: Colors.orange),
         home: Scaffold(
+            // TODO: implement search functionality (low priority?)
             appBar: EasySearchBar(
                 title: const Text('Friends'),
                 onSearch: (value) => setState(() => searchValue = value),
@@ -53,59 +59,13 @@ class _FriendPageState extends State<FriendPage> {
             body: SingleChildScrollView(
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: _buildTextWidgets(_suggestions),
-              /*children: [
-                    Row(
-                        children: [
-                          Text('Value: $searchValue'),
-                        ]
-                    ),
-                    const SizedBox(height: 5.0),
-                    Row(
-                        children: const [
-                          CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
-                            radius: 30.0,
-                          ),
-                          Text('Algeria'),
-                        ]
-                    ),
-                    const SizedBox(height: 5.0),
-                    Row(
-                        children: const [
-                          CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
-                            radius: 30.0,
-                          ),
-                          Text('Mozambique'),
-                        ]
-                    ),
-                    const SizedBox(height: 5.0),
-                    Row(
-                        children: const [
-                          CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
-                            radius: 30.0,
-                          ),
-                          Text('Madagascar'),
-                        ]
-                    ),
-                    const SizedBox(height: 5.0),
-                    Row(
-                        children: const [
-                          CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
-                            radius: 30.0,
-                          ),
-                          Text('Zambia'),
-                        ]
-                    ),
-                  ],*/
+              // TODO: get friends from database before/while building widgets
+              children: _buildTextWidgets(/*_friends*/),
             ))));
   }
 
-  List<Widget> _buildTextWidgets(List<String> friends) {
-    List<String> items = friends;
+  List<Widget> _buildTextWidgets(/*List<String> friends*/) {
+    List<String> items = _suggestions;
     List<Widget> textWidgets = [];
     items.forEach((item) {
       textWidgets.add(
