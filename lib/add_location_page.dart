@@ -16,12 +16,13 @@ class AddLocationPage extends StatefulWidget {
 class _AddLocationPageState extends State<AddLocationPage> {
   late GoogleMapController mapController;
   bool _showThanksDialog = false;
-
+  //bool _showError = false;
+  bool _showBioError = false;
+  bool _showImageError = false;
 
   double _long = 0;
   double _lat = 0;
   String _bio = '';
-  //String _address = '';
   String _currentAddress = '';
   String? _locationPic = '';
 
@@ -135,39 +136,72 @@ class _AddLocationPageState extends State<AddLocationPage> {
                               text: 'Address: $_currentAddress'),
                           enabled: false,
                         ),
+
                         TextField(
                           minLines: 1,
                           maxLines: 6,
-                          decoration: InputDecoration(hintText: 'describe the dog friendly location'),
+                          decoration: InputDecoration(
+                            hintText: 'Describe the dog-friendly location',
+                          ),
                           onChanged: (value) {
                             setState(() {
                               _bio = value;
+                              _showBioError = false; // Reset the error state
                             });
                           },
                         ),
+                        // show bio error message
+                        if (_showBioError) ...[
+                          SizedBox(height: 10),
+                          Text(
+                            'Please provide a description',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
 
+                        // ElevatedButton for uploading image
                         ElevatedButton.icon(
                           icon: Icon(Icons.camera),
                           label: Text('Upload image'),
-                          onPressed: () async{
-                            // show dialog with options to choose image or take a new one
-                            final selectedImage =
-                            await ImageUtils.showImageSourceDialog(context);
+                          onPressed: () async {
+                            final selectedImage = await ImageUtils.showImageSourceDialog(context);
 
-                            // upload image to Firebase Storage
                             if (selectedImage != null) {
                               final imageUrl = await ImageUtils.uploadImageToFirebase(
-                                  selectedImage, storageUrl);
+                                selectedImage,
+                                storageUrl,
+                              );
                               setState(() {
                                 _locationPic = imageUrl;
+                                _showImageError = false; // Reset the error state
+                              });
+                            } else {
+                              setState(() {
+                                _showImageError = true;
                               });
                             }
                           },
                         ),
+                        // Show image error message
+                        if (_showImageError) ...[
+                          SizedBox(height: 10),
+                          Text(
+                            'Please upload an image',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+
+                        // ElevatedButton for adding location
                         ElevatedButton(
                           onPressed: () {
-                            DatabaseHandler.addParksToDatabase(
-                _lat, _long, _currentAddress, _bio, _locationPic);
+                            if (_bio.isEmpty || _locationPic == null || _locationPic!.isEmpty) {
+                              setState(() {
+                                _showBioError = _bio.isEmpty;
+                                _showImageError = _locationPic == null || _locationPic!.isEmpty;
+                              });
+                              return;
+                            }
+                            DatabaseHandler.addParksToDatabase(_lat, _long, _currentAddress, _bio, _locationPic);
                             setState(() {
                               _showThanksDialog = true;
                             });
