@@ -44,9 +44,6 @@ class DatabaseHandler {
     return false;
   }
 
-  // TODO: add from both sides, not just from the current user
-  // probably need to add a middle step where the friend request is sent
-  // and then accepted
   static Future<void> addFriend(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -61,6 +58,11 @@ class DatabaseHandler {
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
       'friends': FieldValue.arrayUnion([friendUid])
+    });
+
+    final friendDocumentRef = usersCollectionRef.doc(friendUid);
+    batch.update(friendDocumentRef, {
+      'friends': FieldValue.arrayUnion([userUid])
     });
 
     // Commit the batch write operation
