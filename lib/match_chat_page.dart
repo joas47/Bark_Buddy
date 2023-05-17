@@ -30,6 +30,19 @@ class MatchChatPage extends StatelessWidget {
               child: const Text('Add random friend'),
             ),
             SizedBox(height: 32.0),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: add a real user, not a hardcoded one
+                //DatabaseHandler.sendFriendRequest("");
+              },
+              child: const Text('Send friend request'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendRequestsPage()));
+              },
+              child: const Text('See friend requests'),
+            ),
             // TODO: Implement chat UI.
           ],
         ),
