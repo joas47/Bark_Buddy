@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
-import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
