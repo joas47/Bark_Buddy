@@ -342,6 +342,13 @@ class _FriendPageState extends State<FriendPage> {
               ElevatedButton(
                 onPressed: () {
                   // TODO: block
+                  Navigator.pop(context);
+                  // "not implemented" snack bar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Not implemented yet'),
+                    ),
+                  );
                 },
                 child: const Text('Block'),
               ),
