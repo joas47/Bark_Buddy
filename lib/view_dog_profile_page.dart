@@ -174,21 +174,21 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('View Dog Profile'),
-        ),
-        body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Dogs')
-              .doc(_dogId ?? 'dummy')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-            if (!snapshot.data!.exists) {
-              return const Text('Document does not exist');
-            }
+      appBar: AppBar(
+        title: const Text('View Dog Profile'),
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Dogs')
+            .doc(_dogId ?? 'dummy')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+          if (!snapshot.data!.exists) {
+            return const Text('Document does not exist');
+          }
 
           final dogData = snapshot.data!;
           final activityLevel = dogData.get('Activity Level');
@@ -216,8 +216,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute( builder: (context) => const AddLocationPage(),
-                          ),
+                          MaterialPageRoute(builder: (context) => const AddLocationPage()),
                         );
                       },
                     ),
@@ -226,47 +225,16 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     alignment: Alignment.topRight,
                     child: InkWell(
                       onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ViewOwnerProfile(),
-                            ),
-                          );
-                        },
-                      // Below TODO: is done but i kept the code and the comment in case we need it later,
-                      //  the updated code is the "child: StreamBuilder<String?>(stream: DatabaseHandler.getOwnerPicStream(),"
-
-                      // TODO: if an owner edits their profile picture, it should be updated here as well
-                        // now it only updates changing to another page in the bottom navigation bar
-                        // or when the app is restarted
-                        // might be fixed with a StreamBuilder instead of a FutureBuilder
-                        /*child: FutureBuilder<String?>(
-                          future: DatabaseHandler.getOwnerPic(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            } else if (snapshot.hasData &&
-                                snapshot.data != null) {
-                              return CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: NetworkImage(snapshot.data!),
-                              );
-                            } else {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: AssetImage(
-                                'assets/images/placeholder-profile-image.png',
-                              ),
-                            );
-                          }
-                        },
-                      ),*/
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ViewOwnerProfile()),
+                        );
+                      },
                       child: StreamBuilder<String?>(
-                        stream: DatabaseHandler.getOwnerPicStream(), // Replace with the appropriate stream method
+                        stream: DatabaseHandler.getOwnerPicStream(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
-                            return CircularProgressIndicator();
+                            return const CircularProgressIndicator();
                           } else if (snapshot.hasData && snapshot.data != null) {
                             return CircleAvatar(
                               radius: 50.0,
@@ -275,14 +243,11 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                           } else {
                             return CircleAvatar(
                               radius: 50.0,
-                              backgroundImage: AssetImage(
-                                'assets/images/placeholder-profile-image.png',
-                              ),
+                              backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
                             );
                           }
                         },
                       ),
-
                     ),
                   ),
                 ],
@@ -290,13 +255,31 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  CircleAvatar(
-                    radius: 100.0,
-                    backgroundImage: profilePic != null
-                        ? NetworkImage(profilePic)
-                        : AssetImage(
-                      'assets/images/placeholder-profile-image.png',
-                    ) as ImageProvider<Object>,
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Image.network(
+                                profilePic ?? '',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 100.0,
+                      backgroundImage: profilePic != null
+                          ? NetworkImage(profilePic)
+                          : AssetImage('assets/images/placeholder-profile-image.png') as ImageProvider<Object>,
+                    ),
                   ),
                   Text(
                     name ?? '',
@@ -312,9 +295,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       minLines: 1,
                       maxLines: 6,
                       decoration: InputDecoration(
-                        // TODO: Display this information in a better way, e.g. "activitylevel + "activity level"
-                        //above TODO is done,
-                          hintText: '• Breed: ${breed ?? ''}\n'
+                        hintText: '• Breed: ${breed ?? ''}\n'
                             '• Gender: ${gender ?? ''}\n'
                             '• Age: ${age.toString()} years old\n'
                             '• Size: ${size ?? ''}\n'
@@ -335,17 +316,16 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                   ),
                   const SizedBox(height: 10.0),
                   SizedBox(
-                    //height: 500.0,
                     width: 300.0,
                     child: TextField(
                       readOnly: true,
                       minLines: 5,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: '• ' + bio!,
-                        border: OutlineInputBorder(),
+                        hintText: '• $bio',
+                        border: const OutlineInputBorder(),
                       ),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18.0,
                       ),
                     ),
@@ -355,9 +335,10 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
             ],
           );
         },
-      )
+      ),
     );
   }
+
 
   void getDogID(void Function(String) onDogID) {
     final userUid = FirebaseAuth.instance.currentUser?.uid;

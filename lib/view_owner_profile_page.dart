@@ -7,7 +7,7 @@ import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
-  const ViewOwnerProfile({super.key});
+  const ViewOwnerProfile({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,117 +21,141 @@ class ViewOwnerProfile extends StatelessWidget {
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()));
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
             },
           ),
         ],
       ),
-      // TODO: This is a lot of reading from the database. Is there a better way?
-      // FutureBuilder is cheaper than StreamBuilder, but it breaks the edit profile page.
       body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(userUid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(userUid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
 
-            final userData = snapshot.data!;
-            final name = userData.get('name');
-            final surname = userData.get('surname');
-            final about = userData.get('about') as String?;
-            final age = userData.get('age') as int?;
-            final gender = userData.get('gender');
-            final String? profilePic = userData.get('picture') as String?;
+          final userData = snapshot.data!;
+          final name = userData.get('name');
+          final surname = userData.get('surname');
+          final about = userData.get('about') as String?;
+          final age = userData.get('age') as int?;
+          final gender = userData.get('gender');
+          final String? profilePic = userData.get('picture') as String?;
 
-
-            return Stack(alignment: Alignment.center, children: <Widget>[
+          return Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.add_location),
-                        label: const Text('Add location'),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const AddLocationPage()));
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.add_location),
+                      label: const Text('Add location'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddLocationPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: FutureBuilder<String?>(
+                        future: DatabaseHandler.getDogPic(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasData && snapshot.data != null) {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: NetworkImage(snapshot.data!),
+                            );
+                          } else {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: AssetImage(
+                                'assets/images/placeholder-profile-image.png',
+                              ),
+                            );
+                          }
                         },
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: FutureBuilder<String?>(
-                          future: DatabaseHandler.getDogPic(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            } else if (snapshot.hasData && snapshot.data != null) {
-                              return CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: NetworkImage(snapshot.data!),
-                              );
-                            } else {
-                              return CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: AssetImage(
-                                  'assets/images/placeholder-profile-image.png',
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ]),
+                  ),
+                ],
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  CircleAvatar(
-                    radius: 100.0,
-                    backgroundImage: profilePic != null
-                        ? NetworkImage(profilePic)
-                        : AssetImage(
-                        'assets/images/placeholder-profile-image.png') as ImageProvider<Object>,
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Image.network(
+                                profilePic ?? '',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 100.0,
+                      backgroundImage: profilePic != null
+                          ? NetworkImage(profilePic)
+                          : AssetImage(
+                        'assets/images/placeholder-profile-image.png',
+                      ) as ImageProvider<Object>,
+                    ),
                   ),
                   Text(
-                    name + ' ' + surname + ', ' + age.toString(),
+                    '$name $surname, ${age.toString()}',
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(
-                    //height: 500.0,
                     width: 300.0,
                     child: TextField(
                       readOnly: true,
                       minLines: 1,
                       maxLines: 3,
                       decoration: InputDecoration(
-                          hintText: '• ' + gender!,
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const EditOwnerProfilePage()));
-                            },
-                          )),
+                        hintText: '• $gender',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const EditOwnerProfilePage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       style: const TextStyle(
                         fontSize: 18.0,
                       ),
@@ -139,14 +163,13 @@ class ViewOwnerProfile extends StatelessWidget {
                   ),
                   const SizedBox(height: 10.0),
                   SizedBox(
-                    //height: 500.0,
                     width: 300.0,
                     child: TextField(
                       readOnly: true,
                       minLines: 5,
                       maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: '• ' + about!,
+                        hintText: '• $about',
                         border: OutlineInputBorder(),
                       ),
                       style: TextStyle(
@@ -156,8 +179,10 @@ class ViewOwnerProfile extends StatelessWidget {
                   ),
                 ],
               ),
-            ]);
-          }),
+            ],
+          );
+        },
+      ),
     );
   }
 }
