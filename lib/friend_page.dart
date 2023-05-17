@@ -62,7 +62,8 @@ class _FriendPageState extends State<FriendPage> {
                       builder: (BuildContext context,
                           AsyncSnapshot<String?> dogNameSnapshot) {
                         if (dogNameSnapshot.hasError) {
-                          return const Text('Something went wrong');
+                          return const Text(
+                              'Something went wrong: user has no dog');
                         }
                         if (dogNameSnapshot.connectionState ==
                             ConnectionState.waiting) {

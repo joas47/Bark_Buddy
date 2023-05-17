@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -101,7 +103,8 @@ class DatabaseHandler {
       'picture': profilePic
     });
   }
- //DatabaseHandler.addParksToDatabase(_lat, _long, _currentAddress, _bio, _locationPic);
+
+  //DatabaseHandler.addParksToDatabase(_lat, _long, _currentAddress, _bio, _locationPic);
 
   static Future<void> addParksToDatabase(double lat, double long, String currentAddress, String bio, String? locationPic) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -214,8 +217,7 @@ class DatabaseHandler {
     await batch.commit();
   }
 
-  static Future<void> updateDog(
-      String name,
+  static Future<void> updateDog(String name,
       String breed,
       String gender,
       int age,
@@ -285,6 +287,7 @@ class DatabaseHandler {
       yield null;
     }
   }
+
   //funkar inte
   static Future<String?>? getDogPic() async {
     final dogUid = await getDogId3().first;
@@ -338,5 +341,35 @@ class DatabaseHandler {
     } else {
       yield null;
     }
+  }
+
+  static void addRandomFriend() {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    final batch = firestoreInstance.batch();
+
+    // Get a random user from the collection excluding the current user
+    usersCollectionRef.get().then((snapshot) {
+      final List<String> allUserIds =
+          snapshot.docs.map((doc) => doc.id).toList();
+      allUserIds.remove(userUid);
+
+      if (allUserIds.isNotEmpty) {
+        final randomIndex = Random().nextInt(allUserIds.length);
+        final randomFriendUid = allUserIds[randomIndex];
+
+        final userDocumentRef = usersCollectionRef.doc(userUid);
+        batch.update(userDocumentRef, {
+          'friends': FieldValue.arrayUnion([randomFriendUid])
+        });
+        batch.commit();
+      }
+    }).catchError((error) {
+      print('Error getting random friend: $error');
+    });
   }
 }
