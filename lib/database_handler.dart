@@ -271,4 +271,20 @@ class DatabaseHandler {
       }
     });
   }
+
+  static Stream<String?> getDogNameFromOwnerID(String ownerID) async* {
+    final users = FirebaseFirestore.instance.collection('users');
+    final dogs = await users
+        .doc(ownerID)
+        .get()
+        .then((doc) => doc.get('dogs') as String?);
+    if (dogs != null) {
+      final dog = FirebaseFirestore.instance.collection('Dogs');
+      final name =
+          await dog.doc(dogs).get().then((doc) => doc.get('Name') as String?);
+      yield name;
+    } else {
+      yield null;
+    }
+  }
 }
