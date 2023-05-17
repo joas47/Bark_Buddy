@@ -58,6 +58,25 @@ class DatabaseHandler {
     await batch.commit();
   }
 
+  static Future<void> sendFriendRequest(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    final userDocumentRef = usersCollectionRef.doc(friendUid);
+    batch.update(userDocumentRef, {
+      'friendrequests': FieldValue.arrayUnion([userUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
   static Future<void> addUserToDatabase(String fName, String lName,
       String gender, int age, String bio, String? profilePic) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;

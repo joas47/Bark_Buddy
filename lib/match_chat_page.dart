@@ -1,4 +1,5 @@
 import 'package:cross_platform_test/database_handler.dart';
+import 'package:cross_platform_test/friend_requests_page.dart';
 import 'package:flutter/material.dart';
 
 class MatchChatPage extends StatelessWidget {
@@ -25,10 +26,24 @@ class MatchChatPage extends StatelessWidget {
               onPressed: () {
                 // TODO: add a real user, not a hardcoded one
                 //DatabaseHandler.addFriend("L64gYe4KwvON61lKukdNnGFJb3p2");
+                //DatabaseHandler.addFriend("QBpn7FPCY1buZrtbKEDnmpOsY2m2");
               },
               child: const Text('Add friend'),
             ),
             SizedBox(height: 32.0),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: add a real user, not a hardcoded one
+                //DatabaseHandler.sendFriendRequest("");
+              },
+              child: const Text('Send friend request'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendRequestsPage()));
+              },
+              child: const Text('See friend requests'),
+            ),
             // TODO: Implement chat UI.
           ],
         ),
