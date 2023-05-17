@@ -15,6 +15,33 @@ class DatabaseHandler {
     final userData = await userDocumentRef.get();
   }
 
+  static Future<bool> doesCurrentUserHaveProfile() {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    return userDocumentRef.get().then((value) => value.exists);
+  }
+
+  static Future<bool> doesCurrentUserHaveDogProfile() async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+
+    final userSnapshot = await userDocumentRef.get();
+
+    if (userSnapshot.exists) {
+      final data = userSnapshot.data();
+      if (data != null && data.containsKey('dogs')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // TODO: add from both sides, not just from the current user
   // probably need to add a middle step where the friend request is sent
   // and then accepted
