@@ -1,6 +1,8 @@
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:flutter/material.dart';
 
+import 'friend_requests_page.dart';
+
 class MatchChatPage extends StatelessWidget {
   const MatchChatPage({super.key});
 
