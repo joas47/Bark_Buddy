@@ -38,6 +38,7 @@ class DatabaseHandler {
     await batch.commit();
   }
 
+  // TODO: remove from both sides, not just from the current user
   static Future<void> removeFriend(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');

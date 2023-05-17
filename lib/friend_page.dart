@@ -159,8 +159,11 @@ class _FriendPageState extends State<FriendPage> {
                         String? dogName = dogNameSnapshot.data;
 
                         return ListTile(
+                          onTap: () {
+                            // TODO: go to friend profile page
+                          },
                           title: Text(friendData['name'].toString()),
-                          subtitle: Text(dogName ?? ''),
+                          subtitle: Text("(${dogName!})"),
                           leading: CircleAvatar(
                             backgroundImage:
                                 NetworkImage(friendData['picture']),
@@ -176,7 +179,7 @@ class _FriendPageState extends State<FriendPage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          const MatchChatPage(),
+                                      const MatchChatPage(),
                                     ),
                                   );
                                 },
