@@ -32,7 +32,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   String? _updatedBio;
   String? _updatedProfilePic;
 
-  final List<String> _genderOptions = ['She', 'He'];
+  final List<String> _genderOptions = ['She', 'He']; // TODO: should be male, female instead?
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
   final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
@@ -139,15 +139,20 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                           .toList(),
                     ),
                     CheckboxListTile(
-                      // TODO: shrink size
-                      title: const Text('Castrated'),
+                      contentPadding: const EdgeInsets.fromLTRB(130, 0, 140, 0),
+                      title: const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Castrated',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ),
                       value: _isCastrated,
                       onChanged: (value) {
                         setState(() {
                           _isCastrated = value!;
                         });
-                      },
-                    ),
+                      },),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -240,11 +245,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                     _buildImageUploadButton(),
                     const SizedBox(height: 16.0),
                     // TODO: move this Text so it's next to the radio buttons instead of above.
+                    // TODO: is this Todo already done?
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
                         onPressed: () {
-                          // TODO: uncomment this
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
                               _profilePic != null) {

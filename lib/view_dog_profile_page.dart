@@ -175,7 +175,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('View Dog Profile'),
+          title: const Text('Dog Profile'),
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance

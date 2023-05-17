@@ -83,7 +83,8 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     ),
                     const SizedBox(height: 16.0),
                     // TODO: move this Text so it's next to the radio buttons instead of above.
-                    const Text('Kön'),
+                    //TODO: is this done?
+                    const Text('Gender'),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _genderOptions
