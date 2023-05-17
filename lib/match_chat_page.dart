@@ -24,7 +24,7 @@ class MatchChatPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // TODO: add a real user, not a hardcoded one
-                DatabaseHandler.addFriend("L64gYe4KwvON61lKukdNnGFJb3p2");
+                //DatabaseHandler.addFriend("L64gYe4KwvON61lKukdNnGFJb3p2");
               },
               child: const Text('Add friend'),
             ),

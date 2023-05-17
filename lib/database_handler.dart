@@ -271,17 +271,4 @@ class DatabaseHandler {
       }
     });
   }
-
-  // work in progress
-  static Future<dynamic> getFriends() async {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-    final users = FirebaseFirestore.instance.collection('users');
-    //final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
-    final friends = await users
-        .doc(userUid)
-        .get()
-        .then((doc) => doc.get('friends') as List<dynamic>?);
-    print(friends);
-    return friends;
-  }
 }

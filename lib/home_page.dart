@@ -57,7 +57,13 @@ class _HomePageState extends State<HomePage> {
                   _showStartPage = false;
                 });
               },
-              onStart: () {},
+              onStart: () {
+                // what happens when the user presses the start button
+                setState(() {
+                  _selectedIndex = 1;
+                  _showStartPage = false;
+                });
+              },
             ),
           ),
         ],
