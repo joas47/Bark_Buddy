@@ -225,6 +225,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     alignment: Alignment.topRight,
                     child: InkWell(
                       onTap: () {
+                        // TODO: make the bottom navigation bar persist when navigating to the owner profile page
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const ViewOwnerProfile()),
