@@ -184,8 +184,7 @@ class _FriendPageState extends State<FriendPage> {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  // popup
-                                  _showActivityLevelInfoSheet();
+                                  _showActivityLevelInfoSheet(friendId);
                                 },
                                 icon: const Icon(Icons.menu),
                               ),
@@ -298,24 +297,58 @@ class _FriendPageState extends State<FriendPage> {
     );
   }*/
 
-  void _showActivityLevelInfoSheet() {
+  void _showActivityLevelInfoSheet(String friendId) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Container(
+        return SizedBox(
           height: 400,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Confirmation'),
+                        content:
+                            const Text('Are you sure you want to unfriend?'),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // Should be two pop calls, one for the dialog and one for the bottom sheet
+                              // the bottom sheet is not relevant after the friend is removed
+                              Navigator.pop(context);
+                              DatabaseHandler.removeFriend(friendId);
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Confirm'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 child: const Text('Unfriend'),
               ),
               ElevatedButton(
                 onPressed: () {
+                  // TODO: block
                   Navigator.pop(context);
+                  // "not implemented" snack bar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Not implemented yet'),
+                    ),
+                  );
                 },
                 child: const Text('Block'),
               ),
