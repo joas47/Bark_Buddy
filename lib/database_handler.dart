@@ -278,6 +278,7 @@ class DatabaseHandler {
         .doc(ownerID)
         .get()
         .then((doc) => doc.get('dogs') as String?);
+
     if (dogs != null) {
       final dog = FirebaseFirestore.instance.collection('Dogs');
       final name =

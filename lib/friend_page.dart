@@ -14,7 +14,6 @@ class FriendPage extends StatefulWidget {
 }
 
 class _FriendPageState extends State<FriendPage> {
-
   // funkar, men inte information om hundarna
   /*Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +102,8 @@ class _FriendPageState extends State<FriendPage> {
     );
   }*/
 
-  /*@override
+  // funkar, med hundens namn
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -127,39 +127,43 @@ class _FriendPageState extends State<FriendPage> {
             return ListView.builder(
               itemCount: friends.length,
               itemBuilder: (BuildContext context, int index) {
-                DocumentReference friendRef = friends[index];
+                String friendId = friends[index];
                 return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                  stream: friendRef.snapshots().map(
-                        (event) => event as DocumentSnapshot<Map<String, dynamic>>,
-                  ),
-                  builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> friendSnapshot) {
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(friendId)
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
                     if (friendSnapshot.hasError) {
                       return const Text('Something went wrong');
                     }
-                    if (friendSnapshot.connectionState == ConnectionState.waiting) {
+                    if (friendSnapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return const Text("Loading");
                     }
-                    Map<String, dynamic> friendData = friendSnapshot.data!.data()! as Map<String, dynamic>;
+                    Map<String, dynamic> friendData =
+                        friendSnapshot.data!.data() as Map<String, dynamic>;
 
-                    DocumentReference dogRef = friendData['dogs'];
-                    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                      stream: dogRef.snapshots().map(
-                            (event) => event as DocumentSnapshot<Map<String, dynamic>>,
-                      ),
-                      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> dogSnapshot) {
-                        if (dogSnapshot.hasError) {
+                    return StreamBuilder<String?>(
+                      stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<String?> dogNameSnapshot) {
+                        if (dogNameSnapshot.hasError) {
                           return const Text('Something went wrong');
                         }
-                        if (dogSnapshot.connectionState == ConnectionState.waiting) {
+                        if (dogNameSnapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Text("Loading");
                         }
-                        Map<String, dynamic> dogData = dogSnapshot.data!.data()! as Map<String, dynamic>;
+                        String? dogName = dogNameSnapshot.data;
 
                         return ListTile(
                           title: Text(friendData['name'].toString()),
-                          subtitle: Text(dogData['name'].toString()),
-                          leading: const CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                          subtitle: Text(dogName ?? ''),
+                          leading: CircleAvatar(
+                            backgroundImage:
+                                NetworkImage(friendData['picture']),
                             radius: 30.0,
                           ),
                           trailing: Row(
@@ -167,15 +171,20 @@ class _FriendPageState extends State<FriendPage> {
                             children: [
                               IconButton(
                                 onPressed: () {
+                                  // Take to chat page
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const MatchChatPage()),
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MatchChatPage(),
+                                    ),
                                   );
                                 },
                                 icon: const Icon(Icons.chat),
                               ),
                               IconButton(
                                 onPressed: () {
+                                  // popup
                                   _showActivityLevelInfoSheet();
                                 },
                                 icon: const Icon(Icons.menu),
@@ -183,7 +192,7 @@ class _FriendPageState extends State<FriendPage> {
                             ],
                           ),
                           onLongPress: () {
-                            // TODO: Handle long press
+                            // TODO: make something with this? (low priority)
                           },
                         );
                       },
@@ -196,9 +205,9 @@ class _FriendPageState extends State<FriendPage> {
         ),
       ),
     );
-  }*/
+  }
 
-  @override
+  /*@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -241,11 +250,12 @@ class _FriendPageState extends State<FriendPage> {
                     }
                     Map<String, dynamic> friendData =
                         friendSnapshot.data!.data() as Map<String, dynamic>;
+                    DatabaseHandler.getDogNameFromOwnerID(friendId).listen((event) {
+                      _dogName = event;
+                    });
                     return ListTile(
                       title: Text(friendData['name'].toString()),
-                      subtitle: Text(
-                          DatabaseHandler.getDogNameFromOwnerID(friends[index])
-                              .toString()),
+                      subtitle: Text(_dogName!),
                       leading: CircleAvatar(
                         backgroundImage: NetworkImage(friendData['picture']),
                         radius: 30.0,
@@ -286,7 +296,7 @@ class _FriendPageState extends State<FriendPage> {
         ),
       ),
     );
-  }
+  }*/
 
   void _showActivityLevelInfoSheet() {
     showModalBottomSheet(
