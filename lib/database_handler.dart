@@ -15,6 +15,36 @@ class DatabaseHandler {
     final userData = await userDocumentRef.get();
   }
 
+  static Future<bool> doesCurrentUserHaveProfile() {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    return userDocumentRef.get().then((value) => value.exists);
+  }
+
+  static Future<bool> doesCurrentUserHaveDogProfile() async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+
+    final userSnapshot = await userDocumentRef.get();
+
+    if (userSnapshot.exists) {
+      final data = userSnapshot.data();
+      if (data != null && data.containsKey('dogs')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // TODO: add from both sides, not just from the current user
+  // probably need to add a middle step where the friend request is sent
+  // and then accepted
   static Future<void> addFriend(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -29,6 +59,27 @@ class DatabaseHandler {
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
       'friends': FieldValue.arrayUnion([friendUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
+  // TODO: remove from both sides, not just from the current user
+  static Future<void> removeFriend(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Remove the friendUid from the owner's 'friends' array in the 'users' collection
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'friends': FieldValue.arrayRemove([friendUid])
     });
 
     // Commit the batch write operation
@@ -272,16 +323,20 @@ class DatabaseHandler {
     });
   }
 
-  // work in progress
-  static Future<dynamic> getFriends() async {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
+  static Stream<String?> getDogNameFromOwnerID(String ownerID) async* {
     final users = FirebaseFirestore.instance.collection('users');
-    //final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
-    final friends = await users
-        .doc(userUid)
+    final dogs = await users
+        .doc(ownerID)
         .get()
-        .then((doc) => doc.get('friends') as List<dynamic>?);
-    print(friends);
-    return friends;
+        .then((doc) => doc.get('dogs') as String?);
+
+    if (dogs != null) {
+      final dog = FirebaseFirestore.instance.collection('Dogs');
+      final name =
+          await dog.doc(dogs).get().then((doc) => doc.get('Name') as String?);
+      yield name;
+    } else {
+      yield null;
+    }
   }
 }
