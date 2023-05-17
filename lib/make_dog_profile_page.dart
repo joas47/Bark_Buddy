@@ -46,7 +46,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // TODO: make this a form for the checks
+                // TODO: make this a form for the checks, like in the owner profile page.
             TextField(
                   controller: _nameController,
                   decoration: const InputDecoration(
