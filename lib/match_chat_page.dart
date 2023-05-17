@@ -1,5 +1,4 @@
 import 'package:cross_platform_test/database_handler.dart';
-import 'package:cross_platform_test/friend_requests_page.dart';
 import 'package:flutter/material.dart';
 
 class MatchChatPage extends StatelessWidget {
@@ -26,9 +25,9 @@ class MatchChatPage extends StatelessWidget {
               onPressed: () {
                 // TODO: add a real user, not a hardcoded one
                 //DatabaseHandler.addFriend("L64gYe4KwvON61lKukdNnGFJb3p2");
-                //DatabaseHandler.addFriend("QBpn7FPCY1buZrtbKEDnmpOsY2m2");
+                DatabaseHandler.addRandomFriend();
               },
-              child: const Text('Add friend'),
+              child: const Text('Add random friend'),
             ),
             SizedBox(height: 32.0),
             ElevatedButton(

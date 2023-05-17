@@ -174,21 +174,21 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('View Dog Profile'),
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('Dogs')
-            .doc(_dogId ?? 'dummy')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
-          }
-          if (!snapshot.data!.exists) {
-            return const Text('Document does not exist');
-          }
+        appBar: AppBar(
+          title: const Text('View Dog Profile'),
+        ),
+        body: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('Dogs')
+              .doc(_dogId ?? 'dummy')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
+            if (!snapshot.data!.exists) {
+              return const Text('Document does not exist');
+            }
 
           final dogData = snapshot.data!;
           final activityLevel = dogData.get('Activity Level');
