@@ -15,6 +15,9 @@ class DatabaseHandler {
     final userData = await userDocumentRef.get();
   }
 
+  // TODO: add from both sides, not just from the current user
+  // probably need to add a middle step where the friend request is sent
+  // and then accepted
   static Future<void> addFriend(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -29,6 +32,26 @@ class DatabaseHandler {
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
       'friends': FieldValue.arrayUnion([friendUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
+  static Future<void> removeFriend(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Remove the friendUid from the owner's 'friends' array in the 'users' collection
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'friends': FieldValue.arrayRemove([friendUid])
     });
 
     // Commit the batch write operation
