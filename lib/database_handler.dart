@@ -402,4 +402,25 @@ class DatabaseHandler {
       print('Error getting random friend: $error');
     });
   }
+
+  //TODO: kontrollera att användaren har hund
+  static List<String> getMatches(){
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    List<String> allUserIds = [];
+
+    usersCollectionRef.get().then((snapshot) {
+      allUserIds = snapshot.docs.map((doc) => doc.id).toList();
+      allUserIds.remove(userUid);
+
+    }).catchError((error) {
+      print('Error getting random friend: $error');
+    });
+
+    return allUserIds;
+  }
 }
