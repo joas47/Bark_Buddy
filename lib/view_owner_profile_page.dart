@@ -7,11 +7,18 @@ import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
-  const ViewOwnerProfile({Key? key}) : super(key: key);
+  String? userIdTest;
+  ViewOwnerProfile({Key? key, this.userIdTest = 'defaultValue'}) : super(key: key);
+
+  bool currentUser = false;
 
   @override
   Widget build(BuildContext context) {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    if(userIdTest == 'defaultValue'){
+      userIdTest = FirebaseAuth.instance.currentUser?.uid;
+      currentUser = true;
+    }
+
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +38,7 @@ class ViewOwnerProfile extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc(userUid)
+            .doc(userIdTest)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -144,7 +151,8 @@ class ViewOwnerProfile extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: '• $gender',
                         border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
+                        suffixIcon: currentUser ?
+                        IconButton(
                           icon: const Icon(Icons.edit),
                           onPressed: () {
                             Navigator.push(
@@ -154,7 +162,7 @@ class ViewOwnerProfile extends StatelessWidget {
                               ),
                             );
                           },
-                        ),
+                        ) : null,
                       ),
                       style: const TextStyle(
                         fontSize: 18.0,
