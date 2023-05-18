@@ -29,7 +29,8 @@ class MatchChatPage extends StatelessWidget {
               onPressed: () {
                 // TODO: add a real user, not a hardcoded one
                 //DatabaseHandler.addFriend("L64gYe4KwvON61lKukdNnGFJb3p2");
-                DatabaseHandler.addRandomFriend();
+                //DatabaseHandler.addRandomFriend();
+                print(DatabaseHandler.getMatches());
               },
               child: const Text('Add random friend'),
             ),

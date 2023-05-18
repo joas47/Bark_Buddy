@@ -34,26 +34,32 @@ class _FindMatchPageState extends State<FindMatchPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
             }
+            int friendsLength = 0;
+            Future<List<String>?> friends = DatabaseHandler.getMatches();
+            friends.then((List<String>? friendsList) {
+              if (friendsList != null) {
+                friendsLength = friendsList.length;
+              } else {}
+            });
 
-              List<String> friends = DatabaseHandler.getMatches();
-            if(friends.isEmpty){
-              print('no users');
-            }
-              return ListView.builder(
-                itemCount: friends.length,
-                itemBuilder: (BuildContext context, int index) {
-                  String friendId = friends[index];
-                  return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(friendId)
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
-                      if (friendSnapshot.hasError) {
-                        return const Text('Something went wrong');
-                      }
-                      if (friendSnapshot.connectionState ==
+            friends.then((value) => print(value));
+
+            return ListView.builder(
+              itemCount: friendsLength,
+              itemBuilder: (BuildContext context, int index) {
+                /*String friendId = friends[index];*/
+                String friendId = 'defaultValue';
+                return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(friendId)
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
+                    if (friendSnapshot.hasError) {
+                      return const Text('Something went wrong');
+                    }
+                    if (friendSnapshot.connectionState ==
                           ConnectionState.waiting) {
                         return const Text("Loading");
                       }
