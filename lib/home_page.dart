@@ -1,6 +1,6 @@
 import 'package:cross_platform_test/find_match_page.dart';
 import 'package:cross_platform_test/friend_page.dart';
-import 'package:cross_platform_test/match_chat_page.dart';
+import 'package:cross_platform_test/chat_page.dart';
 import 'package:cross_platform_test/start_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   bool _showStartPage = true;
 
   final List<Widget> _pages = [
-    const MatchChatPage(),
+    const ChatPage(),
     const FindMatchPage(),
     const FriendPage(),
     const ViewDogProfilePage(),
