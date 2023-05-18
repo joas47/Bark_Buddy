@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
     const MatchChatPage(),
     const FindMatchPage(),
     const FriendPage(),
-    const ViewDogProfilePage(),
+    ViewDogProfilePage(),
   ];
 
   @override

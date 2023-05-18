@@ -7,15 +7,15 @@ import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
-  String? userIdTest;
-  ViewOwnerProfile({Key? key, this.userIdTest = 'defaultValue'}) : super(key: key);
+  String? userId;
+  ViewOwnerProfile({Key? key, this.userId = 'defaultValue'}) : super(key: key);
 
   bool currentUser = false;
 
   @override
   Widget build(BuildContext context) {
-    if(userIdTest == 'defaultValue'){
-      userIdTest = FirebaseAuth.instance.currentUser?.uid;
+    if(userId == 'defaultValue'){
+      userId = FirebaseAuth.instance.currentUser?.uid;
       currentUser = true;
     }
 
@@ -38,7 +38,7 @@ class ViewOwnerProfile extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc(userIdTest)
+            .doc(userId)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -81,7 +81,7 @@ class ViewOwnerProfile extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: FutureBuilder<String?>(
-                        future: DatabaseHandler.getDogPic(),
+                        future: DatabaseHandler.getDogPic(userId),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();

@@ -1,4 +1,5 @@
 import 'package:cross_platform_test/database_handler.dart';
+import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +49,7 @@ class MatchChatPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewOwnerProfile(userIdTest: "bMkj7HtesAUEJnfm31axGuwXEbN2",)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: "bMkj7HtesAUEJnfm31axGuwXEbN2",)));
               },
               child: const Text('View user profile test'),
             ),
