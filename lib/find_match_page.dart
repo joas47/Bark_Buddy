@@ -14,6 +14,13 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
+  List<String> list = [];
+
+  void test() async {
+    Future<List<String>?> _futureOfList = DatabaseHandler.getMatches();
+    list = (await _futureOfList)!;
+    print(list); // will print [1, 2, 3, 4] on console.
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,21 +41,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
             }
-            int friendsLength = 0;
-            Future<List<String>?> friends = DatabaseHandler.getMatches();
-            friends.then((List<String>? friendsList) {
-              if (friendsList != null) {
-                friendsLength = friendsList.length;
-              } else {}
-            });
-
-            friends.then((value) => print(value));
-
+            test();
             return ListView.builder(
-              itemCount: friendsLength,
+              itemCount: list.length,
               itemBuilder: (BuildContext context, int index) {
-                /*String friendId = friends[index];*/
-                String friendId = 'defaultValue';
+                String friendId = list[index];
                 return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                   stream: FirebaseFirestore.instance
                       .collection('users')
@@ -60,70 +57,70 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       return const Text('Something went wrong');
                     }
                     if (friendSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Text("Loading");
-                      }
-                      Map<String, dynamic> friendData =
-                      friendSnapshot.data!.data() as Map<String, dynamic>;
+                        ConnectionState.waiting) {
+                      return const Text("Loading");
+                    }
+                    Map<String, dynamic> friendData =
+                    friendSnapshot.data!.data() as Map<String, dynamic>;
 
-                      return StreamBuilder<String?>(
-                        stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String?> dogNameSnapshot) {
-                          if (dogNameSnapshot.hasError) {
-                            return const Text(
-                                'Something went wrong: user has no dog');
-                          }
-                          if (dogNameSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Text("Loading");
-                          }
-                          String? dogName = dogNameSnapshot.data;
+                    return StreamBuilder<String?>(
+                      stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<String?> dogNameSnapshot) {
+                        if (dogNameSnapshot.hasError) {
+                          return const Text(
+                              'Something went wrong: user has no dog');
+                        }
+                        if (dogNameSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text("Loading");
+                        }
+                        String? dogName = dogNameSnapshot.data;
 
-                          return ListTile(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
-                            },title: Text(friendData['name'].toString()),
-                            subtitle: Text("(${dogName!})"),
-                            leading: CircleAvatar(
-                              backgroundImage:
-                              NetworkImage(friendData['picture']),
-                              radius: 30.0,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    // Take to chat page
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                        const MatchChatPage(),
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.chat),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    _showActivityLevelInfoSheet(friendId);
-                                  },
-                                  icon: const Icon(Icons.menu),
-                                ),
-                              ],
-                            ),
-                            onLongPress: () {
-                              // TODO: make something with this? (low priority)
-                            },
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              );
+                        return ListTile(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
+                          },title: Text(friendData['name'].toString()),
+                          subtitle: Text("(${dogName!})"),
+                          leading: CircleAvatar(
+                            backgroundImage:
+                            NetworkImage(friendData['picture']),
+                            radius: 30.0,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  // Take to chat page
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                      const MatchChatPage(),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.chat),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  _showActivityLevelInfoSheet(friendId);
+                                },
+                                icon: const Icon(Icons.menu),
+                              ),
+                            ],
+                          ),
+                          onLongPress: () {
+                            // TODO: make something with this? (low priority)
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
           },
         ),
       ),

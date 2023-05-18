@@ -420,7 +420,6 @@ class DatabaseHandler {
       return test;
     } catch (error) {
       print('Error getting random friend: $error');
-      return null;
     }
   }
 }
