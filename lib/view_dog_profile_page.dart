@@ -54,11 +54,16 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-            if (!snapshot.data!.exists) {
-              return const CircularProgressIndicator();
-            }
+            return const CircularProgressIndicator();
+          }
+          if (!snapshot.data!.exists) {
+            return const Text('This owner has no dog yet.');
+          }
+          try {
+            snapshot.data!.get('friends');
+          } on StateError {
+            return const Text('StateError: This owner has no friends yet.');
+          }
 
           final dogData = snapshot.data!;
           final activityLevel = dogData.get('Activity Level');
@@ -67,7 +72,9 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
           final breed = dogData.get('Breed') as String?;
           final gender = dogData.get('Gender') as String?;
           final isCastrated = dogData.get('Is castrated') as bool?;
-          final isCastratedText = isCastrated != null ? (isCastrated ? 'Is Castrated' : 'Not Castrated') : '';
+          final isCastratedText = isCastrated != null
+              ? (isCastrated ? 'Is Castrated' : 'Not Castrated')
+              : '';
           final name = dogData.get('Name');
           final size = dogData.get('Size') as String?;
           final String? profilePic = dogData.get('picture') as String?;
