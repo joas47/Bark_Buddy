@@ -124,6 +124,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
           },
         ),
       ),*/
+
       body: Center(
           child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('users').snapshots(),
@@ -133,7 +134,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   DocumentSnapshot doc = snapshot.data!.docs[index];
-                  /*return Text(doc['name']);*/
                   return ListTile(
                     onTap: () {
                       Navigator.push(
@@ -152,6 +152,18 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          onPressed: () {
+                            // Friend request
+                            DatabaseHandler.sendFriendRequest(doc.id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Friend request sent!'),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                        ),
                         IconButton(
                           onPressed: () {
                             // Take to chat page
@@ -176,7 +188,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   );
                 });
           } else {
-            return Text("No data");
+            return const Text("No data");
           }
         },
       )),
@@ -200,14 +212,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       return AlertDialog(
                         title: const Text('Confirmation'),
                         content:
-                            const Text('Are you sure you want to unfriend?'),
+                            const Text('Are you sure you want to befriend?'),
                         actions: [
                           ElevatedButton(
                             onPressed: () {
                               // Should be two pop calls, one for the dialog and one for the bottom sheet
                               // the bottom sheet is not relevant after the friend is removed
                               Navigator.pop(context);
-                              DatabaseHandler.removeFriend(friendId);
+                              // send friend request
                               Navigator.pop(context);
                             },
                             child: const Text('Confirm'),
@@ -223,7 +235,20 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     },
                   );
                 },
-                child: const Text('Unfriend'),
+                child: const Text('Befriend'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // TODO: unmatch
+                  Navigator.pop(context);
+                  // "not implemented" snack bar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Not implemented yet'),
+                    ),
+                  );
+                },
+                child: const Text('Unmatch'),
               ),
               ElevatedButton(
                 onPressed: () {
