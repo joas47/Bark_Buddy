@@ -30,6 +30,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   @override
   void initState() {
     super.initState();
+    currentUser = false;
     DatabaseHandler.getDogId3(userId).listen((dogId) {
       setState(() {
         _dogId = dogId;
@@ -79,16 +80,21 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                 children: <Widget>[
                   Align(
                     alignment: Alignment.topLeft,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.add_location),
-                      label: const Text('Add location'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AddLocationPage()),
-                        );
-                      },
-                    ),
+                    // TODO: display the add location only if we're in the current user's profile
+                    child: currentUser
+                        ? ElevatedButton.icon(
+                            icon: const Icon(Icons.add_location),
+                            label: const Text('Add location'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AddLocationPage()),
+                              );
+                            },
+                          )
+                        : null,
                   ),
                   Align(
                     alignment: Alignment.topRight,
