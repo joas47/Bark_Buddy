@@ -372,6 +372,18 @@ class DatabaseHandler {
       yield null;
     }
   }
+  static Stream<String?> getOwnerNameFromOwnerID(String ownerID) async* {
+    final users = FirebaseFirestore.instance.collection('users');
+    final ownerSnapshot = await users.doc(ownerID).get();
+    final ownerData = ownerSnapshot.data();
+
+    if (ownerData != null && ownerData.containsKey('name')) {
+      final ownerName = ownerData['name'] as String;
+      yield ownerName;
+    } else {
+      yield null;
+    }
+  }
 
   static void addRandomFriend() {
     final firestoreInstance = FirebaseFirestore.instance;
