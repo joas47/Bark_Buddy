@@ -1,4 +1,5 @@
 import 'package:cross_platform_test/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -25,6 +26,7 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: 32.0),
               TextButton(
                 onPressed: () {
+                  FirebaseAuth.instance.signOut();
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
