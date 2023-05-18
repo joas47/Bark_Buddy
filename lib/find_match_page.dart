@@ -14,13 +14,13 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-  List<String> list = [];
+/*  List<String> list = [];
 
   void test() async {
     Future<List<String>?> _futureOfList = DatabaseHandler.getMatches();
     list = (await _futureOfList)!;
     print(list); // will print [1, 2, 3, 4] on console.
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       appBar: AppBar(
         title: const Text('Find Match'),
       ),
-      body: Center(
+      /*body: Center(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: FirebaseFirestore.instance
               .collection('users')
@@ -39,9 +39,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
               return const Text('Something went wrong');
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading");
+              return const Text("Loading 1");
             }
-            test();
+            //test();
             return ListView.builder(
               itemCount: list.length,
               itemBuilder: (BuildContext context, int index) {
@@ -58,7 +58,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     }
                     if (friendSnapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return const Text("Loading");
+                      return const Text("Loading 2");
                     }
                     Map<String, dynamic> friendData =
                     friendSnapshot.data!.data() as Map<String, dynamic>;
@@ -73,7 +73,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         }
                         if (dogNameSnapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Text("Loading");
+                          return const Text("Loading 3");
                         }
                         String? dogName = dogNameSnapshot.data;
 
@@ -123,7 +123,63 @@ class _FindMatchPageState extends State<FindMatchPage> {
             );
           },
         ),
-      ),
+      ),*/
+      body: Center(
+          child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  /*return Text(doc['name']);*/
+                  return ListTile(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ViewDogProfilePage(
+                                    userId: doc.id,
+                                  )));
+                    },
+                    title: Text(doc['name']),
+                    //subtitle: Text(doc['email']),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(doc['picture']),
+                      radius: 30.0,
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            // Take to chat page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MatchChatPage(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.chat),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            _showActivityLevelInfoSheet(doc.id);
+                          },
+                          icon: const Icon(Icons.menu),
+                        ),
+                      ],
+                    ),
+                    onLongPress: () {},
+                  );
+                });
+          } else {
+            return Text("No data");
+          }
+        },
+      )),
     );
   }
 
@@ -144,7 +200,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       return AlertDialog(
                         title: const Text('Confirmation'),
                         content:
-                        const Text('Are you sure you want to unfriend?'),
+                            const Text('Are you sure you want to unfriend?'),
                         actions: [
                           ElevatedButton(
                             onPressed: () {
