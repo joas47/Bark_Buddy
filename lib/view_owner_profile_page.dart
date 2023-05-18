@@ -7,11 +7,18 @@ import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
-  const ViewOwnerProfile({Key? key}) : super(key: key);
+  String? userId;
+  ViewOwnerProfile({Key? key, this.userId = 'defaultValue'}) : super(key: key);
+
+  bool currentUser = false;
 
   @override
   Widget build(BuildContext context) {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    if(userId == 'defaultValue'){
+      userId = FirebaseAuth.instance.currentUser?.uid;
+      currentUser = true;
+    }
+
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +38,7 @@ class ViewOwnerProfile extends StatelessWidget {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc(userUid)
+            .doc(userId)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -54,18 +61,20 @@ class ViewOwnerProfile extends StatelessWidget {
                 children: <Widget>[
                   Align(
                     alignment: Alignment.topLeft,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.add_location),
-                      label: const Text('Add location'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AddLocationPage(),
-                          ),
-                        );
-                      },
-                    ),
+                    child: currentUser
+                        ? ElevatedButton.icon(
+                            icon: const Icon(Icons.add_location),
+                            label: const Text('Add location'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddLocationPage(),
+                                ),
+                              );
+                            },
+                          )
+                        : null,
                   ),
                   Align(
                     alignment: Alignment.topRight,
@@ -74,7 +83,7 @@ class ViewOwnerProfile extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: FutureBuilder<String?>(
-                        future: DatabaseHandler.getDogPic(),
+                        future: DatabaseHandler.getDogPic(userId),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
@@ -144,7 +153,8 @@ class ViewOwnerProfile extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: '• $gender',
                         border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
+                        suffixIcon: currentUser ?
+                        IconButton(
                           icon: const Icon(Icons.edit),
                           onPressed: () {
                             Navigator.push(
@@ -154,7 +164,7 @@ class ViewOwnerProfile extends StatelessWidget {
                               ),
                             );
                           },
-                        ),
+                        ) : null,
                       ),
                       style: const TextStyle(
                         fontSize: 18.0,

@@ -10,161 +10,28 @@ import 'database_handler.dart';
 
 import 'edit_dog_profile_page.dart';
 
-/*class ViewDogProfilePage extends StatelessWidget {
-  const ViewDogProfilePage({super.key});
-
-
-  @override
-  Widget build(BuildContext context) {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dog profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()));
-            },
-          ),
-        ],
-      ),
-
-      // TODO: This is a lot of reading from the database. Is there a better way?
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(userUid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-
-            final userData = snapshot.data!;
-            final dog = userData.get('dogs');
-
-            return Stack(alignment: Alignment.center, children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: ElevatedButton(
-                        child: const Text('Add place'),
-                        onPressed: () {},
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: AssetImage(
-                              'assets/images/placeholder-dog-image2.png'),
-                        ),
-                      ),
-                    ),
-                  ]),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  InkWell(
-                      onTap: () async {
-                        await showDialog(
-                            context: context,
-                            builder: (context) => const ImageDialog(
-                                  imagePaths: [
-                                    'assets/images/placeholder-dog-image.png',
-                                    'assets/images/placeholder-dog-image2.png',
-                                  ],
-                                  initialIndex: 0, // Display second image first
-                                ));
-                      },
-                      child: const CircleAvatar(
-                        radius: 100.0,
-                        backgroundImage:
-// TODO: get this information from the database
-
-                            AssetImage(
-                                'assets/images/placeholder-dog-image2.png'),
-                      )),
-                  Text(
-                    name + ' ' + surname,
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    //height: 500.0,
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 1,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                          // TODO: get this information from the database
-                          hintText: '• ' + gender! + '\n• ' + age.toString(),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
-                            },
-                          )),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  SizedBox(
-                    //height: 500.0,
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        // TODO: get this information from the database
-                        hintText: '• ' + about!,
-                        border: OutlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ]);
-          }),
-    );
-  }
-}*/
 
 class ViewDogProfilePage extends StatefulWidget {
-  const ViewDogProfilePage({Key? key}) : super(key: key);
+  String? userId;
+  ViewDogProfilePage({Key? key, this.userId = 'defaultValue'}) : super(key: key);
+
 
   @override
-  _ViewDogProfilePageState createState() => _ViewDogProfilePageState();
+  _ViewDogProfilePageState createState() => _ViewDogProfilePageState(userId);
 }
 
 class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   String? _dogId;
+  String? userId;
+  bool currentUser = false;
+  _ViewDogProfilePageState(this.userId);
+
 
   @override
   void initState() {
     super.initState();
-    DatabaseHandler.getDogId3().listen((dogId) {
+    currentUser = false;
+    DatabaseHandler.getDogId3(userId).listen((dogId) {
       setState(() {
         _dogId = dogId;
       });
@@ -173,6 +40,9 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if(userId == FirebaseAuth.instance.currentUser?.uid){
+      currentUser = true;
+    }
     return Scaffold(
         appBar: AppBar(
           title: const Text('View Dog Profile'),
@@ -187,7 +57,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
               return const CircularProgressIndicator();
             }
             if (!snapshot.data!.exists) {
-              return const Text('Document does not exist');
+              return const CircularProgressIndicator();
             }
 
           final dogData = snapshot.data!;
@@ -210,16 +80,21 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                 children: <Widget>[
                   Align(
                     alignment: Alignment.topLeft,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.add_location),
-                      label: const Text('Add location'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AddLocationPage()),
-                        );
-                      },
-                    ),
+                    // TODO: display the add location only if we're in the current user's profile
+                    child: currentUser
+                        ? ElevatedButton.icon(
+                            icon: const Icon(Icons.add_location),
+                            label: const Text('Add location'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AddLocationPage()),
+                              );
+                            },
+                          )
+                        : null,
                   ),
                   Align(
                     alignment: Alignment.topRight,
@@ -228,7 +103,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                         // TODO: make the bottom navigation bar persist when navigating to the owner profile page
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ViewOwnerProfile()),
+                          MaterialPageRoute(builder: (context) => ViewOwnerProfile(userId: userId)),
                         );
                       },
                       child: StreamBuilder<String?>(
@@ -303,12 +178,13 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             '• Activity level: ${activityLevel ?? ''}\n'
                             '• $isCastratedText',
                         border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
+                        suffixIcon: currentUser ?
+                        IconButton(
                           icon: const Icon(Icons.edit),
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
                           },
-                        ),
+                        ) : null,
                       ),
                       style: const TextStyle(
                         fontSize: 18.0,

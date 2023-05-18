@@ -1,4 +1,6 @@
 import 'package:cross_platform_test/database_handler.dart';
+import 'package:cross_platform_test/view_dog_profile_page.dart';
+import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:flutter/material.dart';
 
 import 'friend_requests_page.dart';
@@ -35,7 +37,7 @@ class MatchChatPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // TODO: add a real user, not a hardcoded one
-                //DatabaseHandler.sendFriendRequest("");
+                DatabaseHandler.sendFriendRequest("bMkj7HtesAUEJnfm31axGuwXEbN2");
               },
               child: const Text('Send friend request'),
             ),

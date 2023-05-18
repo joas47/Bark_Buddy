@@ -44,7 +44,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   @override
   void initState() {
     super.initState();
-    DatabaseHandler.getDogId3().listen((dogId) {
+    DatabaseHandler.getDogId3(FirebaseAuth.instance.currentUser?.uid).listen((dogId) {
       setState(() {
         _dogId = dogId;
       });
@@ -54,7 +54,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   @override
   Widget build(BuildContext context) {
     //DatabaseHandler.getOwnerProfileData();
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
       appBar: AppBar(

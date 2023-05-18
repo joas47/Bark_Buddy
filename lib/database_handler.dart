@@ -304,8 +304,11 @@ class DatabaseHandler {
     return dogRef;
   }
 
-  static Stream<String?> getDogId3() async* {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
+  static Stream<String?> getDogId3(String? userId) async* {
+    String? userUid = userId;
+    if(userId == 'defaultValue'){
+      userUid = FirebaseAuth.instance.currentUser?.uid;
+    }
     final users = FirebaseFirestore.instance.collection('users');
     final dogs = await users.doc(userUid).get().then((doc) => doc.get('dogs') as String?);
     if (dogs != null) {
@@ -316,8 +319,8 @@ class DatabaseHandler {
   }
 
   //funkar inte
-  static Future<String?>? getDogPic() async {
-    final dogUid = await getDogId3().first;
+  static Future<String?>? getDogPic(String? userId) async {
+    final dogUid = await getDogId3(userId).first;
     if (dogUid != null) {
       final dogs = FirebaseFirestore.instance.collection('Dogs');
       final pic = await dogs.doc(dogUid).get().then((doc) => doc.get('picture') as String?).catchError((error) => print("Error getting dog picture: $error"));;
@@ -398,5 +401,26 @@ class DatabaseHandler {
     }).catchError((error) {
       print('Error getting random friend: $error');
     });
+  }
+
+  //TODO: kontrollera att användaren har hund
+  static List<String> getMatches(){
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    List<String> allUserIds = [];
+
+    usersCollectionRef.get().then((snapshot) {
+      allUserIds = snapshot.docs.map((doc) => doc.id).toList();
+      allUserIds.remove(userUid);
+
+    }).catchError((error) {
+      print('Error getting random friend: $error');
+    });
+
+    return allUserIds;
   }
 }
