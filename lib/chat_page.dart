@@ -61,7 +61,7 @@ class _ChatPageState extends State<ChatPage> {
                       friendSnapshot.data!.data() as Map<String, dynamic>;
 
                       return StreamBuilder<String?>(
-                        stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
+                        stream: _MatchChatPageState.getOwnerNameFromOwnerID(friendId),
                         builder: (BuildContext context,
                             AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
@@ -253,14 +253,44 @@ class _MatchChatPageState extends State<MatchChatPage> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final messageData = messages[index].data()!;
-                    final senderId = messageData['senderId'];
+                    final senderId = messageData['senderId'] as String;
                     final messageText = messageData['message'];
-                    final timestamp = messageData['timestamp'];
+                    final timestamp = messageData['timestamp'] as Timestamp?;
 
-                    return ListTile(
-                      title: Text(messageText),
-                      subtitle: Text(
-                        '${_formatTimestamp(timestamp)} - ${_getSenderFirstName(senderId)}',
+                    final isSender = senderId == FirebaseAuth.instance.currentUser!.uid;
+
+                    return Align(
+                      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isSender ? Colors.blue : Colors.grey,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              messageText,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            FutureBuilder<String?>(
+                              future: _formatTimestamp(timestamp, senderId),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Text('Loading...', style: TextStyle(color: Colors.white));
+                                }
+                                final formattedTimestamp = snapshot.data ?? 'Unknown';
+                                return Text(
+                                  formattedTimestamp,
+                                  style: TextStyle(color: Colors.white),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -308,17 +338,27 @@ class _MatchChatPageState extends State<MatchChatPage> {
     });
   }
 
-  String _formatTimestamp(Timestamp timestamp) {
-    final dateTime = timestamp.toDate();
-    final formatter = DateFormat('MMM d, HH:mm');
-    return formatter.format(dateTime);
+  Future<String> _formatTimestamp(Timestamp? timestamp, String senderId) async {
+    if (timestamp != null) {
+      final dateTime = timestamp.toDate();
+      final formatter = DateFormat('MMM d, HH:mm');
+      final ownerName = await getOwnerNameFromOwnerID(senderId).first;
+      final formattedTimestamp = formatter.format(dateTime);
+      return '$formattedTimestamp - ${ownerName ?? 'Unknown'}';
+    }
+    return 'Loading...';
   }
 
-  String _getSenderFirstName(String senderId) {
-    // Retrieve the first name of the sender using their senderId
-    // You can fetch the sender's first name from Firestore or any other source
-    // and return it here.
-    // For demonstration purposes, let's return a hardcoded name.
-    return 'John';
+  static Stream<String?> getOwnerNameFromOwnerID(String ownerID) async* {
+    final users = FirebaseFirestore.instance.collection('users');
+    final ownerSnapshot = await users.doc(ownerID).get();
+    final ownerData = ownerSnapshot.data();
+
+    if (ownerData != null && ownerData.containsKey('name')) {
+      final ownerName = ownerData['name'] as String;
+      yield ownerName;
+    } else {
+      yield null;
+    }
   }
 }
