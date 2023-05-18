@@ -47,12 +47,6 @@ class MatchChatPage extends StatelessWidget {
               },
               child: const Text('See friend requests'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: "bMkj7HtesAUEJnfm31axGuwXEbN2",)));
-              },
-              child: const Text('View user profile test'),
-            ),
             // TODO: Implement chat UI.
           ],
         ),
