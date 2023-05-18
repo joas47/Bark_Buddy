@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
+import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -74,7 +75,7 @@ class _FriendPageState extends State<FriendPage> {
 
                           return ListTile(
                             onTap: () {
-                            // TODO: go to friend profile page
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
                           },title: Text(friendData['name'].toString()),
                             subtitle: Text("(${dogName!})"),
                             leading: CircleAvatar(
