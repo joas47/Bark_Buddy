@@ -416,23 +416,23 @@ class DatabaseHandler {
   }
 
   //TODO: kontrollera att användaren har hund
-  static List<String> getMatches(){
+  static Future<List<String>?> getMatches() async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
 
     final User? currentUser = FirebaseAuth.instance.currentUser;
     final String? userUid = currentUser?.uid;
 
-    List<String> allUserIds = [];
-
-    usersCollectionRef.get().then((snapshot) {
-      allUserIds = snapshot.docs.map((doc) => doc.id).toList();
-      allUserIds.remove(userUid);
-
-    }).catchError((error) {
+    try {
+      final snapshot = await usersCollectionRef.get();
+      List<String> test = snapshot.docs.map((doc) => doc.id).toList();
+      test.remove(userUid);
+      // print(test);
+      // print(allUserIds);
+      return test;
+    } catch (error) {
       print('Error getting random friend: $error');
-    });
-
-    return allUserIds;
+      return null;
+    }
   }
 }
