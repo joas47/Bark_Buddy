@@ -15,13 +15,6 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-/*  List<String> list = [];
-
-  void test() async {
-    Future<List<String>?> _futureOfList = DatabaseHandler.getMatches();
-    list = (await _futureOfList)!;
-    print(list); // will print [1, 2, 3, 4] on console.
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -29,210 +22,66 @@ class _FindMatchPageState extends State<FindMatchPage> {
       appBar: AppBar(
         title: const Text('Find Match'),
       ),
-      /*body: Center(
-        child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return const Text('Something went wrong');
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading 1");
-            }
-            //test();
-            return ListView.builder(
-              itemCount: list.length,
-              itemBuilder: (BuildContext context, int index) {
-                String friendId = list[index];
-                return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(friendId)
-                      .snapshots(),
+
+      body: SingleChildScrollView(
+          child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Dogs')
+            .where('owner',
+                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder: (context, dogSnapshot) {
+          if (dogSnapshot.hasData) {
+            return CarouselSlider.builder(
+              itemCount: dogSnapshot.data!.docs.length,
+              itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                DocumentSnapshot doc = dogSnapshot.data!.docs[itemIndex];
+                /*String ownerRef = doc.get('owner');
+                print(ownerRef);*/
+                return StreamBuilder<String?>(
+                  stream: DatabaseHandler.getOwnerPicStream(
+                      "bDoQvXwpygZx4B3INzgEGzEoQ532"),
                   builder: (BuildContext context,
-                      AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
-                    if (friendSnapshot.hasError) {
-                      return const Text('Something went wrong');
+                      AsyncSnapshot<String?> ownerSnapshot) {
+                    if (ownerSnapshot.hasError) {
+                      return const Text(
+                          'Something went wrong: user has no dog');
                     }
-                    if (friendSnapshot.connectionState ==
+                    if (ownerSnapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return const Text("Loading 2");
+                      return const Text("Loading");
                     }
-                    Map<String, dynamic> friendData =
-                    friendSnapshot.data!.data() as Map<String, dynamic>;
-
-                    return StreamBuilder<String?>(
-                      stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<String?> dogNameSnapshot) {
-                        if (dogNameSnapshot.hasError) {
-                          return const Text(
-                              'Something went wrong: user has no dog');
-                        }
-                        if (dogNameSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Text("Loading 3");
-                        }
-                        String? dogName = dogNameSnapshot.data;
-
-                        return ListTile(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
-                          },title: Text(friendData['name'].toString()),
-                          subtitle: Text("(${dogName!})"),
-                          leading: CircleAvatar(
-                            backgroundImage:
-                            NetworkImage(friendData['picture']),
-                            radius: 30.0,
+                    String? ownerPicURL = ownerSnapshot.data;
+                    List<dynamic>? dogPicURLs = doc['pictureUrls'];
+                    if (dogPicURLs != null && dogPicURLs.isEmpty) {
+                      return const Text('Error: dog has no picture');
+                    }
+                    String dogPicURL = doc['pictureUrls'][0] /*['url']*/;
+                    return Column(
+                      children: [
+                        Image(image: NetworkImage(ownerPicURL!), height: 100),
+                        Container(
+                          height: 300,
+                          margin: const EdgeInsets.all(6.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            image: DecorationImage(
+                              image: NetworkImage(dogPicURL),
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  // Take to chat page
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                      const MatchChatPage(),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.chat),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  _showActivityLevelInfoSheet(friendId);
-                                },
-                                icon: const Icon(Icons.menu),
-                              ),
-                            ],
-                          ),
-                          onLongPress: () {
-                            // TODO: make something with this? (low priority)
-                          },
-                        );
-                      },
+                        ),
+                        Text(doc['Name'] +
+                            ", " +
+                            doc['Age'].toString() +
+                            " years old"),
+                      ],
                     );
                   },
                 );
               },
-            );
-          },
-        ),
-      ),*/
-
-      body: Center(
-          child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .where(FieldPath.documentId,
-                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            /*return ListView.builder(
-                itemCount: snapshot.data!.docs.length,
-                itemBuilder: (context, index) {
-                  DocumentSnapshot doc = snapshot.data!.docs[index];
-                  return ListTile(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ViewDogProfilePage(
-                                    userId: doc.id,
-                                  )));
-                    },
-                    title: Text(doc['name']),
-                    //subtitle: Text(doc['email']),
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(doc['picture']),
-                      radius: 30.0,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            // Friend request
-                            DatabaseHandler.sendFriendRequest(doc.id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Friend request sent!'),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.add),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            // Take to chat page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MatchChatPage(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.chat),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            _showActivityLevelInfoSheet(doc.id);
-                          },
-                          icon: const Icon(Icons.menu),
-                        ),
-                      ],
-                    ),
-                    onLongPress: () {},
-                  );
-                });*/
-            return CarouselSlider.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                DocumentSnapshot doc = snapshot.data!.docs[itemIndex];
-                return Column(
-                  children: [
-                    Container(
-                      height: 300,
-                      margin: EdgeInsets.all(6.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.0),
-                        image: DecorationImage(
-                          image: NetworkImage(doc['picture']),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(doc['name']),
-                        Text(doc['age'].toString()),
-                        Text(doc['gender']),
-                        IconButton(
-                          onPressed: () {
-                            // TODO: match process...
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Liked!'),
-                              ),
-                            );
-                          },
-                          // TODO: make this button icon a heart
-                          icon: const Icon(Icons.add_box),
-                        ),
-                      ],
-                    )
-                  ],
-                );
-              },
-              options: CarouselOptions(height: 400.0),
+              // TODO: this should take into account the size of the screen and try to fill as much as possible
+              options: CarouselOptions(height: 600),
             );
           } else {
                 return const Text("No data");

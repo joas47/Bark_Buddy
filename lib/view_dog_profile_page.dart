@@ -253,11 +253,13 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                         );
                       },
                       child: StreamBuilder<String?>(
-                        stream: DatabaseHandler.getOwnerPicStream(),
+                        stream: DatabaseHandler.getOwnerPicStream(userId!),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const CircularProgressIndicator();
-                          } else if (snapshot.hasData && snapshot.data != null) {
+                          } else if (snapshot.hasData &&
+                              snapshot.data != null) {
                             return CircleAvatar(
                               radius: 50.0,
                               backgroundImage: NetworkImage(snapshot.data!),
