@@ -209,8 +209,26 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         ),
                       ),
                     ),
-                    Text(doc['name']),
-                    Text(doc['surname']),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(doc['name']),
+                        Text(doc['age'].toString()),
+                        Text(doc['gender']),
+                        IconButton(
+                          onPressed: () {
+                            // TODO: match process...
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Liked!'),
+                              ),
+                            );
+                          },
+                          // TODO: make this button icon a heart
+                          icon: const Icon(Icons.add_box),
+                        ),
+                      ],
+                    )
                   ],
                 );
               },
