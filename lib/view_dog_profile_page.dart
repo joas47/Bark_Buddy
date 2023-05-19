@@ -59,7 +59,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
           if (!snapshot.data!.exists) {
             return const Text('This owner has no dog yet.');
           }
-          // TODO: this breaks view_dog_profile_page.dart
+          // TODO: this breaks view_dog_profile_page.dart if the owner has no friends yet
 /*          try {
             snapshot.data!.get('friends');
           } on StateError {
