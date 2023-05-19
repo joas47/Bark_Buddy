@@ -196,27 +196,25 @@ class _FindMatchPageState extends State<FindMatchPage> {
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, int itemIndex, int pageViewIndex) {
                 DocumentSnapshot doc = snapshot.data!.docs[itemIndex];
-                return Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: <Widget>[
-                      Image(image: NetworkImage(doc['picture'])),
-                      /*const Positioned(
-                        left: 8.0,
-                        bottom: 8.0,
-                        child: Text(
-                          'Order of the day',
-                          style: TextStyle(
-                              fontFamily: 'CallingAngelsPersonalUse',
-                              fontSize: 30.0,
-                              color: Colors.white),
+                return Column(
+                  children: [
+                    Container(
+                      height: 300,
+                      margin: EdgeInsets.all(6.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        image: DecorationImage(
+                          image: NetworkImage(doc['picture']),
+                          fit: BoxFit.cover,
                         ),
-                      )*/
-                    ],
-                  ),
+                      ),
+                    ),
+                    Text(doc['name']),
+                    Text(doc['surname']),
+                  ],
                 );
               },
-              options: CarouselOptions(height: 200.0),
+              options: CarouselOptions(height: 400.0),
             );
           } else {
                 return const Text("No data");
