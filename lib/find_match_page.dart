@@ -23,7 +23,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
       appBar: AppBar(
         title: const Text('Find Match'),
       ),
-
       body: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -40,6 +39,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 String ownerRef = doc.get('owner');
                 print(ownerRef);
                 return StreamBuilder<String?>(
+                  // TODO: should not include user matches or pending likes
                   stream: DatabaseHandler.getOwnerPicStream(doc['owner']),
                   builder: (BuildContext context,
                       AsyncSnapshot<String?> ownerSnapshot) {
