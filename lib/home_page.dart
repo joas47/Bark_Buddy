@@ -3,6 +3,7 @@ import 'package:cross_platform_test/friend_page.dart';
 import 'package:cross_platform_test/chat_page.dart';
 import 'package:cross_platform_test/start_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'location_handler.dart';
 
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     const ChatPage(),
     const FindMatchPage(),
     const FriendPage(),
-    ViewDogProfilePage(),
+    ViewDogProfilePage(userId: FirebaseAuth.instance.currentUser?.uid),
   ];
 
   @override

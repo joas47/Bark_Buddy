@@ -14,11 +14,11 @@ class ViewOwnerProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(userId == 'defaultValue'){
+    if (userId == 'defaultValue' ||
+        userId == FirebaseAuth.instance.currentUser?.uid) {
       userId = FirebaseAuth.instance.currentUser?.uid;
       currentUser = true;
     }
-
 
     return Scaffold(
       appBar: AppBar(

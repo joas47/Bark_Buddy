@@ -30,7 +30,6 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   @override
   void initState() {
     super.initState();
-    currentUser = false;
     DatabaseHandler.getDogId3(userId).listen((dogId) {
       setState(() {
         _dogId = dogId;
@@ -59,12 +58,6 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
           if (!snapshot.data!.exists) {
             return const Text('This owner has no dog yet.');
           }
-          // TODO: this breaks view_dog_profile_page.dart if the owner has no friends yet
-/*          try {
-            snapshot.data!.get('friends');
-          } on StateError {
-            return const Text('StateError: This owner has no friends yet.');
-          }*/
 
           final dogData = snapshot.data!;
           final activityLevel = dogData.get('Activity Level');
