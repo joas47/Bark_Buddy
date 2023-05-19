@@ -56,35 +56,34 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
                     .map((option) => Row(
-                          children: [
-                            Transform.scale(
-                              scale: 1.4,
-                              child: Radio(
-                                value: option,
-                                groupValue: _gender,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _gender = value.toString();
-                                  });
-                                },
-                              ),
-                            ),
-                            Text(option,
-                            style: TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(width: 16.0),
-                          ],
-                        ))
+                  children: [
+                    Transform.scale(
+                      scale: 1.4,
+                      child: Radio(
+                        value: option,
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
+                          });
+                        },
+                      ),
+                    ),
+                    Text(option,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 16.0),
+                  ],
+                ))
                     .toList(),
               ),
+
               const SizedBox(height: 16.0),
               _buildProfilePictureUploadButton(),
               const SizedBox(height: 16.0),
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
-                    // TODO: feedback to the user if not selected gender and profile picture
-                    // TODO: age must be at least 18, or else feedback to the user
                     // TODO: if you press Submit before the image is uploaded, you will get an error
                     if (_validateInputs() &&
                         _gender.isNotEmpty &&
@@ -96,6 +95,20 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => const RegisterDogPage()));
+                    } else if (_gender.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text(
+                                'Gender must not be empty')
+                        ),
+                      );
+                    } else if (_profilePic == null || _profilePic!.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text(
+                                'You must upload a picture')
+                        ),
+                      );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -116,7 +129,8 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   }
 
   Widget _formUI() {
-    return Column(children: [
+    return Column(
+        children: [
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -125,7 +139,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'FirstName',
+          labelText: 'First Name',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -137,12 +151,12 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
       TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter your LastName.';
+            return 'Please enter your Last Name.';
           }
           return null;
         },
         decoration: const InputDecoration(
-          labelText: 'LastName',
+          labelText: 'Last Name',
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -156,6 +170,8 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter your age.';
+          } else if (int.parse(value) < 18) {
+            return 'Age has to be over 18.';
           }
           return null;
         },
@@ -216,14 +232,14 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-            await ImageUtils.showImageSourceDialog(context, maxImages: 1);
+                await ImageUtils.showImageSourceDialog(context, maxImages: 1);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage[0], storageUrl);
 
-              if(mounted){
+              if (mounted) {
                 setState(() {
                   _profilePic = imageUrl;
                 });
