@@ -44,6 +44,47 @@ class DatabaseHandler {
     return false;
   }
 
+  // Sends like to other person, if they have already liked you, it will create a match
+  static Future<void> sendLike(String friendID) async {
+    print('sending like');
+    final firestoreInstance = FirebaseFirestore.instance;
+    final users = FirebaseFirestore.instance.collection('users');
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+    final ownerSnapshot = await users.doc(userUid).get();
+    final ownerData = ownerSnapshot.data();
+
+    final batch = firestoreInstance.batch();
+    if (ownerData != null &&
+        ownerData.containsKey('receivedLikes') &&
+        ownerData['receivedLikes'].contains(friendID)) {
+      // Add the dog reference to the owner's array of dogs in the 'emails' collection
+      final userDocumentRef = users.doc(userUid);
+      batch.update(userDocumentRef, {
+        'matches': FieldValue.arrayUnion([friendID]),
+        'receivedLikes': FieldValue.arrayRemove([friendID]),
+      });
+
+      final friendDocumentRef = users.doc(friendID);
+      batch.update(friendDocumentRef, {
+        'matches': FieldValue.arrayUnion([userUid]),
+        'pendingLikes': FieldValue.arrayRemove([userUid]),
+      });
+    } else {
+      final userDocumentRef = users.doc(userUid);
+      batch.update(userDocumentRef, {
+        'pendingLikes': FieldValue.arrayUnion([friendID]),
+      });
+
+      final friendDocumentRef = users.doc(friendID);
+      batch.update(friendDocumentRef, {
+        'receivedLikes': FieldValue.arrayUnion([userUid]),
+      });
+    }
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
   static Future<void> addFriend(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');

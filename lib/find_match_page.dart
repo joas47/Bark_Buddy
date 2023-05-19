@@ -104,6 +104,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                               icon: const Icon(Icons.heart_broken),
                               onPressed: () {
                                 // TODO send like
+                                DatabaseHandler.sendLike(doc['owner']);
                               },
                             ),
                           ],
