@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
@@ -127,10 +128,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
       body: Center(
           child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .where(FieldPath.documentId,
+                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView.builder(
+            /*return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   DocumentSnapshot doc = snapshot.data!.docs[index];
@@ -186,12 +191,38 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     ),
                     onLongPress: () {},
                   );
-                });
+                });*/
+            return CarouselSlider.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                DocumentSnapshot doc = snapshot.data!.docs[itemIndex];
+                return Container(
+                  margin: const EdgeInsets.all(8.0),
+                  child: Stack(
+                    children: <Widget>[
+                      Image(image: NetworkImage(doc['picture'])),
+                      /*const Positioned(
+                        left: 8.0,
+                        bottom: 8.0,
+                        child: Text(
+                          'Order of the day',
+                          style: TextStyle(
+                              fontFamily: 'CallingAngelsPersonalUse',
+                              fontSize: 30.0,
+                              color: Colors.white),
+                        ),
+                      )*/
+                    ],
+                  ),
+                );
+              },
+              options: CarouselOptions(height: 200.0),
+            );
           } else {
-            return const Text("No data");
-          }
-        },
-      )),
+                return const Text("No data");
+              }
+            },
+          )),
     );
   }
 
@@ -212,7 +243,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       return AlertDialog(
                         title: const Text('Confirmation'),
                         content:
-                            const Text('Are you sure you want to befriend?'),
+                        const Text('Are you sure you want to befriend?'),
                         actions: [
                           ElevatedButton(
                             onPressed: () {
