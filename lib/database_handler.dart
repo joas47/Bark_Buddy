@@ -229,7 +229,7 @@ class DatabaseHandler {
       'Activity Level': activity,
       'Size': size,
       'Biography': biography,
-      'owner': usersCollectionRef.doc(userUid),
+      'owner': userUid.toString(),
       //'picture': profilePic,
       'pictureUrls': pictureUrls
     });
@@ -275,7 +275,7 @@ class DatabaseHandler {
       'Activity Level': activity,
       'Size': size,
       'Biography': bio,
-      'owner': usersCollectionRef.doc(userUid),
+      'owner': userUid.toString(),
       'pictureUrls': pictureUrls,
       //'picture': profilePic
     });
@@ -346,10 +346,10 @@ class DatabaseHandler {
     }
   }
 
-  static Stream<String?> getOwnerPicStream() {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
+  static Stream<String?> getOwnerPicStream(String userId) {
+    //final userUid = FirebaseAuth.instance.currentUser?.uid;
     final users = FirebaseFirestore.instance.collection('users');
-    final ownerDocumentRef = users.doc(userUid);
+    final ownerDocumentRef = users.doc(userId);
 
     return ownerDocumentRef.snapshots().map((snapshot) {
       if (snapshot.exists) {
