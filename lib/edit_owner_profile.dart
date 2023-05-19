@@ -259,16 +259,21 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         IconButton(
           onPressed: () async {
             // show dialog with options to choose image or take a new one
-            final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+            final selectedImage = await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage, storageUrl);
-              setState(() {
+                  selectedImage[0], storageUrl);
+              if(mounted){
+                setState(() {
+                  _updatedProfilePic = imageUrl;
+                });
+              }
+
+              /*setState(() {
                 _updatedProfilePic = imageUrl;
-              });
+              });*/
             }
           },
           icon: _profilePic == null || _profilePic!.isEmpty

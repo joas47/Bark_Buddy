@@ -10,6 +10,146 @@ import 'database_handler.dart';
 
 import 'edit_dog_profile_page.dart';
 
+/*class ViewDogProfilePage extends StatelessWidget {
+  const ViewDogProfilePage({super.key});
+
+
+  @override
+  Widget build(BuildContext context) {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dog profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsPage()));
+            },
+          ),
+        ],
+      ),
+
+      // TODO: This is a lot of reading from the database. Is there a better way?
+      body: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(userUid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
+
+            final userData = snapshot.data!;
+            final dog = userData.get('dogs');
+
+            return Stack(alignment: Alignment.center, children: <Widget>[
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: ElevatedButton(
+                        child: const Text('Add place'),
+                        onPressed: () {},
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage: AssetImage(
+                              'assets/images/placeholder-dog-image2.png'),
+                        ),
+                      ),
+                    ),
+                  ]),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  InkWell(
+                      onTap: () async {
+                        await showDialog(
+                            context: context,
+                            builder: (context) => const ImageDialog(
+                                  imagePaths: [
+                                    'assets/images/placeholder-dog-image.png',
+                                    'assets/images/placeholder-dog-image2.png',
+                                  ],
+                                  initialIndex: 0, // Display second image first
+                                ));
+                      },
+                      child: const CircleAvatar(
+                        radius: 100.0,
+                        backgroundImage:
+// TODO: get this information from the database
+
+                            AssetImage(
+                                'assets/images/placeholder-dog-image2.png'),
+                      )),
+                  Text(
+                    name + ' ' + surname,
+                    style: const TextStyle(
+                      fontSize: 22.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    //height: 500.0,
+                    width: 300.0,
+                    child: TextField(
+                      readOnly: true,
+                      minLines: 1,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                          // TODO: get this information from the database
+                          hintText: '• ' + gender! + '\n• ' + age.toString(),
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
+                            },
+                          )),
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  SizedBox(
+                    //height: 500.0,
+                    width: 300.0,
+                    child: TextField(
+                      readOnly: true,
+                      minLines: 5,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        // TODO: get this information from the database
+                        hintText: '• ' + about!,
+                        border: OutlineInputBorder(),
+                      ),
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ]);
+          }),
+    );
+  }
+}*/
 
 class ViewDogProfilePage extends StatefulWidget {
   String? userId;
@@ -26,6 +166,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   bool currentUser = false;
   _ViewDogProfilePageState(this.userId);
 
+  List<String> pictureUrls = []; // replace this with the actual picture urls or file paths fetched from firebase
 
   @override
   void initState() {
@@ -71,7 +212,11 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
               : '';
           final name = dogData.get('Name');
           final size = dogData.get('Size') as String?;
-          final String? profilePic = dogData.get('picture') as String?;
+          final List<dynamic>? profilePic = dogData.get('pictureUrls') as List<dynamic>?;
+
+          if(profilePic != null && profilePic.isNotEmpty) {
+            pictureUrls = List<String>.from(profilePic);
+          }
 
           return Stack(
             alignment: Alignment.center,
@@ -132,30 +277,24 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+
                   GestureDetector(
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Image.network(
-                                profilePic ?? '',
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          );
-                        },
+                        builder: (context) => ImageDialog(
+                          pictureUrls: pictureUrls, // pass the actual picture urls or file paths here
+                          initialIndex: 0, // Display the second image first
+                        ),
                       );
                     },
                     child: CircleAvatar(
                       radius: 100.0,
-                      backgroundImage: profilePic != null
-                          ? NetworkImage(profilePic)
-                          : AssetImage('assets/images/placeholder-profile-image.png') as ImageProvider<Object>,
+                      backgroundImage: pictureUrls.isNotEmpty
+                          ? NetworkImage(pictureUrls[0])
+                          : AssetImage(
+                        'assets/images/placeholder-dog-image2.png',
+                      ) as ImageProvider<Object>,
                     ),
                   ),
                   Text(
@@ -235,10 +374,10 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
 }
 
 class ImageDialog extends StatefulWidget {
-  const ImageDialog({Key? key, required this.imagePaths, this.initialIndex = 0})
+  const ImageDialog({Key? key, required this.pictureUrls, this.initialIndex = 0})
       : super(key: key);
 
-  final List<String> imagePaths;
+  final List<String> pictureUrls;
   final int initialIndex;
 
   @override
@@ -254,7 +393,7 @@ class _ImageDialogState extends State<ImageDialog> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
-    _totalImages = widget.imagePaths.length;
+    _totalImages = widget.pictureUrls.length;
     _pageController = PageController(initialPage: _currentIndex);
   }
 
@@ -277,7 +416,7 @@ class _ImageDialogState extends State<ImageDialog> {
                 return Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: ExactAssetImage(widget.imagePaths[index]),
+                      image: NetworkImage(widget.pictureUrls[index]),
                       fit: BoxFit.fitHeight,
                     ),
                   ),

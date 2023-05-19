@@ -164,11 +164,11 @@ class _AddLocationPageState extends State<AddLocationPage> {
                           icon: Icon(Icons.camera),
                           label: Text('Upload image'),
                           onPressed: () async {
-                            final selectedImage = await ImageUtils.showImageSourceDialog(context);
+                            final selectedImages = await ImageUtils.showImageSourceDialog(context);
 
-                            if (selectedImage != null) {
+                            if (selectedImages != null  && selectedImages.isNotEmpty) {
                               final imageUrl = await ImageUtils.uploadImageToFirebase(
-                                selectedImage,
+                                selectedImages[0],
                                 storageUrl,
                               );
                               setState(() {

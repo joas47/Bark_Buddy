@@ -22,7 +22,9 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   bool _isCastrated = false;
   String _bio = '';
 
-  String? _profilePic = '';
+  //String? _profilePic = '';
+  List<String> _pictureUrls = [];
+  //String? _profilePic = '';
 
   final List<String> _genderOptions = ['Female', 'Male'];
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
@@ -272,7 +274,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     _size.isNotEmpty &&
                     _bio.isNotEmpty) {
                   DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender,
-                      _isCastrated, _activity, _size, _bio, _profilePic);
+                      _isCastrated, _activity, _size, _bio, _pictureUrls);
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const HomePage()),
@@ -372,35 +374,48 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
         IconButton(
           onPressed: () async {
             // show dialog with options to choose image or take a new one
-            final selectedImage =
-                await ImageUtils.showImageSourceDialog(context);
+            final selectedImages = await ImageUtils.showImageSourceDialog(context, maxImages: 5);
 
             // upload image to Firebase Storage
-            if (selectedImage != null) {
+            /*if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage, storageUrl);
               setState(() {
                 _profilePic = imageUrl;
               });
+            }*/
+            if (selectedImages != null && selectedImages.isNotEmpty){
+              for(final selectedImage in selectedImages){
+                final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+
+                if(mounted){
+                  setState(() {
+                    _pictureUrls.add(imageUrl!);
+                  });
+                }
+
+                /*setState(() {
+                  _pictureUrls.add(imageUrl!);
+                });*/
+              }
             }
           },
-          icon: _profilePic == null || _profilePic!.isEmpty
-              ? const Icon(Icons.add_a_photo)
+          icon: _pictureUrls.isEmpty
+              ?const Icon(Icons.add_a_photo)
               : CircleAvatar(
-                  backgroundImage: _profilePic!.startsWith('http')
-                      ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                      : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-                  radius: 30,
-                  child: _profilePic!.isEmpty || _profilePic == null
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.check, color: Colors.white),
-                ),
+            backgroundImage: _pictureUrls[0].startsWith('http')
+                ? NetworkImage(_pictureUrls[0])
+                : FileImage(File(_pictureUrls[0])) as ImageProvider<Object>?,
+            radius: 30,
+            child: _pictureUrls.isEmpty
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+          ),
         )
       ],
     );
   }
-
-  String? getProfilePic() {
-    return _profilePic;
-  }
+  //String? getProfilePic() {
+  //  return _profilePic;
+  //}
 }

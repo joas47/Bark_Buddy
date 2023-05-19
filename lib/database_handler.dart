@@ -207,7 +207,7 @@ class DatabaseHandler {
     await batch.commit();
   }
 
-  static Future<void> addDogToDatabase(String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography, String? profilePic) async {
+  static Future<void> addDogToDatabase(String name, String breed, int age, String gender, bool isCastrated, String activity, String size, String biography, List<String> pictureUrls,) async { //String? profilePic
     final firestoreInstance = FirebaseFirestore.instance;
     final dogsCollectionRef = firestoreInstance.collection('Dogs');
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -230,7 +230,8 @@ class DatabaseHandler {
       'Size': size,
       'Biography': biography,
       'owner': usersCollectionRef.doc(userUid),
-      'picture': profilePic,
+      //'picture': profilePic,
+      'pictureUrls': pictureUrls
     });
 
     // Add the dog reference to the owner's array of dogs in the 'emails' collection
@@ -249,7 +250,8 @@ class DatabaseHandler {
       String gender,
       int age,
       String bio,
-      String? profilePic,
+      //String? profilePic,
+      List<String>? pictureUrls,
       String size,
       bool isCastrated,
       String activity,
@@ -274,7 +276,8 @@ class DatabaseHandler {
       'Size': size,
       'Biography': bio,
       'owner': usersCollectionRef.doc(userUid),
-      'picture': profilePic,
+      'pictureUrls': pictureUrls,
+      //'picture': profilePic
     });
 
     await batch.commit();
@@ -318,30 +321,31 @@ class DatabaseHandler {
     }
   }
 
-  //funkar inte
-  static Future<String?>? getDogPic(String? userId) async {
+  static Stream<String?> getDogPic(String? userId) async* {
     final dogUid = await getDogId3(userId).first;
     if (dogUid != null) {
       final dogs = FirebaseFirestore.instance.collection('Dogs');
-      final pic = await dogs.doc(dogUid).get().then((doc) => doc.get('picture') as String?).catchError((error) => print("Error getting dog picture: $error"));;
-      return pic;
+      yield* dogs.doc(dogUid).snapshots().map((doc) {
+        if (doc.exists) {
+          final data = doc.data();
+          if (data != null && data.containsKey('pictureUrls')) {
+            final pictureUrls = data['pictureUrls'] as List<dynamic>;
+            if (pictureUrls.isNotEmpty && pictureUrls[0] is String) {
+              return pictureUrls[0] as String;
+            }
+          }
+        }
+        // Handle the case when the 'pictureUrls' field doesn't exist or is empty
+        return null;
+      }).handleError((error) {
+        print("Error getting dog picture: $error");
+        return null;
+      });
     } else {
-      return null;
+      yield null;
     }
   }
 
-  /*static Future<String?>? getOwnerPic() {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-    final dogs = FirebaseFirestore.instance.collection('users');
-    final pic = dogs.doc(userUid).get().then((doc) => doc.get('picture') as String?);
-    if (pic != null) {
-      return pic;
-    } else {
-      return null;
-    }
-  }*/
-  // below is the updated code above, through this solution i fixed TODO comment of "View_dog_profile.dart" regarding the picture changes.
-  // i decided to keep the code above just in case we need it in the future.
   static Stream<String?> getOwnerPicStream() {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
     final users = FirebaseFirestore.instance.collection('users');
