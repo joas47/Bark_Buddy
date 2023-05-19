@@ -47,24 +47,31 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                     : AutovalidateMode.disabled,
                 child: _formUI(),
               ),
-              const SizedBox(height: 16.0),
-              // TODO: move this Text so it's next to the radio buttons instead of above.
-              const Text('Gender'),
+              const SizedBox(height: 20.0),
+              const Text(
+                'Gender',
+                style: TextStyle(fontSize: 18),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _genderOptions
                     .map((option) => Row(
                           children: [
-                            Radio(
-                              value: option,
-                              groupValue: _gender,
-                              onChanged: (value) {
-                                setState(() {
-                                  _gender = value.toString();
-                                });
-                              },
+                            Transform.scale(
+                              scale: 1.4,
+                              child: Radio(
+                                value: option,
+                                groupValue: _gender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _gender = value.toString();
+                                  });
+                                },
+                              ),
                             ),
-                            Text(option),
+                            Text(option,
+                            style: TextStyle(fontSize: 16),
+                            ),
                             const SizedBox(width: 16.0),
                           ],
                         ))
@@ -209,7 +216,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+                await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
@@ -223,14 +230,14 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           icon: _profilePic == null || _profilePic!.isEmpty
               ? const Icon(Icons.add_a_photo)
               : CircleAvatar(
-            backgroundImage: _profilePic!.startsWith('http')
-                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-            radius: 30,
-            child: _profilePic!.isEmpty || _profilePic == null
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),
+                  backgroundImage: _profilePic!.startsWith('http')
+                      ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                      : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+                  radius: 30,
+                  child: _profilePic!.isEmpty || _profilePic == null
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.check, color: Colors.white),
+                ),
         )
       ],
     );

@@ -13,7 +13,6 @@ class RegisterDogPage extends StatefulWidget {
 }
 
 class _RegisterDogPageState extends State<RegisterDogPage> {
-
   String _name = '';
   String _breed = '';
   String _gender = '';
@@ -25,7 +24,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
 
   String? _profilePic = '';
 
-  final List<String> _genderOptions = ['She', 'He'];
+  final List<String> _genderOptions = ['Female', 'Male'];
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
   final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
@@ -42,82 +41,121 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
       ),
       body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // TODO: make this a form for the checks, like in the owner profile page.
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // TODO: make this a form for the checks, like in the owner profile page.
             TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                  ),
-                  keyboardType: TextInputType.name,
-                  onChanged: (value) {
-                    _name = value;
-                  },
-                ),
-                const SizedBox(height: 10.0),
-                TextField(
-                  controller: _breedController,
-                  decoration: const InputDecoration(
-                    labelText: 'Breed',
-                  ),
-                  keyboardType: TextInputType.text,
-                  onChanged: (value) {
-                    _breed = value;
-                  },
-                ),
-                const SizedBox(height: 10.0),
-                TextField(
-                  controller: _ageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Age',
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                labelStyle: TextStyle(fontSize: 18),
+              ),
+              keyboardType: TextInputType.name,
+              onChanged: (value) {
+                _name = value;
+              },
+            ),
+            const SizedBox(height: 10.0),
+            TextField(
+              controller: _breedController,
+              decoration: const InputDecoration(
+                labelText: 'Breed',
+                labelStyle: TextStyle(fontSize: 18),
+              ),
+              keyboardType: TextInputType.text,
+              onChanged: (value) {
+                _breed = value;
+              },
+            ),
+            const SizedBox(height: 10.0),
+            TextField(
+              controller: _ageController,
+              decoration: const InputDecoration(
+                labelText: 'Age',
+                labelStyle: TextStyle(fontSize: 18),
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                _age = int.tryParse(value) ?? 0;
+              },
+            ),
+            const SizedBox(height: 16.0),
 
-                    _age = int.tryParse(value) ?? 0;
+            Column(
+              //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Gender',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: _genderOptions
+                              .map((option) => Row(
+                                    children: [
+                                      Transform.scale(
+                                        scale: 1.4,
+                                        child: Radio(
+                                          value: option,
+                                          groupValue: _gender,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _gender = value.toString();
+                                            });
+                                          },
+                                        ),
+                                      ),
 
-                  },
+                                      Text(
+                                        option,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      //const SizedBox(width: 16.0),
+                                    ],
+                                  ))
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Castrated?',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Transform.scale(
+                          scale: 1.3,
+                          child: Checkbox(
+                            value: _isCastrated,
+                            onChanged: (value) {
+                              setState(() {
+                                _isCastrated = value!;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10.0),
-                const Text("Gender"),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: _genderOptions
-                      .map((option) => Row(
-                    children: [
-                      Radio(
-                        value: option,
-                        groupValue: _gender,
-                        onChanged: (value) {
-                          setState(() {
-                            _gender = value.toString();
-                          });
-                        },
-                      ),
-                      Text(option),
-                      const SizedBox(width: 10.0),
-                    ],
-                  ))
-                      .toList(),
-                ),
-                CheckboxListTile(
-                  title: const Text('Castrated'),
-                  value: _isCastrated,
-                  onChanged: (value) {
-                    setState(() {
-                      _isCastrated = value!;
-                    });
-                  },
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children:  [
-                    const Text("Activity Level"),
-                    // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+                  children: [
+                    const Text(
+                      "Activity Level",
+                      style: TextStyle(fontSize: 18),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.help_outline),
                       onPressed: () {
@@ -127,32 +165,39 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     ),
                   ],
                 ),
-            Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: _activityOptions
                       .map((option) => Row(
-                    children: [
-                      Radio(
-                        value: option,
-                        groupValue: _activity,
-                        onChanged: (value) {
-                          setState(() {
-                            _activity = value.toString();
-                          });
-                        },
-                      ),
-                      Text(option),
-                      const SizedBox(width: 16.0),
-                    ],
-                  ))
+                            children: [
+                              Transform.scale(
+                                scale: 1.4,
+                                child: Radio(
+                                  value: option,
+                                  groupValue: _activity,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _activity = value.toString();
+                                    });
+                                  },
+                                ),
+                              ),
+                              Text(
+                                option,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ))
                       .toList(),
                 ),
-                const SizedBox(height: 16.0),
+                //const SizedBox(height: 16.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children:  [
-                    Text("Size"),
-                    // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+                  children: [
+                    const Text(
+                      "Size",
+                      style: TextStyle(fontSize: 18),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.help_outline),
                       onPressed: () {
@@ -163,50 +208,63 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   ],
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: _sizeOptions
                       .map((option) => Row(
-                    children: [
-                      Radio(
-                        value: option,
-                        groupValue: _size,
-                        onChanged: (value) {
-                          setState(() {
-                            _size = value.toString();
-                          });
-                        },
-                      ),
-                      Text(option),
-                      const SizedBox(width: 16.0),
-                    ],
-                  ))
+                            children: [
+                              Transform.scale(
+                                scale: 1.4,
+                                child: Radio(
+                                  value: option,
+                                  groupValue: _size,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _size = value.toString();
+                                    });
+                                  },
+                                ),
+                              ),
+
+                              Text(
+                                option,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              //const SizedBox(width: 16.0),
+                            ],
+                          ))
                       .toList(),
                 ),
-                SizedBox(
-                  //height: 500.0,
-                  //width: 300.0,
-                  child: TextField(
-                    controller: _bioController,
-                    keyboardType: TextInputType.multiline,
-                    minLines: 4,
-                    maxLines: 5,
-                    decoration: const InputDecoration(
+              ],
+            ),
+
+            SizedBox(
+              //height: 500.0,
+              //width: 300.0,
+              child: TextField(
+                controller: _bioController,
+                keyboardType: TextInputType.multiline,
+                minLines: 4,
+                maxLines: 5,
+                decoration: const InputDecoration(
                   hintText: 'About your dog',
                   border: OutlineInputBorder(),
                 ),
-                    style: const TextStyle(
+                style: const TextStyle(
                   fontSize: 18.0,
                 ),
-                    onChanged: (value) {
-                      _bio = value;
-                    },
-                  ),
-                ),
-                _buildImageUploadButton(),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_name.isNotEmpty &&
+                onChanged: (value) {
+                  _bio = value;
+                },
+              ),
+            ),
+            _buildImageUploadButton(),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 40), // Adjust the padding as needed
+              ),
+              onPressed: () {
+                if (_name.isNotEmpty &&
                     _breed.isNotEmpty &&
                     !_age.isNaN &&
                     _gender.isNotEmpty &&
@@ -225,16 +283,18 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                       content: Text('Please fill out all the fields'),
                     ),
                   );
-                    }
-                  },
-                  child: const Text('Register'),
-                ),
-              ],
+                }
+              },
+              child: const Text(
+                'Register',
+                style: TextStyle(fontSize: 20),
+              ),
             ),
-          )),
+          ],
+        ),
+      )),
     );
   }
-
 
   void _showSizeInfoSheet() {
     showModalBottomSheet(
@@ -246,14 +306,11 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text('Info', style: Theme.of(context).textTheme.titleLarge),
-
               Text('Small dog', style: Theme.of(context).textTheme.bodyLarge),
               Text('up to 10kg'),
-
               Text('Medium dog', style: Theme.of(context).textTheme.bodyLarge),
               Text('10 - 25kg'),
-
-              Text('Large dog',style: Theme.of(context).textTheme.bodyLarge),
+              Text('Large dog', style: Theme.of(context).textTheme.bodyLarge),
               Text('More than 25kg'),
               ElevatedButton(
                 onPressed: () {
@@ -278,14 +335,15 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text('Info', style: Theme.of(context).textTheme.titleLarge),
-              Text('Low activity level:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Low activity level:',
+                  style: Theme.of(context).textTheme.bodyLarge),
               Text('For dogs who prefer shorter walks'),
-
-              Text('Moderate activity level:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Moderate activity level:',
+                  style: Theme.of(context).textTheme.bodyLarge),
               Text('For dogs who need a moderate amount of exercise and '
                   'will be happy with a 1-2 hour walk. '),
-
-              Text('High activity level: ', style: Theme.of(context).textTheme.bodyLarge),
+              Text('High activity level: ',
+                  style: Theme.of(context).textTheme.bodyLarge),
               Text('For dogs who require a large amount of exercise. '
                   'For example longer walks or activities such as running or swimming.'),
               ElevatedButton(
@@ -301,8 +359,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
     );
   }
 
-
-
   Widget _buildImageUploadButton() {
     String storageUrl = "gs://bark-buddy.appspot.com";
     return Row(
@@ -317,7 +373,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+                await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
@@ -331,18 +387,19 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
           icon: _profilePic == null || _profilePic!.isEmpty
               ? const Icon(Icons.add_a_photo)
               : CircleAvatar(
-            backgroundImage: _profilePic!.startsWith('http')
-                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-            radius: 30,
-            child: _profilePic!.isEmpty || _profilePic == null
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),
+                  backgroundImage: _profilePic!.startsWith('http')
+                      ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                      : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+                  radius: 30,
+                  child: _profilePic!.isEmpty || _profilePic == null
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.check, color: Colors.white),
+                ),
         )
       ],
     );
   }
+
   String? getProfilePic() {
     return _profilePic;
   }

@@ -10,7 +10,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-
   String _email = '';
   String _password = '';
   String _adult = '';
@@ -47,6 +46,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: _formUI(),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 40), // Adjust the padding as needed
+                  ),
                   onPressed: () async {
                     if (_validateInputs()) {
                       if (_adult == 'Yes') {
@@ -56,19 +60,25 @@ class _RegisterPageState extends State<RegisterPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                  const MakeOwnerProfilePage()));
+                                      const MakeOwnerProfilePage()));
                         }
                       }
                     }
                   },
-                  child: const Text('Register'),
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('Already have an account? Login here.'),
+                  child: const Text(
+                    'Already have an account? Login here.',
+                    style: TextStyle(fontSize: 15),
+                  ),
                 ),
               ],
             ),
@@ -123,7 +133,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _formUI() {
     return Column(children: [
       const SizedBox(height: 32.0),
-
       const SizedBox(height: 16.0),
       TextFormField(
         validator: (value) {
@@ -135,6 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
         keyboardType: TextInputType.emailAddress,
         decoration: const InputDecoration(
           labelText: 'Email',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         onChanged: (value) {
@@ -152,6 +162,7 @@ class _RegisterPageState extends State<RegisterPage> {
         obscureText: true,
         decoration: const InputDecoration(
           labelText: 'Password',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         onChanged: (value) {
@@ -159,27 +170,35 @@ class _RegisterPageState extends State<RegisterPage> {
         },
       ),
       const SizedBox(height: 16.0),
-
       const SizedBox(height: 16.0),
-      const Text('Are you over 18?'),
+      const Text(
+        'Are you over 18?',
+        style: TextStyle(fontSize: 18),
+      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: _ageOptions
             .map((option) => Row(
-          children: [
-            Radio(
-              value: option,
-              groupValue: _adult,
-              onChanged: (value) {
-                setState(() {
-                  _adult = value.toString();
-                });
-              },
-            ),
-            Text(option),
-            const SizedBox(width: 10.0),
-          ],
-        ))
+                  children: [
+                    Transform.scale(
+                      scale: 1.4,
+                      child: Radio(
+                        value: option,
+                        groupValue: _adult,
+                        onChanged: (value) {
+                          setState(() {
+                            _adult = value.toString();
+                          });
+                        },
+                      ),
+                    ),
+                    Text(
+                      option,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 10.0),
+                  ],
+                ))
             .toList(),
       ),
       if (_adult == 'No') // check if the user is under 18

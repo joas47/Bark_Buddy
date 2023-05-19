@@ -32,7 +32,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   String? _updatedBio;
   String? _updatedProfilePic;
 
-  final List<String> _genderOptions = ['She', 'He']; // Micke
+  final List<String> _genderOptions = ['Female', 'Male']; // Micke
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
   final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
