@@ -46,13 +46,22 @@ class DatabaseHandler {
 
   // Sends like to other person, if they have already liked you, it will create a match
   static Future<void> sendLike(String friendID) async {
-    print('sending like');
     final firestoreInstance = FirebaseFirestore.instance;
     final users = FirebaseFirestore.instance.collection('users');
     final User? currentUser = FirebaseAuth.instance.currentUser;
     late final userUid = currentUser?.uid;
     final ownerSnapshot = await users.doc(userUid).get();
     final ownerData = ownerSnapshot.data();
+
+    if (ownerData != null &&
+        ownerData.containsKey('matches') &&
+        ownerData['matches'].contains(friendID)) {
+      return;
+    } else if (ownerData != null &&
+        ownerData.containsKey('matches') &&
+        ownerData['pendingLikes'].contains(friendID)) {
+      return;
+    }
 
     final batch = firestoreInstance.batch();
     if (ownerData != null &&
