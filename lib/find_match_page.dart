@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
+import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
@@ -36,11 +37,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
               itemCount: dogSnapshot.data!.docs.length,
               itemBuilder: (context, int itemIndex, int pageViewIndex) {
                 DocumentSnapshot doc = dogSnapshot.data!.docs[itemIndex];
-                /*String ownerRef = doc.get('owner');
-                print(ownerRef);*/
+                String ownerRef = doc.get('owner');
+                print(ownerRef);
                 return StreamBuilder<String?>(
-                  stream: DatabaseHandler.getOwnerPicStream(
-                      "bDoQvXwpygZx4B3INzgEGzEoQ532"),
+                  stream: DatabaseHandler.getOwnerPicStream(doc['owner']),
                   builder: (BuildContext context,
                       AsyncSnapshot<String?> ownerSnapshot) {
                     if (ownerSnapshot.hasError) {
@@ -56,25 +56,58 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     if (dogPicURLs != null && dogPicURLs.isEmpty) {
                       return const Text('Error: dog has no picture');
                     }
-                    String dogPicURL = doc['pictureUrls'][0] /*['url']*/;
+                    String dogPicURL = doc['pictureUrls'][0];
                     return Column(
                       children: [
-                        Image(image: NetworkImage(ownerPicURL!), height: 100),
-                        Container(
-                          height: 300,
-                          margin: const EdgeInsets.all(6.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            image: DecorationImage(
-                              image: NetworkImage(dogPicURL),
-                              fit: BoxFit.cover,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      ViewOwnerProfile(userId: doc['owner'])),
+                            );
+                          },
+                          child: Image(
+                              image: NetworkImage(ownerPicURL!), height: 100),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      ViewDogProfilePage(userId: doc['owner'])),
+                            );
+                          },
+                          child: Container(
+                            height: 300,
+                            margin: const EdgeInsets.all(6.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                image: NetworkImage(dogPicURL),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
-                        Text(doc['Name'] +
-                            ", " +
-                            doc['Age'].toString() +
-                            " years old"),
+                        Row(
+                          children: [
+                            Text(doc['Name'] +
+                                ", " +
+                                doc['Age'].toString() +
+                                " " +
+                                doc['Gender']),
+                            IconButton(
+                              // TODO: make this a heart icon
+                              icon: const Icon(Icons.heart_broken),
+                              onPressed: () {
+                                // TODO send like
+                              },
+                            ),
+                          ],
+                        )
                       ],
                     );
                   },
