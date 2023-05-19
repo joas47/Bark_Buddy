@@ -82,8 +82,9 @@ class ViewOwnerProfile extends StatelessWidget {
                       onTap: () {
                         Navigator.pop(context);
                       },
-                      child: FutureBuilder<String?>(
-                        future: DatabaseHandler.getDogPic(userId),
+
+                      child: StreamBuilder<String?>(
+                        stream: DatabaseHandler.getDogPic(userId),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
@@ -102,6 +103,31 @@ class ViewOwnerProfile extends StatelessWidget {
                           }
                         },
                       ),
+
+
+
+
+
+                      /*child: FutureBuilder<String?>(
+                        future: DatabaseHandler.getDogPic(userId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasData && snapshot.data != null) {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: NetworkImage(snapshot.data!),
+                            );
+                          } else {
+                            return CircleAvatar(
+                              radius: 50.0,
+                              backgroundImage: AssetImage(
+                                'assets/images/placeholder-profile-image.png',
+                              ),
+                            );
+                          }
+                        },
+                      ),*/
                     ),
                   ),
                 ],

@@ -209,15 +209,18 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
           onPressed: () async {
             // show dialog with options to choose image or take a new one
             final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+            await ImageUtils.showImageSourceDialog(context, maxImages: 1);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage, storageUrl);
-              setState(() {
-                _profilePic = imageUrl;
-              });
+                  selectedImage[0], storageUrl);
+
+              if(mounted){
+                setState(() {
+                  _profilePic = imageUrl;
+                });
+              }
             }
           },
           icon: _profilePic == null || _profilePic!.isEmpty

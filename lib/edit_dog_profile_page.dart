@@ -21,16 +21,19 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   int _age = -1;
   String _bio = '';
   String _size = '';
-  String? _profilePic = '';
+
   bool _isCastrated = false;
   bool _initCastraded = false;
   String _activity = '';
-
   String? _updatedName;
   String? _updatedBreed;
   int? _updatedAge;
   String? _updatedBio;
-  String? _updatedProfilePic;
+
+  List<String> _profilePicUrls = [];
+  List<String> _updatedProfilePicUrls = [];
+
+
 
   final List<String> _genderOptions = ['She', 'He']; // Micke
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
@@ -100,8 +103,12 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               if (_size.isEmpty) {
                 _size = size;
               }
-              final String? profilePic = dogData.get('picture') as String?;
-              _profilePic = profilePic;
+
+
+              final List<dynamic>? profilePicUrlsDynamic = dogData.get('pictureUrls') as List<dynamic>?;
+              final List<String>? profilePicUrls = profilePicUrlsDynamic?.map((item) => item as String).toList();
+              _profilePicUrls = profilePicUrls ?? [];
+
 
               return Stack(alignment: Alignment.center, children: <Widget>[
                 Column(
@@ -236,6 +243,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                         },
                       ),
                     ),
+
                     _buildImageUploadButton(),
                     const SizedBox(height: 16.0),
                     // TODO: move this Text so it's next to the radio buttons instead of above.
@@ -246,7 +254,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                           // TODO: uncomment this
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
-                              _profilePic != null) {
+                              _profilePicUrls != null) {
                             if (_updatedBio != null) {
                               _bio = _updatedBio!;
                             }
@@ -259,8 +267,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                             if (_updatedAge != null) {
                               _age = _updatedAge!;
                             }
-                            if (_updatedProfilePic != null) {
-                              _profilePic = _updatedProfilePic!;
+                            if (_updatedProfilePicUrls != null) {
+                              _profilePicUrls = _updatedProfilePicUrls!;
                             }
                             DatabaseHandler.updateDog(
                                 _name,
@@ -268,12 +276,12 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                                 _gender,
                                 _age,
                                 _bio,
-                                _profilePic,
+                                _profilePicUrls,
                                 _size,
                                 _isCastrated,
                                 _activity,
                                 _dogId!);
-                            Navigator.pop(context);
+                            Navigator.pop(context); //--------------------------
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -441,29 +449,54 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         IconButton(
           onPressed: () async {
             // show dialog with options to choose image or take a new one
-            final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+            final selectedImages = await ImageUtils.showImageSourceDialog(context, maxImages: 5);
 
             // upload image to Firebase Storage
-            if (selectedImage != null) {
+            /*if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage, storageUrl);
               setState(() {
                 _updatedProfilePic = imageUrl;
               });
+            }*/
+            if (selectedImages != null && selectedImages.isNotEmpty){
+              for(final selectedImage in selectedImages){
+                final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+
+                if(mounted) { // Check if the state object is still in the tree.
+                  setState(() {
+                    _updatedProfilePicUrls.add(imageUrl!);
+                  });
+                }
+                /*setState(() {
+                  _updatedProfilePicUrls.add(imageUrl!);
+                });*/
+              }
             }
           },
-          icon: _profilePic == null || _profilePic!.isEmpty
-              ? const Icon(Icons.add_a_photo)
-              : CircleAvatar(
-            backgroundImage: _profilePic!.startsWith('http')
-                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-            radius: 30,
-            child: _profilePic!.isEmpty || _profilePic == null
+          icon: _profilePicUrls.isEmpty
+              ?const Icon(Icons.add_a_photo)
+              :CircleAvatar(
+                backgroundImage: _profilePicUrls[0].startsWith('http')
+                ? NetworkImage(_profilePicUrls[0])
+                : FileImage(File(_profilePicUrls[0])) as ImageProvider<Object>?,
+                radius: 30,
+                child: _profilePicUrls.isEmpty
                 ? const CircularProgressIndicator()
                 : const Icon(Icons.check, color: Colors.white),
-          ),
+              ),
+
+          /*icon: _profilePic == null || _profilePic!.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+                backgroundImage: _profilePic!.startsWith('http')
+                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
+                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
+                radius: 30,
+                child: _profilePic!.isEmpty || _profilePic == null
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+              ),*/
         )
       ],
     );
