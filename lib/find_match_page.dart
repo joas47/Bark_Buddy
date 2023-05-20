@@ -41,6 +41,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 return StreamBuilder<String?>(
                   // TODO: should not include user matches or pending likes
                   stream: DatabaseHandler.getOwnerPicStream(doc['owner']),
+                  // TODO: Can we pass the context without creating a new BuildContext?
                   builder: (BuildContext context,
                       AsyncSnapshot<String?> ownerSnapshot) {
                     if (ownerSnapshot.hasError) {
