@@ -22,8 +22,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   bool _isCastrated = false;
   String _bio = '';
 
+  // _isImageUploading is used to prevent the user from pressing
+  // the save button before the image is uploaded and resized
+  bool _isImageUploading = false;
+
   //String? _profilePic = '';
   List<String> _pictureUrls = [];
+
   //String? _profilePic = '';
 
   final List<String> _genderOptions = ['Female', 'Male'];
@@ -270,13 +275,23 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     horizontal: 40), // Adjust the padding as needed
               ),
               onPressed: () {
+                if (_isImageUploading) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please wait until the image is uploaded.'),
+                    ),
+                  );
+                  return;
+                }
+                // TODO: give specific error messages to the user for each check
                 if (_name.isNotEmpty &&
                     _breed.isNotEmpty &&
                     !_age.isNaN &&
                     _gender.isNotEmpty &&
                     _activity.isNotEmpty &&
                     _size.isNotEmpty &&
-                    _bio.isNotEmpty) {
+                    _bio.isNotEmpty &&
+                    _pictureUrls.isNotEmpty) {
                   DatabaseHandler.addDogToDatabase(_name, _breed, _age, _gender,
                       _isCastrated, _activity, _size, _bio, _pictureUrls);
                   Navigator.pushAndRemoveUntil(
@@ -389,13 +404,15 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
               });
             }*/
             if (selectedImages != null && selectedImages.isNotEmpty){
-              for(final selectedImage in selectedImages){
+              _isImageUploading = true;
+              for (final selectedImage in selectedImages) {
                 final imageUrl = await ImageUtils.uploadImageToFirebase(
                     selectedImage, storageUrl, ImageType.dog);
 
                 if (mounted) {
                   setState(() {
                     _pictureUrls.add(imageUrl!);
+                    _isImageUploading = false;
                   });
                 }
 

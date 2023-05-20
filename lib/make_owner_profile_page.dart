@@ -88,7 +88,6 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               Builder(builder: (BuildContext context) {
                 return ElevatedButton(
                   onPressed: () {
-                    // TODO: if you press Submit before the image is uploaded, you will get an error
                     if (_isImageUploading) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
