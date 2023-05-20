@@ -30,11 +30,12 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   int? _updatedAge;
   String? _updatedBio;
 
+  // _isImageUploading is used to prevent the user from pressing
+  // the save button before the image is uploaded and resized
+  bool _isImageUploading = false;
+
   List<String> _profilePicUrls = [];
   List<String> _updatedProfilePicUrls = [];
-
-
-
 
   final List<String> _genderOptions = ['Female', 'Male']; // Micke
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
@@ -252,7 +253,15 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
                         onPressed: () {
-                          // TODO: uncomment this
+                          if (_isImageUploading) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please wait until the image is uploaded.'),
+                              ),
+                            );
+                            return;
+                          }
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
                               _profilePicUrls != null) {
@@ -461,14 +470,15 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               });
             }*/
             if (selectedImages != null && selectedImages.isNotEmpty){
-              for(final selectedImage in selectedImages){
+              _isImageUploading = true;
+              for (final selectedImage in selectedImages) {
                 final imageUrl = await ImageUtils.uploadImageToFirebase(
                     selectedImage, storageUrl, ImageType.dog);
 
                 if (mounted) {
-                  // Check if the state object is still in the tree.
                   setState(() {
                     _updatedProfilePicUrls.add(imageUrl!);
+                    _isImageUploading = false;
                   });
                 }
                 /*setState(() {
