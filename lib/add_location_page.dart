@@ -167,6 +167,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
                             final selectedImages = await ImageUtils.showImageSourceDialog(context);
 
                             if (selectedImages != null  && selectedImages.isNotEmpty) {
+                              // TODO: make user wait for image to be uploaded and resized before continuing
                               final imageUrl = await ImageUtils.uploadImageToFirebase(
                                 selectedImages[0],
                                       storageUrl,
