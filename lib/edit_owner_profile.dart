@@ -26,6 +26,10 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   String? _updatedBio;
   String? _updatedProfilePic;
 
+  // _isImageUploading is used to prevent the user from pressing
+  // the save button before the image is uploaded and resized
+  bool _isImageUploading = false;
+
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
   final _formKey = GlobalKey<FormState>();
@@ -109,13 +113,19 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          if (_isImageUploading) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please wait until the image is uploaded.'),
+                              ),
+                            );
+                            return;
+                          }
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
                               _profilePic != null) {
-                            if (_updatedProfilePic != null) {
-                              _profilePic = _updatedProfilePic;
-                            }
                             if (_updatedFName != null) {
                               _fName = _updatedFName!;
                             }
@@ -127,6 +137,9 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                             }
                             if (_updatedBio != null) {
                               _bio = _updatedBio!;
+                            }
+                            if (_updatedProfilePic != null) {
+                              _profilePic = _updatedProfilePic;
                             }
                             DatabaseHandler.updateUser(_fName, _lName, _gender,
                                 _age, _bio, _profilePic, dogRef);
@@ -263,11 +276,13 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
+              _isImageUploading = true;
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage[0], storageUrl, ImageType.owner);
               if (mounted) {
                 setState(() {
                   _updatedProfilePic = imageUrl;
+                  _isImageUploading = false;
                 });
               }
 

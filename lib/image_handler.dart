@@ -115,15 +115,35 @@ class ImageUtils {
       final uploadTask = uploadReference.putFile(imageFile);
       await uploadTask.whenComplete(() {});
 
-      // Get the download URL of the uploaded image
-      final url = await uploadReference.getDownloadURL();
-      return url;
+      // timestamp for measuring time between upload and resize
+      final time = DateTime.now().millisecondsSinceEpoch;
+      final resizedURL = await _getResizedURL(userFolderReference, fileName);
+      print(
+          "Time between upload and resize: ${DateTime.now().millisecondsSinceEpoch - time}ms");
+      return resizedURL;
     } catch (e) {
-      print(e);
-      return null;
+      print("Outer error: $e");
+    }
+    return null;
+  }
+
+  static Future<String> _getResizedURL(
+      Reference userFolderReference, String fileName) async {
+    // Get the download URL of the uploaded image
+    // wait for the image to be resized before returning the url
+    try {
+      String resizedURL = await userFolderReference
+          .child('${fileName}_850x850.jpg')
+          .getDownloadURL();
+      return resizedURL;
+    } catch (e) {
+      // wait 1 second before trying again
+      Future.delayed(const Duration(seconds: 1));
+      return _getResizedURL(userFolderReference, fileName);
     }
   }
 
+  // gamla
   /*static Future<String?> uploadImageToFirebase(File imageFile, String storageUrl) async {
     try {
       // Create a StorageReference to the specified URL
