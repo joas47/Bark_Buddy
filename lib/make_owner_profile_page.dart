@@ -22,6 +22,10 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
   String _bio = '';
   String? _profilePic = '';
 
+  // _isImageUploading is used to prevent the user from pressing
+  // the save button before the image is uploaded and resized
+  bool _isImageUploading = false;
+
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
   final _formKey = GlobalKey<FormState>();
@@ -85,6 +89,15 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                 return ElevatedButton(
                   onPressed: () {
                     // TODO: if you press Submit before the image is uploaded, you will get an error
+                    if (_isImageUploading) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Please wait until the image is uploaded.'),
+                        ),
+                      );
+                      return;
+                    }
                     if (_validateInputs() &&
                         _gender.isNotEmpty &&
                         _profilePic != null &&
@@ -236,12 +249,14 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
+              _isImageUploading = true;
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage[0], storageUrl, ImageType.owner);
 
               if (mounted) {
                 setState(() {
                   _profilePic = imageUrl;
+                  _isImageUploading = false;
                 });
               }
             }

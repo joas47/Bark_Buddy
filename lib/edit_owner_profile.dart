@@ -113,7 +113,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
-                        onPressed: () async {
+                        onPressed: () {
                           if (_isImageUploading) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -285,10 +285,6 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                   _isImageUploading = false;
                 });
               }
-
-              /*setState(() {
-                _updatedProfilePic = imageUrl;
-              });*/
             }
           },
           icon: _profilePic == null || _profilePic!.isEmpty
