@@ -264,8 +264,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 },
               ),
             ),
-            // TODO: force the user to upload at least one image.
-            // might need to make the same change in the dog edit page
             _buildImageUploadButton(),
             const SizedBox(height: 16.0),
             ElevatedButton(

@@ -10,147 +10,6 @@ import 'database_handler.dart';
 
 import 'edit_dog_profile_page.dart';
 
-/*class ViewDogProfilePage extends StatelessWidget {
-  const ViewDogProfilePage({super.key});
-
-
-  @override
-  Widget build(BuildContext context) {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dog profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()));
-            },
-          ),
-        ],
-      ),
-
-      // TODO: This is a lot of reading from the database. Is there a better way?
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(userUid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-
-            final userData = snapshot.data!;
-            final dog = userData.get('dogs');
-
-            return Stack(alignment: Alignment.center, children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: ElevatedButton(
-                        child: const Text('Add place'),
-                        onPressed: () {},
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: AssetImage(
-                              'assets/images/placeholder-dog-image2.png'),
-                        ),
-                      ),
-                    ),
-                  ]),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  InkWell(
-                      onTap: () async {
-                        await showDialog(
-                            context: context,
-                            builder: (context) => const ImageDialog(
-                                  imagePaths: [
-                                    'assets/images/placeholder-dog-image.png',
-                                    'assets/images/placeholder-dog-image2.png',
-                                  ],
-                                  initialIndex: 0, // Display second image first
-                                ));
-                      },
-                      child: const CircleAvatar(
-                        radius: 100.0,
-                        backgroundImage:
-// TODO: get this information from the database
-
-                            AssetImage(
-                                'assets/images/placeholder-dog-image2.png'),
-                      )),
-                  Text(
-                    name + ' ' + surname,
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    //height: 500.0,
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 1,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                          // TODO: get this information from the database
-                          hintText: '• ' + gender! + '\n• ' + age.toString(),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
-                            },
-                          )),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  SizedBox(
-                    //height: 500.0,
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        // TODO: get this information from the database
-                        hintText: '• ' + about!,
-                        border: OutlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ]);
-          }),
-    );
-  }
-}*/
-
 class ViewDogProfilePage extends StatefulWidget {
   String? userId;
   ViewDogProfilePage({Key? key, this.userId = 'defaultValue'}) : super(key: key);
@@ -226,7 +85,6 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                 children: <Widget>[
                   Align(
                     alignment: Alignment.topLeft,
-                    // TODO: display the add location only if we're in the current user's profile
                     child: currentUser
                         ? ElevatedButton.icon(
                             icon: const Icon(Icons.add_location),
@@ -246,7 +104,6 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     alignment: Alignment.topRight,
                     child: InkWell(
                       onTap: () {
-                        // TODO: make the bottom navigation bar persist when navigating to the owner profile page
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => ViewOwnerProfile(userId: userId)),
