@@ -264,8 +264,8 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
             // upload image to Firebase Storage
             if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage[0], storageUrl);
-              if(mounted){
+                  selectedImage[0], storageUrl, ImageType.owner);
+              if (mounted) {
                 setState(() {
                   _updatedProfilePic = imageUrl;
                 });

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +9,12 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
+
+enum ImageType {
+  dog,
+  owner,
+  location,
+}
 
 class ImageUtils {
   static Future<File?> pickImageFromGallery() async {
@@ -52,7 +59,72 @@ class ImageUtils {
     return null;
   }
 
-  static Future<String?> uploadImageToFirebase(File imageFile, String storageUrl) async {
+/*  static Future<void> uploadImageToFirebaseStorage(File imageFile, String userId) async {
+    String storageUrl = "gs://bark-buddy";
+    userId = FirebaseAuth.instance.currentUser!.uid; // testing only
+    try {
+      // Create a Firebase Storage reference
+      final FirebaseStorage storage = FirebaseStorage.instance;
+      final Reference storageRef = storage.ref();
+
+      // Create a folder for the user within the storage bucket
+      final userFolderRef = storageRef.child('users/$userId');
+
+      // Generate a unique filename for the image
+      final filename = Path.basename(imageFile.path);
+      final imageRef = userFolderRef.child(filename);
+
+      // Upload the image file to Firebase Storage
+      final uploadTask = imageRef.putFile(imageFile);
+
+      // Monitor the upload progress
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        print('Upload progress: $progress');
+      });
+
+      // Await the upload completion
+      await uploadTask.whenComplete(() {
+        print('Image uploaded successfully');
+      });
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }*/
+
+  static Future<String?> uploadImageToFirebase(
+      File imageFile, String storageUrl, ImageType imageType) async {
+    // TODO: don't hardcode storage URL here
+    String storageUrl = "gs://bark-buddy";
+    try {
+      // Create a StorageReference to the specified URL
+      final storageReference = FirebaseStorage.instance.refFromURL(storageUrl);
+
+      // Create a unique filename for the image
+      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+      // Get the user's unique identifier or username
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
+      // Create a reference to the user's folder within the storage bucket
+      final userFolderReference =
+          storageReference.child('users/$userId/images/${imageType.name}');
+
+      // Upload the image to Firebase Storage within the user's folder
+      final uploadReference = userFolderReference.child('$fileName.jpg');
+      final uploadTask = uploadReference.putFile(imageFile);
+      await uploadTask.whenComplete(() {});
+
+      // Get the download URL of the uploaded image
+      final url = await uploadReference.getDownloadURL();
+      return url;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  /*static Future<String?> uploadImageToFirebase(File imageFile, String storageUrl) async {
     try {
       // Create a StorageReference to the specified URL
       final storageReference = FirebaseStorage.instance.refFromURL(storageUrl);
@@ -72,7 +144,7 @@ class ImageUtils {
       print(e);
       return null;
     }
-  }
+  }*/
 
   static Future<List?> showImageSourceDialog(BuildContext context, {int maxImages = 1}) async {
     final ImageSource? source = await showDialog<ImageSource>(

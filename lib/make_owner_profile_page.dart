@@ -237,7 +237,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
             // upload image to Firebase Storage
             if (selectedImage != null) {
               final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage[0], storageUrl);
+                  selectedImage[0], storageUrl, ImageType.owner);
 
               if (mounted) {
                 setState(() {

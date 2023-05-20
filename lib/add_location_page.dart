@@ -169,8 +169,8 @@ class _AddLocationPageState extends State<AddLocationPage> {
                             if (selectedImages != null  && selectedImages.isNotEmpty) {
                               final imageUrl = await ImageUtils.uploadImageToFirebase(
                                 selectedImages[0],
-                                storageUrl,
-                              );
+                                      storageUrl,
+                                      ImageType.location);
                               setState(() {
                                 _locationPic = imageUrl;
                                 _showImageError = false; // Reset the error state

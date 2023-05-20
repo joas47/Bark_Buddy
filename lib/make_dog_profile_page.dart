@@ -390,9 +390,10 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             }*/
             if (selectedImages != null && selectedImages.isNotEmpty){
               for(final selectedImage in selectedImages){
-                final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+                final imageUrl = await ImageUtils.uploadImageToFirebase(
+                    selectedImage, storageUrl, ImageType.dog);
 
-                if(mounted){
+                if (mounted) {
                   setState(() {
                     _pictureUrls.add(imageUrl!);
                   });

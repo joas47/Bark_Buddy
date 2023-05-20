@@ -462,9 +462,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
             }*/
             if (selectedImages != null && selectedImages.isNotEmpty){
               for(final selectedImage in selectedImages){
-                final imageUrl = await ImageUtils.uploadImageToFirebase(selectedImage, storageUrl);
+                final imageUrl = await ImageUtils.uploadImageToFirebase(
+                    selectedImage, storageUrl, ImageType.dog);
 
-                if(mounted) { // Check if the state object is still in the tree.
+                if (mounted) {
+                  // Check if the state object is still in the tree.
                   setState(() {
                     _updatedProfilePicUrls.add(imageUrl!);
                   });
