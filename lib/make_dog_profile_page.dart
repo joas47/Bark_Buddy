@@ -401,8 +401,11 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 _profilePic = imageUrl;
               });
             }*/
-            if (selectedImages != null && selectedImages.isNotEmpty){
-              _isImageUploading = true;
+            if (selectedImages != null && selectedImages.isNotEmpty) {
+              setState(() {
+                _isImageUploading = true;
+              });
+
               for (final selectedImage in selectedImages) {
                 final imageUrl = await ImageUtils.uploadImageToFirebase(
                     selectedImage, storageUrl, ImageType.dog);
@@ -413,10 +416,38 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                   });
                 }
               }
-              _isImageUploading = false;
+
+              setState(() {
+                _isImageUploading = false;
+              });
             }
           },
-          icon: _pictureUrls.isEmpty
+          icon: _isImageUploading
+              ? const CircularProgressIndicator()
+              : _pictureUrls.isEmpty
+                  ? const Icon(Icons.add_a_photo)
+                  : CircleAvatar(
+                      backgroundImage: _pictureUrls[0].startsWith('http')
+                          ? NetworkImage(_pictureUrls[0])
+                          : FileImage(File(_pictureUrls[0]))
+                              as ImageProvider<Object>?,
+                      radius: 30,
+                      child: _pictureUrls.isEmpty
+                          ? const CircularProgressIndicator()
+                          : const Icon(Icons.check, color: Colors.white),
+                    ),
+/*          icon: _pictureUrls.isEmpty
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+            backgroundImage: _pictureUrls[0].startsWith('http')
+                ? NetworkImage(_pictureUrls[0])
+                : FileImage(File(_pictureUrls[0])) as ImageProvider<Object>?,
+            radius: 30,
+            child: _isImageUploading
+                ? const CircularProgressIndicator()
+                : const Icon(Icons.check, color: Colors.white),
+          ),*/
+/*          icon: _pictureUrls.isEmpty
               ?const Icon(Icons.add_a_photo)
               : CircleAvatar(
             backgroundImage: _pictureUrls[0].startsWith('http')
@@ -426,7 +457,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             child: _pictureUrls.isEmpty
                 ? const CircularProgressIndicator()
                 : const Icon(Icons.check, color: Colors.white),
-          ),
+          ),*/
         )
       ],
     );
