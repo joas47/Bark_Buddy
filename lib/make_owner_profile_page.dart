@@ -248,19 +248,26 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
-              _isImageUploading = true;
+              setState(() {
+                _isImageUploading = true;
+              });
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage[0], storageUrl, ImageType.owner);
 
               if (mounted) {
                 setState(() {
                   _profilePic = imageUrl;
+                  _isImageUploading = false;
                 });
               }
-              _isImageUploading = false;
             }
           },
-          icon: _profilePic == null || _profilePic!.isEmpty
+          icon: _isImageUploading
+              ? const CircularProgressIndicator()
+              : _profilePic != null && _profilePic!.isNotEmpty
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : const Icon(Icons.add_a_photo),
+/*          icon: _profilePic == null || _profilePic!.isEmpty
               ? const Icon(Icons.add_a_photo)
               : CircleAvatar(
                   backgroundImage: _profilePic!.startsWith('http')
@@ -270,7 +277,7 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                   child: _profilePic!.isEmpty || _profilePic == null
                       ? const CircularProgressIndicator()
                       : const Icon(Icons.check, color: Colors.white),
-                ),
+                ),*/
         )
       ],
     );
