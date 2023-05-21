@@ -469,8 +469,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 _updatedProfilePic = imageUrl;
               });
             }*/
-            if (selectedImages != null && selectedImages.isNotEmpty){
-              _isImageUploading = true;
+            if (selectedImages != null && selectedImages.isNotEmpty) {
+              setState(() {
+                _isImageUploading = true;
+              });
+
               for (final selectedImage in selectedImages) {
                 final imageUrl = await ImageUtils.uploadImageToFirebase(
                     selectedImage, storageUrl, ImageType.dog);
@@ -482,19 +485,23 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 }
               }
             }
-            _isImageUploading = false;
+
+            setState(() {
+              _isImageUploading = false;
+            });
           },
           icon: _profilePicUrls.isEmpty
-              ?const Icon(Icons.add_a_photo)
-              :CircleAvatar(
-                backgroundImage: _profilePicUrls[0].startsWith('http')
-                ? NetworkImage(_profilePicUrls[0])
-                : FileImage(File(_profilePicUrls[0])) as ImageProvider<Object>?,
-                radius: 30,
-                child: _profilePicUrls.isEmpty
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-              ),
+              ? const Icon(Icons.add_a_photo)
+              : CircleAvatar(
+                  backgroundImage: _profilePicUrls[0].startsWith('http')
+                      ? NetworkImage(_profilePicUrls[0])
+                      : FileImage(File(_profilePicUrls[0]))
+                          as ImageProvider<Object>?,
+                  radius: 30,
+                  child: _isImageUploading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.check, color: Colors.white),
+                ),
 
           /*icon: _profilePic == null || _profilePic!.isEmpty
               ? const Icon(Icons.add_a_photo)
