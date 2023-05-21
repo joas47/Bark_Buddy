@@ -265,7 +265,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          'Upload profile picture',
+          'Update profile picture:',
           style: TextStyle(fontSize: 18.0),
         ),
         const SizedBox(width: 16.0),
@@ -276,29 +276,29 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
-              _isImageUploading = true;
+              setState(() {
+                _isImageUploading = true;
+              });
               final imageUrl = await ImageUtils.uploadImageToFirebase(
                   selectedImage[0], storageUrl, ImageType.owner);
               if (mounted) {
                 setState(() {
                   _updatedProfilePic = imageUrl;
+                  _isImageUploading = false;
                 });
               }
-              _isImageUploading = false;
             }
           },
-          icon: _profilePic == null || _profilePic!.isEmpty
-              ? const Icon(Icons.add_a_photo)
-              : CircleAvatar(
-            backgroundImage: _profilePic!.startsWith('http')
-                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-            radius: 30,
-            child: _profilePic!.isEmpty || _profilePic == null
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),
-        )
+          icon: _isImageUploading
+              ? const CircularProgressIndicator()
+              : _updatedProfilePic != null
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : _profilePic != null
+                      ? CircleAvatar(
+                          backgroundImage: NetworkImage(_profilePic!),
+                          radius: 30)
+                      : const Icon(Icons.add_a_photo),
+        ),
       ],
     );
   }
