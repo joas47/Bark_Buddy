@@ -478,14 +478,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 if (mounted) {
                   setState(() {
                     _updatedProfilePicUrls.add(imageUrl!);
-                    _isImageUploading = false;
                   });
                 }
-                /*setState(() {
-                  _updatedProfilePicUrls.add(imageUrl!);
-                });*/
               }
             }
+            _isImageUploading = false;
           },
           icon: _profilePicUrls.isEmpty
               ?const Icon(Icons.add_a_photo)

@@ -410,14 +410,10 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                 if (mounted) {
                   setState(() {
                     _pictureUrls.add(imageUrl!);
-                    _isImageUploading = false;
                   });
                 }
-
-                /*setState(() {
-                  _pictureUrls.add(imageUrl!);
-                });*/
               }
+              _isImageUploading = false;
             }
           },
           icon: _pictureUrls.isEmpty
