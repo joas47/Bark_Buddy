@@ -289,6 +289,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
               }
             }
           },
+          // TODO: display the current profile picture if there is one (low priority)
           icon: _isImageUploading
               ? const CircularProgressIndicator()
               : _updatedProfilePic != null
