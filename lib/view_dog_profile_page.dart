@@ -151,9 +151,9 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       radius: 100.0,
                       backgroundImage: pictureUrls.isNotEmpty
                           ? NetworkImage(pictureUrls[0])
-                          : AssetImage(
-                        'assets/images/placeholder-dog-image2.png',
-                      ) as ImageProvider<Object>,
+                          : const AssetImage(
+                              'assets/images/placeholder-dog-image2.png',
+                            ) as ImageProvider<Object>,
                     ),
                   ),
                   Text(

@@ -94,10 +94,10 @@ class ViewOwnerProfile extends StatelessWidget {
                               backgroundImage: NetworkImage(snapshot.data!),
                             );
                           } else {
-                            return CircleAvatar(
+                            return const CircleAvatar(
                               radius: 50.0,
                               backgroundImage: AssetImage(
-                                'assets/images/placeholder-profile-image.png',
+                                'assets/images/placeholder-dog-image.png',
                               ),
                             );
                           }
