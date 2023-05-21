@@ -282,9 +282,9 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
               if (mounted) {
                 setState(() {
                   _updatedProfilePic = imageUrl;
-                  _isImageUploading = false;
                 });
               }
+              _isImageUploading = false;
             }
           },
           icon: _profilePic == null || _profilePic!.isEmpty

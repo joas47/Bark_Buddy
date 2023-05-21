@@ -255,9 +255,9 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               if (mounted) {
                 setState(() {
                   _profilePic = imageUrl;
-                  _isImageUploading = false;
                 });
               }
+              _isImageUploading = false;
             }
           },
           icon: _profilePic == null || _profilePic!.isEmpty
