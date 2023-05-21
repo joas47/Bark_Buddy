@@ -106,11 +106,12 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 _size = size;
               }
 
-
-              final List<dynamic>? profilePicUrlsDynamic = dogData.get('pictureUrls') as List<dynamic>?;
-              final List<String>? profilePicUrls = profilePicUrlsDynamic?.map((item) => item as String).toList();
-              _profilePicUrls = profilePicUrls ?? [];
-
+              final List<dynamic>? profilePicUrlsDynamic =
+                  dogData.get('pictureUrls') as List<dynamic>?;
+              final List<String>? profilePicUrls =
+                  profilePicUrlsDynamic?.map((item) => item as String).toList();
+              //_profilePicUrls = profilePicUrls ?? [];
+              _profilePicUrls = profilePicUrls!;
 
               return Stack(alignment: Alignment.center, children: <Widget>[
                 Column(
