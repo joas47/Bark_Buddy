@@ -296,7 +296,8 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                   : _profilePic != null
                       ? CircleAvatar(
                           backgroundImage: NetworkImage(_profilePic!),
-                          radius: 30)
+                          radius: 30,
+                          child: const Icon(Icons.check, color: Colors.white))
                       : const Icon(Icons.add_a_photo),
         ),
       ],
