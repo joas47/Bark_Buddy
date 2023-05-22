@@ -324,7 +324,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                   //TODO: make this a heart icon
                                   icon: const Icon(Icons.heart_broken),
                                   onPressed: () async {
-                                    bool isMatch = await DatabaseHandler.sendLike(doc.id);
+                                    // TODO: if the last dog is liked, the match dialog will not show if there's a match
+                                  bool isMatch = await DatabaseHandler.sendLike(doc.id);
                                     if (isMatch) {
                                       final User? currentUser =
                                         FirebaseAuth.instance.currentUser;
