@@ -161,20 +161,22 @@ class _FindMatchPageState extends State<FindMatchPage> {
         builder: (context, userSnapshot) {
           if (userSnapshot.hasData) {
             final userDocs = userSnapshot.data!.docs;
-            List<QueryDocumentSnapshot> toRemove = [];
-            DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
-                element.id == FirebaseAuth.instance.currentUser!.uid);
-            for (var doc in userDocs) {
-                // TODO: availability check (timeslot)
-                // TODO: give feedback when liking a dog, right now it just disappears
-              doc.id == FirebaseAuth.instance.currentUser!.uid
-                    ? toRemove.add(doc)
-                    : null;
-                doc.data().toString().contains('dogs')
-                    ? null
-                    : toRemove.add(doc);
-                if (currentUserDoc.data().toString().contains('matches')) {
-                  if (currentUserDoc['matches'].contains(doc.id)) {
+              List<QueryDocumentSnapshot> toRemove = [];
+              DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
+                  element.id == FirebaseAuth.instance.currentUser!.uid);
+              if (currentUserDoc.data().toString().contains('startTime') &&
+                  currentUserDoc.data().toString().contains('endTime')) {
+                for (var doc in userDocs) {
+                  // TODO: availability check (timeslot)
+                  // TODO: give feedback when liking a dog, right now it just disappears
+                  doc.id == FirebaseAuth.instance.currentUser!.uid
+                      ? toRemove.add(doc)
+                      : null;
+                  doc.data().toString().contains('dogs')
+                      ? null
+                      : toRemove.add(doc);
+                  if (currentUserDoc.data().toString().contains('matches')) {
+                    if (currentUserDoc['matches'].contains(doc.id)) {
                     toRemove.add(doc);
                   }
                 }
@@ -189,13 +191,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 doc.data().toString().contains('endTime')
                     ? null
                     : toRemove.add(doc);
-                if (!(currentUserDoc.data().toString().contains('startTime') &&
-                    currentUserDoc.data().toString().contains('endTime'))) {
-                  return const Center(
-                    child:
-                        Text('Click the clock icon to set your availability'),
-                  );
-                }
+              }
 /*              if (doc.data().toString().contains('startTime') &&
                   doc.data().toString().contains('endTime')) {
 
@@ -226,6 +222,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           doc['startTime']) {
                     toRemove.add(doc);
                   }*/
+              } else {
+                return const Center(
+                  child: Text('Click the clock icon to set your availability'),
+                );
               }
               /*bool isTimeOverlap(DocumentSnapshot other, ) {
               // Extract hours and minutes from startTime and endTime
