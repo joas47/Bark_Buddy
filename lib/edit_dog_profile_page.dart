@@ -113,54 +113,85 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               //_profilePicUrls = profilePicUrls ?? [];
               _profilePicUrls = profilePicUrls!;
 
-              return Stack(alignment: Alignment.center, children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 16.0),
-                    Form(
-                      key: _formKey,
-                      autovalidateMode: _autoValidate
-                          ? AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      child: _formUI(name, breed, age, bio),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Text("Gender"),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _genderOptions
-                          .map((option) => Row(
-                                children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _gender,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _gender = value.toString();
-                                      });
-                                    },
+              return Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 16.0),
+                      Form(
+                        key: _formKey,
+                        autovalidateMode: _autoValidate
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        child: _formUI(name, breed, age, bio),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row( // Wrap the gender and castrated fields in a Row
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          // Gender column
+                          Column(
+                            children: [
+                              const Text(
+                                'Gender',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: _genderOptions
+                                    .map((option) => Row(
+                                  children: [Transform.scale(
+                                    scale: 1.4,
+                                    child: Radio(
+                                      value: option,
+                                      groupValue: _gender,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _gender = value.toString();
+                                        });
+                                      },
+                                    ),
                                   ),
-                                  Text(option),
-                                  const SizedBox(width: 10.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                    CheckboxListTile(
-                      // TODO: shrink size
-                      title: const Text('Castrated'),
-                      value: _isCastrated,
-                      onChanged: (value) {
-                        setState(() {
-                          _isCastrated = value!;
-                        });
-                      },
-                    ),
-                    Row(
+                                    Text(option),
+                                    const SizedBox(width: 10.0),
+                                  ],
+                                ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                          // Castrated column
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Castrated?',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Transform.scale(
+                                scale: 1.3,
+                                child: Checkbox(
+                                  value: _isCastrated,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isCastrated = value!;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+              Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Activity Level"),
+                        const Text(
+                          'Activity level',
+                          style: TextStyle(fontSize: 18),
+                        ),
                         // TODO: add a tooltip // this is done but i decided to keep the comment anyway
                         IconButton(
                           icon: const Icon(Icons.help_outline),
@@ -176,14 +207,17 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                       children: _activityOptions
                           .map((option) => Row(
                                 children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _activity,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _activity = value.toString();
-                                      });
-                                    },
+                                  Transform.scale(
+                                    scale: 1.4,
+                                    child: Radio(
+                                      value: option,
+                                      groupValue: _activity,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _activity = value.toString();
+                                        });
+                                      },
+                                    ),
                                   ),
                                   Text(option),
                                   const SizedBox(width: 16.0),
@@ -191,11 +225,13 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                               ))
                           .toList(),
                     ),
-                    const SizedBox(height: 16.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Size"),
+                        const Text(
+                          'Size',
+                          style: TextStyle(fontSize: 18),
+                        ),
                         // TODO: add a tooltip // this is done but i decided to keep the comment anyway
                         IconButton(
                           icon: const Icon(Icons.help_outline),
@@ -210,8 +246,9 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _sizeOptions
                           .map((option) => Row(
-                                children: [
-                                  Radio(
+                                children: [Transform.scale(
+                                  scale: 1.4,
+                                  child: Radio(
                                     value: option,
                                     groupValue: _size,
                                     onChanged: (value) {
@@ -220,6 +257,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                                       });
                                     },
                                   ),
+                                ),
+
                                   Text(option),
                                   const SizedBox(width: 16.0),
                                 ],
@@ -249,10 +288,13 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
                     _buildImageUploadButton(),
                     const SizedBox(height: 16.0),
-                    // TODO: move this Text so it's next to the radio buttons instead of above.
-                    const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 40), // Adjust the padding as needed
+                        ),
                         onPressed: () {
                           if (_isImageUploading) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -302,7 +344,10 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                             );
                           }
                         },
-                        child: const Text('Save profile'),
+                        child: const Text(
+                          'Save profile',
+                          style: TextStyle(fontSize: 20),
+                        ),
                       );
                     }),
                   ],
@@ -322,13 +367,13 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('Info', style: Theme.of(context).textTheme.titleLarge),
-              Text('Small dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('up to 10kg'),
-              Text('Medium dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('10 - 25kg'),
-              Text('Large dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('More than 25kg'),
+              Text('Size info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Small dog:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Up to 10 kg'),
+              Text('Medium dog:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Between 10 - 25 kg'),
+              Text('Large dog:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('More than 25 kg'),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -351,18 +396,18 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Activity info', style: Theme.of(context).textTheme.titleLarge),
               Text('Low activity level:',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who prefer shorter walks'),
+              const Text('For dogs who prefer shorter walks.'),
               Text('Moderate activity level:',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who need a moderate amount of exercise and '
-                  'will be happy with a 1-2 hour walk. '),
+              const Text('For dogs who need a moderate amount of \n exercise and'
+                  'will be happy with a 1-2 hour walk.'),
               Text('High activity level: ',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who require a large amount of exercise. '
-                  'For example longer walks or activities such as running or swimming.'),
+              const Text('For dogs who require a large amount of exercise. \n '
+                  'For example longer walks or activities such as \n running or swimming.'),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -387,7 +432,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           return null;
         },
         decoration: InputDecoration(
-          labelText: 'First name',
+          labelText: 'Name',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -406,6 +452,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'Breed',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -425,6 +472,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'Age',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
