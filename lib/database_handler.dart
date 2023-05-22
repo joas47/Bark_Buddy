@@ -205,6 +205,7 @@ class DatabaseHandler {
   }
 
 
+  // TODO: edit removes all friends and matches.
   static Future<void> updateUser(String fName, String lName, String gender,
       int age, String bio, String? profilePic, String dogRef) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;

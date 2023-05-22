@@ -114,30 +114,40 @@ class _FindMatchPageState extends State<FindMatchPage> {
         title: const Text('Find Match'),
       ),
       body: SingleChildScrollView(
-          child: StreamBuilder<QuerySnapshot>(
+          child: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').snapshots(),
         builder: (context, userSnapshot) {
           if (userSnapshot.hasData) {
             final userDocs = userSnapshot.data!.docs;
             List<QueryDocumentSnapshot> toRemove = [];
+            DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
+                element.id == FirebaseAuth.instance.currentUser!.uid);
             for (var doc in userDocs) {
-              // TODO: should not include user matches or pending likes
+              // TODO: availability check (timeslot)
+              // TODO: give feedback when liking a dog, right now it just disappears
               doc.id == FirebaseAuth.instance.currentUser!.uid
                   ? toRemove.add(doc)
                   : null;
               doc.data().toString().contains('dogs') ? null : toRemove.add(doc);
-              //doc.data().toString().contains('matches') ? toRemove.add(doc) : null;
+              if (currentUserDoc['matches'].contains(doc.id) ||
+                  currentUserDoc['pendingLikes'].contains(doc.id)) {
+                toRemove.add(doc);
+              }
             }
+            for (var doc in toRemove) {
+              print(doc.id);
+            }
+
             userDocs.removeWhere((element) => toRemove.contains(element));
             return CarouselSlider.builder(
               itemCount: userDocs.length,
               itemBuilder: (context, int itemIndex, int pageViewIndex) {
                 DocumentSnapshot doc = userDocs[itemIndex];
 
-                    return StreamBuilder<DocumentSnapshot>(
-                      // TODO: should not include user matches or pending likes
-                      stream: FirebaseFirestore.instance
-                          .collection('Dogs')
+                return StreamBuilder<DocumentSnapshot>(
+                  // TODO: should not include user matches or pending likes
+                  stream: FirebaseFirestore.instance
+                      .collection('Dogs')
                           .doc(doc['dogs'])
                           .snapshots(),
                       builder: (context, dogSnapshot) {
