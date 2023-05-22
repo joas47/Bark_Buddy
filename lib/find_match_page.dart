@@ -115,23 +115,24 @@ class _FindMatchPageState extends State<FindMatchPage> {
       ),
       body: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .where(FieldPath.documentId,
-                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                .snapshots(),
-            builder: (context, userSnapshot) {
-              if (userSnapshot.hasData) {
-                return CarouselSlider.builder(
-                  itemCount: userSnapshot.data!.docs.length,
-                  itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                    DocumentSnapshot doc = userSnapshot.data!.docs[itemIndex];
-                    //String ownerRef = doc.get('owner');
-                    //print(ownerRef);
-
-                    if (doc.get('dogs') == null) {
-                      // DO SOMETHING HERE when yourField doesn't exist
-                    }
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, userSnapshot) {
+          if (userSnapshot.hasData) {
+            final userDocs = userSnapshot.data!.docs;
+            List<QueryDocumentSnapshot> toRemove = [];
+            for (var doc in userDocs) {
+              // TODO: should not include user matches or pending likes
+              doc.id == FirebaseAuth.instance.currentUser!.uid
+                  ? toRemove.add(doc)
+                  : null;
+              doc.data().toString().contains('dogs') ? null : toRemove.add(doc);
+              //doc.data().toString().contains('matches') ? toRemove.add(doc) : null;
+            }
+            userDocs.removeWhere((element) => toRemove.contains(element));
+            return CarouselSlider.builder(
+              itemCount: userDocs.length,
+              itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                DocumentSnapshot doc = userDocs[itemIndex];
 
                     return StreamBuilder<DocumentSnapshot>(
                       // TODO: should not include user matches or pending likes
