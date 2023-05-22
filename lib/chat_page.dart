@@ -7,10 +7,12 @@ import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key});
@@ -320,13 +322,35 @@ class _MatchChatPageState extends State<MatchChatPage> {
                               },
                             ),
                             SizedBox(height: 8),
-                            Text(
+                            isPlaceRecommendation && link != null
+                                ? RichText(
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: getMainText(messageText),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  TextSpan(
+                                      text: getLastTwoWords(messageText),
+                                      style: TextStyle(color: Colors.white, decoration: TextDecoration.underline),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Uri linkToMaps = Uri.parse(link);
+                                          launchUrl(linkToMaps);
+                                        }
+                                  ),
+                                ],
+                              ),
+                            )
+                                : Text(
                               messageText,
                               style: TextStyle(color: Colors.white),
                             ),
                             FutureBuilder<String?>(
                               future: _formatTimestamp(timestamp, senderId, isPlaceRecommendation),
-                              builder: (context, snapshot) {
+                              builder: (context, snapshot)
+
+                              {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return Text(
@@ -380,6 +404,17 @@ class _MatchChatPageState extends State<MatchChatPage> {
         ],
       ),
     );
+  }
+  String getLastTwoWords(String text) {
+    List<String> words = text.split(' ');
+    if (words.length < 2) return text;
+    return words.sublist(words.length - 2).join(' ');
+  }
+
+  String getMainText(String text) {
+    List<String> words = text.split(' ');
+    if (words.length < 2) return '';
+    return words.sublist(0, words.length - 2).join(' ');
   }
 
   Future<String?> _getSenderProfilePicture(String senderId) async {
