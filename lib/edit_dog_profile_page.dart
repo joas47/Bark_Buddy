@@ -288,69 +288,71 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
                     _buildImageUploadButton(),
                     const SizedBox(height: 16.0),
-                    Builder(builder: (BuildContext context) {
-                      return ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 40), // Adjust the padding as needed
-                        ),
-                        onPressed: () {
-                          if (_isImageUploading) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Please wait until the image is uploaded.'),
+                      Builder(builder: (BuildContext context) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 20.0), // Adjust the margin as per your requirement
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 40, // Adjust the padding as needed
                               ),
-                            );
-                            return;
-                          }
-                          if (_validateInputs() &&
-                              _gender.isNotEmpty &&
-                              _profilePicUrls != null) {
-                            if (_updatedBio != null) {
-                              _bio = _updatedBio!;
-                            }
-                            if (_updatedName != null) {
-                              _name = _updatedName!;
-                            }
-                            if (_updatedBreed != null) {
-                              _breed = _updatedBreed!;
-                            }
-                            if (_updatedAge != null) {
-                              _age = _updatedAge!;
-                            }
-                            if (_updatedProfilePicUrls != null) {
-                              _profilePicUrls = _updatedProfilePicUrls!;
-                            }
-                            DatabaseHandler.updateDog(
-                                _name,
-                                _breed,
-                                _gender,
-                                _age,
-                                _bio,
-                                _profilePicUrls,
-                                _size,
-                                _isCastrated,
-                                _activity,
-                                _dogId!);
-                            Navigator.pop(context); //--------------------------
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'You must fill out all the fields before continuing.'),
-                              ),
-                            );
-                          }
-                        },
-                        child: const Text(
-                          'Save profile',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      );
-                    }),
-                  ],
+                            ),
+                            onPressed: () {
+                              if (_isImageUploading) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please wait until the image is uploaded.'),
+                                  ),
+                                );
+                                return;
+                              }
+                              if (_validateInputs() &&
+                                  _gender.isNotEmpty &&
+                                  _profilePicUrls != null) {
+                                if (_updatedBio != null) {
+                                  _bio = _updatedBio!;
+                                }
+                                if (_updatedName != null) {
+                                  _name = _updatedName!;
+                                }
+                                if (_updatedBreed != null) {
+                                  _breed = _updatedBreed!;
+                                }
+                                if (_updatedAge != null) {
+                                  _age = _updatedAge!;
+                                }
+                                if (_updatedProfilePicUrls != null) {
+                                  _profilePicUrls = _updatedProfilePicUrls!;
+                                }
+                                DatabaseHandler.updateDog(
+                                    _name,
+                                    _breed,
+                                    _gender,
+                                    _age,
+                                    _bio,
+                                    _profilePicUrls,
+                                    _size,
+                                    _isCastrated,
+                                    _activity,
+                                    _dogId!);
+                                Navigator.pop(context); //--------------------------
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('You must fill out all the fields before continuing.'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text(
+                              'Save profile',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
                 ),
               ]);
             }),
