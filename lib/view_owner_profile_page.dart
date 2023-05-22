@@ -89,20 +89,27 @@ class ViewOwnerProfile extends StatelessWidget {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           } else if (snapshot.hasData && snapshot.data != null) {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: NetworkImage(snapshot.data!),
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: NetworkImage(snapshot.data!),
+                              ),
                             );
                           } else {
-                            return const CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: AssetImage(
-                                'assets/images/placeholder-dog-image.png',
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: AssetImage(
+                                  'assets/images/placeholder-dog-image.png',
+                                ),
                               ),
                             );
                           }
                         },
                       ),
+
 
 
 
@@ -181,7 +188,7 @@ class ViewOwnerProfile extends StatelessWidget {
                     children: [
                     if (gender != null)
                     Chip(
-                    label: Text(gender),
+                    label: Text('• $gender'),
                     // Add any additional styling properties for the chip as needed
                     ),
           ],
