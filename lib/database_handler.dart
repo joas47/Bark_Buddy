@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/src/material/time.dart';
 import 'package:image_picker/image_picker.dart';
 
 class DatabaseHandler {
@@ -212,7 +213,7 @@ class DatabaseHandler {
     late final userUid = currentUser?.uid;
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     final userDocumentRef = users.doc(userUid);
-    await userDocumentRef.set({
+    await userDocumentRef.update({
       'name': fName,
       'gender': gender,
       'age': age,
@@ -494,8 +495,24 @@ class DatabaseHandler {
     }
   }
 
-
-  static Future<List<String>> getList(){
+  static Future<List<String>> getList() {
     return Future.value(['1', '2']);
+  }
+
+  static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    final batch = firestoreInstance.batch();
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'startTime': startTime.hour,
+      'endTime': endTime.hour,
+    });
+    batch.commit();
   }
 }
