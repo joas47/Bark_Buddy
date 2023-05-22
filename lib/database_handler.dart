@@ -45,7 +45,7 @@ class DatabaseHandler {
   }
 
   // Sends like to other person, if they have already liked you, it will create a match
-  static Future<void> sendLike(String friendID) async {
+  static Future<bool> sendLike(String friendID) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final users = FirebaseFirestore.instance.collection('users');
     final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -56,11 +56,11 @@ class DatabaseHandler {
     if (ownerData != null &&
         ownerData.containsKey('matches') &&
         ownerData['matches'].contains(friendID)) {
-      return;
+      return true;
     } else if (ownerData != null &&
         ownerData.containsKey('matches') &&
         ownerData['pendingLikes'].contains(friendID)) {
-      return;
+      return false;
     }
 
     final batch = firestoreInstance.batch();
@@ -79,6 +79,9 @@ class DatabaseHandler {
         'matches': FieldValue.arrayUnion([userUid]),
         'pendingLikes': FieldValue.arrayRemove([userUid]),
       });
+      await batch.commit();
+      return true; //match has been made, so return true
+
     } else {
       final userDocumentRef = users.doc(userUid);
       batch.update(userDocumentRef, {
@@ -89,9 +92,12 @@ class DatabaseHandler {
       batch.update(friendDocumentRef, {
         'receivedLikes': FieldValue.arrayUnion([userUid]),
       });
+      await batch.commit();
+      return false; //no match has been made, so return false
     }
     // Commit the batch write operation
     await batch.commit();
+    return false;
   }
 
   static Future<void> addFriend(String friendUid) async {

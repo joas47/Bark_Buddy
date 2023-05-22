@@ -17,6 +17,96 @@ class FindMatchPage extends StatefulWidget {
 
 class _FindMatchPageState extends State<FindMatchPage> {
 
+  // showMatchDialog to show a dialog when a match is found
+  Future<void> showMatchDialog(BuildContext context, String friendID, String? myDogPicUrl, String? friendDogPicUrl) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey,
+          titlePadding: EdgeInsets.all(0),
+          title: Container(
+            color: Colors.lightGreen,
+            padding: EdgeInsets.all(20),
+            child: Text(
+              'You have a new match!',
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
+                    radius: 50, // Increased the radius of the CircleAvatar
+                    backgroundImage: myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    child: myDogPicUrl == null ? Text('No picture') : null,
+                  ),
+                  CircleAvatar(
+                    radius: 50, // Increased the radius of the CircleAvatar
+                    backgroundImage: friendDogPicUrl != null ? NetworkImage(friendDogPicUrl) : null,
+                    child: friendDogPicUrl == null ? Text('No picture') : null,
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Container(
+                      width: 250, // Adjust the width of the buttons
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      margin: EdgeInsets.only(bottom: 10.0), // Space between the buttons
+                      child: TextButton(
+                        onPressed: () {
+                          // navigate to chat
+                        },
+                        child: const Text('Chat with match'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white, // This is the text color
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 250, // Adjust the width of the buttons
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          // close the dialog
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Continue finding matches'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white, // This is the text color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,23 +115,24 @@ class _FindMatchPageState extends State<FindMatchPage> {
       ),
       body: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .where(FieldPath.documentId,
-                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                .snapshots(),
-            builder: (context, userSnapshot) {
-              if (userSnapshot.hasData) {
-                return CarouselSlider.builder(
-                  itemCount: userSnapshot.data!.docs.length,
-                  itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                    DocumentSnapshot doc = userSnapshot.data!.docs[itemIndex];
-                    //String ownerRef = doc.get('owner');
-                    //print(ownerRef);
-
-                    if (doc.get('dogs') == null) {
-                      // DO SOMETHING HERE when yourField doesn't exist
-                    }
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, userSnapshot) {
+          if (userSnapshot.hasData) {
+            final userDocs = userSnapshot.data!.docs;
+            List<QueryDocumentSnapshot> toRemove = [];
+            for (var doc in userDocs) {
+              // TODO: should not include user matches or pending likes
+              doc.id == FirebaseAuth.instance.currentUser!.uid
+                  ? toRemove.add(doc)
+                  : null;
+              doc.data().toString().contains('dogs') ? null : toRemove.add(doc);
+              //doc.data().toString().contains('matches') ? toRemove.add(doc) : null;
+            }
+            userDocs.removeWhere((element) => toRemove.contains(element));
+            return CarouselSlider.builder(
+              itemCount: userDocs.length,
+              itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                DocumentSnapshot doc = userDocs[itemIndex];
 
                     return StreamBuilder<DocumentSnapshot>(
                       // TODO: should not include user matches or pending likes
@@ -107,11 +198,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                     " " +
                                     dogDoc['Gender']),
                                 IconButton(
-                                  // TODO: make this a heart icon
+                                  //TODO: make this a heart icon
                                   icon: const Icon(Icons.heart_broken),
-                                  onPressed: () {
-                                    // TODO send like
-                                    DatabaseHandler.sendLike(doc.id);
+                                  onPressed: () async {
+                                    bool isMatch = await DatabaseHandler.sendLike(doc.id);
+                                    if (isMatch) {
+                                      final User? currentUser = FirebaseAuth.instance.currentUser;
+                                      String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUser?.uid).first;
+                                      showMatchDialog(context, doc.id, myDogPicUrl, dogPicURL);
+                                    }
                                   },
                                 ),
                               ],
