@@ -134,9 +134,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
           IconButton(
             icon: const Icon(Icons.schedule),
             onPressed: () async {
-              // timeslot popup
-              /*_timeslotWindow(context);*/
-              // time_range_picker
               TimeRange result = await showTimeRangePicker(
                 context: context,
                 start: const TimeOfDay(hour: 9, minute: 0),
@@ -168,29 +165,49 @@ class _FindMatchPageState extends State<FindMatchPage> {
             DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
                 element.id == FirebaseAuth.instance.currentUser!.uid);
             for (var doc in userDocs) {
-              // TODO: availability check (timeslot)
-              // TODO: give feedback when liking a dog, right now it just disappears
-              doc.id == FirebaseAuth.instance.currentUser!.uid
-                  ? toRemove.add(doc)
-                  : null;
-              doc.data().toString().contains('dogs') ? null : toRemove.add(doc);
-              if (currentUserDoc['matches'].contains(doc.id) ||
-                  currentUserDoc['pendingLikes'].contains(doc.id)) {
-                toRemove.add(doc);
+                // TODO: availability check (timeslot)
+                // TODO: give feedback when liking a dog, right now it just disappears
+                doc.id == FirebaseAuth.instance.currentUser!.uid
+                    ? toRemove.add(doc)
+                    : null;
+                doc.data().toString().contains('dogs')
+                    ? null
+                    : toRemove.add(doc);
+                if (currentUserDoc['matches'].contains(doc.id) ||
+                    currentUserDoc['pendingLikes'].contains(doc.id)) {
+                  toRemove.add(doc);
+                }
+                /*
+              doc.data().toString().contains('startTime') ? null : toRemove.add(doc);
+              doc.data().toString().contains('endTime') ? null : toRemove.add(doc);
+              if (doc.data().toString().contains('startTime') &&
+                  doc.data().toString().contains('endTime')) {
+                int startTimeHour = int.parse(doc['startTime'].toString().substring(0, 1));
+                  if (currentUserDoc['startTime'] >
+                          doc['endTime'] ||
+                      currentUserDoc['endTime'] <
+                          doc['startTime']) {
+                    toRemove.add(doc);
+                  }
+              }*/
               }
-            }
-            userDocs.removeWhere((element) => toRemove.contains(element));
-            return CarouselSlider.builder(
-              itemCount: userDocs.length,
-              itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                DocumentSnapshot doc = userDocs[itemIndex];
+              userDocs.removeWhere((element) => toRemove.contains(element));
+              if (userDocs.isEmpty) {
+                return const Center(
+                  child: Text('No matches found'),
+                );
+              }
+              return CarouselSlider.builder(
+                itemCount: userDocs.length,
+                itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                  DocumentSnapshot doc = userDocs[itemIndex];
 
-                return StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('Dogs')
-                          .doc(doc['dogs'])
-                          .snapshots(),
-                      builder: (context, dogSnapshot) {
+                  return StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('Dogs')
+                        .doc(doc['dogs'])
+                        .snapshots(),
+                    builder: (context, dogSnapshot) {
                         if (dogSnapshot.hasError) {
                           return const Text(
                               'Something went wrong: user has no dog');

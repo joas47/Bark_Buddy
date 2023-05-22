@@ -510,8 +510,8 @@ class DatabaseHandler {
 
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
-      'startTime': startTime.hour,
-      'endTime': endTime.hour,
+      'startTime': '${startTime.hour}:${startTime.minute}',
+      'endTime': '${endTime.hour}:${endTime.minute}',
     });
     batch.commit();
   }
