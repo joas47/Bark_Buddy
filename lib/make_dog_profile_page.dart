@@ -324,13 +324,13 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('Info', style: Theme.of(context).textTheme.titleLarge),
-              Text('Small dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('up to 10kg'),
-              Text('Medium dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('10 - 25kg'),
-              Text('Large dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('More than 25kg'),
+              Text('Size info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Small dog:', style: Theme.of(context).textTheme.bodyLarge),
+              const Text('Up to 10 kg'),
+              Text('Medium dog:', style: Theme.of(context).textTheme.bodyLarge),
+              const Text('Between 10 - 25 kg'),
+              Text('Large dog:', style: Theme.of(context).textTheme.bodyLarge),
+              const Text('More than 25 kg'),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -353,18 +353,18 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Activity info', style: Theme.of(context).textTheme.titleLarge),
               Text('Low activity level:',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who prefer shorter walks'),
+              const Text('For dogs who prefer shorter walks'),
               Text('Moderate activity level:',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who need a moderate amount of exercise and '
-                  'will be happy with a 1-2 hour walk. '),
+              const Text('For dogs who need a moderate amount of \n exercise and'
+                  'will be happy with a 1-2 hour walk.'),
               Text('High activity level: ',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who require a large amount of exercise. '
-                  'For example longer walks or activities such as running or swimming.'),
+              const Text('For dogs who require a large amount of exercise. \n '
+                  'For example longer walks or activities such as \n running or swimming.'),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
