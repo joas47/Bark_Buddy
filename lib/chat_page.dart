@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/match_chat_page.dart';
@@ -5,6 +7,7 @@ import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:flutter/material.dart';
 
@@ -21,6 +24,14 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match-chat'),
+        actions: [
+          TextButton(
+            onPressed: () {
+
+            },
+            child: const Text('Recommend location'),
+          ),
+        ],
       ),
       body: Center(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -36,9 +47,8 @@ class _ChatPageState extends State<ChatPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
             }
-            Map<String, dynamic> data =
-            snapshot.data!.data()! as Map<String, dynamic>;
-            if (data['friends'] != null) {
+            Map<String, dynamic>? data = snapshot.data?.data() as Map<String, dynamic>?;
+            if (data != null && data['friends'] != null) {
               List<dynamic> friends = data['friends'];
               return ListView.builder(
                 itemCount: friends.length,
@@ -58,8 +68,8 @@ class _ChatPageState extends State<ChatPage> {
                           ConnectionState.waiting) {
                         return const Text("Loading");
                       }
-                      Map<String, dynamic> friendData =
-                      friendSnapshot.data!.data() as Map<String, dynamic>;
+                      Map<String, dynamic>? friendData = friendSnapshot.data?.data() as Map<String, dynamic>?;
+
 
                       return StreamBuilder<String?>(
                         stream: _MatchChatPageState.getOwnerNameFromOwnerID(friendId),
@@ -79,11 +89,11 @@ class _ChatPageState extends State<ChatPage> {
                             onTap: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
                             },
-                            title: Text(friendData['name'].toString()),
-                            subtitle: Text("(${dogName!})"),
+                            title: Text(friendData?['name'].toString() ?? ''),
+                            subtitle: Text("($dogName)"),
                             leading: CircleAvatar(
                               backgroundImage:
-                              NetworkImage(friendData['picture']),
+                              NetworkImage(friendData?['picture'] ?? ''),
                               radius: 30.0,
                             ),
                             trailing: Row(
@@ -97,7 +107,7 @@ class _ChatPageState extends State<ChatPage> {
                                       MaterialPageRoute(
                                         builder: (context) => MatchChatPage(
                                           friendId: friendId,
-                                          friendName: friendData['name'],
+                                          friendName: friendData!['name'],
                                         ),
                                       ),
                                     );
@@ -199,6 +209,9 @@ class _ChatPageState extends State<ChatPage> {
       },
     );
   }
+
+
+
 }
 
 class MatchChatPage extends StatefulWidget {
@@ -221,6 +234,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
   @override
   void initState() {
     super.initState();
+    setCurrentFriend(widget.friendId);
     _chatStream = FirebaseFirestore.instance
         .collection('chatMessages')
         .where('participants', arrayContains: widget.friendId)
@@ -233,6 +247,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.friendName),
+        actions: [
+          IconButton(
+            onPressed: _recommendLocation,
+            icon: Icon(Icons.add),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -258,12 +278,18 @@ class _MatchChatPageState extends State<MatchChatPage> {
                     final messageText = messageData['message'];
                     final timestamp = messageData['timestamp'] as Timestamp?;
 
-                    final isSender = senderId == FirebaseAuth.instance.currentUser!.uid;
+                    final isSender =
+                        senderId == FirebaseAuth.instance.currentUser!.uid;
 
                     return Align(
-                      alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isSender
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isSender ? Colors.blue : Colors.grey,
@@ -272,6 +298,21 @@ class _MatchChatPageState extends State<MatchChatPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            FutureBuilder<String?>(
+                              future: _getSenderProfilePicture(senderId),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                }
+                                final profilePictureUrl = snapshot.data;
+                                return CircleAvatar(
+                                  backgroundImage:
+                                  NetworkImage(profilePictureUrl ?? ''),
+                                );
+                              },
+                            ),
+                            SizedBox(height: 8),
                             Text(
                               messageText,
                               style: TextStyle(color: Colors.white),
@@ -281,7 +322,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return Text('Loading...', style: TextStyle(color: Colors.white));
+                                  return Text(
+                                    'Loading...',
+                                    style: TextStyle(color: Colors.white),
+                                  );
                                 }
                                 final formattedTimestamp = snapshot.data ?? 'Unknown';
                                 return Text(
@@ -326,7 +370,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
       ),
     );
   }
-
+  Future<String?> _getSenderProfilePicture(String senderId) async {
+    final users = FirebaseFirestore.instance.collection('users');
+    final snapshot = await users.doc(senderId).get();
+    final data = snapshot.data();
+    return data?['picture'] as String?;
+  }
   void _sendMessage(String message) {
     final currentUserID = FirebaseAuth.instance.currentUser!.uid;
 
@@ -361,5 +410,198 @@ class _MatchChatPageState extends State<MatchChatPage> {
     } else {
       yield null;
     }
+  }
+  // Implement the following helper methods based on your existing code and location database access:
+  String currentFriend = 'null';
+  void setCurrentFriend(String friendId){
+    currentFriend = friendId;
+  }
+  Future<Position?> getCurrentUserLocation() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final userData =
+    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+    if (userData.exists) {
+      final data = userData.data();
+      final geoPoint = data?['LastLocation'] as GeoPoint?;
+      if (geoPoint != null) {
+        final latitude = geoPoint.latitude;
+        final longitude = geoPoint.longitude;
+        return Position(
+          latitude: latitude,
+          longitude: longitude,
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          timestamp: DateTime.now(),
+        );
+      }
+    }
+    return null;
+  }
+
+  Stream<Position?> getOtherUserLocation(String ownerID) async* {
+    final users = FirebaseFirestore.instance.collection('users');
+    final ownerSnapshot = await users.doc(ownerID).get();
+    final ownerData = ownerSnapshot.data();
+
+    if (ownerData != null && ownerData.containsKey('LastLocation')) {
+      final geoPoint = ownerData['LastLocation'] as GeoPoint?;
+      if (geoPoint != null) {
+        final latitude = geoPoint.latitude;
+        final longitude = geoPoint.longitude;
+        yield Position(
+          latitude: latitude,
+          longitude: longitude,
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          timestamp: DateTime.now(),
+        );
+      }
+    } else {
+      yield null;
+    }
+  }
+
+  void _recommendLocation() async {
+    final currentUserLocation = await getCurrentUserLocation();
+    final Stream<Position?> otherUserLocationStream = getOtherUserLocation(currentFriend);
+
+    Position? otherUserLocation;
+    await for (final position in otherUserLocationStream) {
+      otherUserLocation = position;
+      break; // Stop listening after receiving the first position
+    }
+
+    if (currentUserLocation == null || otherUserLocation == null) {
+      // Error handling code
+      return;
+    }
+
+    if (currentUserLocation == null || otherUserLocation == null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Location Error'),
+            content: const Text('Unable to retrieve user locations.'),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation as Position);
+    final closestLocation = await findClosestLocation(midpoint);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Recommended Location'),
+          content: Text('The recommended location is: ${closestLocation ?? "Name is not added yet"}'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Position calculateMidpoint(Position location1, Position location2) {
+    double lat1 = location1.latitude;
+    double lon1 = location1.longitude;
+    double lat2 = location2.latitude;
+    double lon2 = location2.longitude;
+
+    double dLon = _toRadians(lon2 - lon1);
+
+    // Convert to radians
+    lat1 = _toRadians(lat1);
+    lat2 = _toRadians(lat2);
+    lon1 = _toRadians(lon1);
+
+    double bx = cos(lat2) * cos(dLon);
+    double by = cos(lat2) * sin(dLon);
+
+    double lat3 = atan2(sin(lat1) + sin(lat2), sqrt((cos(lat1) + bx) * (cos(lat1) + bx) + by * by));
+    double lon3 = lon1 + atan2(by, cos(lat1) + bx);
+
+    // Convert back to degrees
+    lat3 = _toDegrees(lat3);
+    lon3 = _toDegrees(lon3);
+
+    return Position(latitude: lat3, longitude: lon3, accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),);
+  }
+
+  double _toRadians(double degree) {
+    return degree * pi / 180;
+  }
+
+  double _toDegrees(double radian) {
+    return radian * 180 / pi;
+  }
+
+  Future<String?> findClosestLocation(Position midpoint) async {
+    final parksCollection = FirebaseFirestore.instance.collection('parks');
+
+    double minDistance = double.infinity;
+    String? closestLocation;
+
+    final snapshot = await parksCollection.get();
+    snapshot.docs.forEach((doc) {
+      final coordinatesString = doc['mid_point'] as String?;
+      if (coordinatesString != null) {
+        final coordinates = parseCoordinatesString(coordinatesString);
+        final distance = Geolocator.distanceBetween(
+          midpoint.latitude,
+          midpoint.longitude,
+          coordinates.latitude,
+          coordinates.longitude,
+        );
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestLocation = doc['od_gis_id'] as String?;
+        }
+      }
+    });
+
+    return closestLocation;
+  }
+
+  Position parseCoordinatesString(String coordinatesString) {
+    final coordinatesList = coordinatesString.split(', ');
+    final latitude = double.parse(coordinatesList[0]);
+    final longitude = double.parse(coordinatesList[1]);
+    return Position(latitude: latitude, longitude: longitude, accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),);
   }
 }
