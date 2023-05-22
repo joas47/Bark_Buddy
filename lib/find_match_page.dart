@@ -192,19 +192,40 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 if (!(currentUserDoc.data().toString().contains('startTime') &&
                     currentUserDoc.data().toString().contains('endTime'))) {
                   return const Center(
-                    child: Text('Please choose a time'),
+                    child:
+                        Text('Click the clock icon to set your availability'),
                   );
                 }
 /*              if (doc.data().toString().contains('startTime') &&
                   doc.data().toString().contains('endTime')) {
+
                 int startTimeHour = int.parse(doc['startTime'].toString().substring(0, 1));
-                  if (currentUserDoc['startTime'] >
+                int startTimeMinute = int.parse(doc['startTime'].toString().substring(3, 4));
+                int endTimeHour = int.parse(doc['endTime'].toString().substring(0, 1));
+                int endTimeMinute = int.parse(doc['endTime'].toString().substring(3, 4));
+
+                int currentUserStartTimeHour = int.parse(currentUserDoc['startTime'].toString().substring(0, 1));
+                int currentUserStartTimeMinute = int.parse(currentUserDoc['startTime'].toString().substring(3, 4));
+                int currentUserEndTimeHour = int.parse(currentUserDoc['endTime'].toString().substring(0, 1));
+                int currentUserEndTimeMinute = int.parse(currentUserDoc['endTime'].toString().substring(3, 4));
+
+                if (currentUserStartTimeHour > endTimeHour ||
+                    currentUserEndTimeHour < startTimeHour) {
+                  toRemove.add(doc);
+                } else if (currentUserStartTimeHour == endTimeHour &&
+                    currentUserStartTimeMinute > endTimeMinute) {
+                  toRemove.add(doc);
+                } else if (currentUserEndTimeHour == startTimeHour &&
+                    currentUserEndTimeMinute < startTimeMinute) {
+                  toRemove.add(doc);
+                }*/
+
+/*                  if (currentUserDoc['startTime'] >
                           doc['endTime'] ||
                       currentUserDoc['endTime'] <
                           doc['startTime']) {
                     toRemove.add(doc);
-                  }
-              }*/
+                  }*/
               }
               /*bool isTimeOverlap(DocumentSnapshot other, ) {
               // Extract hours and minutes from startTime and endTime

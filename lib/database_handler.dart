@@ -500,6 +500,22 @@ class DatabaseHandler {
   }
 
   static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {
+    String startHour = startTime.hour.toString();
+    String startMinute = startTime.minute.toString();
+    if (startTime.hour > 10) {
+      startHour = '0${startTime.hour}';
+    }
+    if (startTime.minute > 10) {
+      startMinute = '0${startTime.minute}';
+    }
+    String endHour = endTime.hour.toString();
+    String endMinute = endTime.minute.toString();
+    if (endTime.hour > 10) {
+      endHour = '0${endTime.hour}';
+    }
+    if (endTime.minute > 10) {
+      endMinute = '0${endTime.minute}';
+    }
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
 
@@ -510,8 +526,8 @@ class DatabaseHandler {
 
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
-      'startTime': '${startTime.hour}:${startTime.minute}',
-      'endTime': '${endTime.hour}:${endTime.minute}',
+      'startTime': '$startHour:$startMinute',
+      'endTime': '$endHour:$endMinute',
     });
     batch.commit();
   }
