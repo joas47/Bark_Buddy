@@ -163,22 +163,39 @@ class ViewOwnerProfile extends StatelessWidget {
                       ) as ImageProvider<Object>,
                     ),
                   ),
-                  Text(
+          Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+         child: Text(
                     '$name $surname, ${age.toString()}',
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+          ),
+                    SizedBox(
+                    width: 300.0,
+                    child: Wrap(
+                    spacing: 10.0, // Adjust the spacing between tags as needed
+                    // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                    children: [
+                    if (gender != null)
+                    Chip(
+                    label: Text(gender),
+                    // Add any additional styling properties for the chip as needed
+                    ),
+          ],
+          ),
+          ),
+                  const SizedBox(height: 10.0),
                   SizedBox(
                     width: 300.0,
                     child: TextField(
                       readOnly: true,
-                      minLines: 1,
-                      maxLines: 3,
+                      minLines: 5,
+                      maxLines: 5,
                       decoration: InputDecoration(
-                        hintText: '• $gender',
-                        border: const OutlineInputBorder(),
+                        hintText: '• $about',
                         suffixIcon: currentUser ?
                         IconButton(
                           icon: const Icon(Icons.edit),
@@ -191,21 +208,6 @@ class ViewOwnerProfile extends StatelessWidget {
                             );
                           },
                         ) : null,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  SizedBox(
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        hintText: '• $about',
                         border: OutlineInputBorder(),
                       ),
                       style: TextStyle(
