@@ -512,14 +512,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
             // show dialog with options to choose image or take a new one
             final selectedImages = await ImageUtils.showImageSourceDialog(context, maxImages: 5);
 
-            // upload image to Firebase Storage
-            /*if (selectedImage != null) {
-              final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage, storageUrl);
-              setState(() {
-                _updatedProfilePic = imageUrl;
-              });
-            }*/
             if (selectedImages != null && selectedImages.isNotEmpty) {
               setState(() {
                 _isImageUploading = true;

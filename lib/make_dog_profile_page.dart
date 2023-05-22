@@ -390,17 +390,21 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
         const SizedBox(width: 16.0),
         IconButton(
           onPressed: () async {
-            // show dialog with options to choose image or take a new one
-            final selectedImages = await ImageUtils.showImageSourceDialog(context, maxImages: 5);
+            // If there are already 5 images, remove them before adding the new ones
+            if (_pictureUrls.length >= 5) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('You have reached the maximum number of photos! Adding more will replace the existing ones.'),
+                ),
+              );
+              _pictureUrls.clear();
+            }
+
+            // Always allow them to select images, but limit the selection to the remaining quota
+            int remainingImagesCount = 5 - _pictureUrls.length;
+            final selectedImages = await ImageUtils.showImageSourceDialog(context, maxImages: remainingImagesCount);
 
             // upload image to Firebase Storage
-            /*if (selectedImage != null) {
-              final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage, storageUrl);
-              setState(() {
-                _profilePic = imageUrl;
-              });
-            }*/
             if (selectedImages != null && selectedImages.isNotEmpty) {
               setState(() {
                 _isImageUploading = true;
@@ -422,6 +426,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
               });
             }
           },
+
           icon: _isImageUploading
               ? const CircularProgressIndicator()
               : _pictureUrls.isEmpty
