@@ -88,21 +88,23 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     ),
                     const SizedBox(height: 16.0),
                     // TODO: move this Text so it's next to the radio buttons instead of above.
-                    const Text('Kön'),
+                    const Text('Gender', style: TextStyle(fontSize: 18),),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _genderOptions
                           .map((option) => Row(
-                                children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _gender,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _gender = value.toString();
-                                      });
-                                    },
-                                  ),
+                                children:  [Transform.scale(
+                        scale: 1.4,
+                        child: Radio(
+                          value: option,
+                          groupValue: _gender,
+                          onChanged: (value) {
+                            setState(() {
+                              _gender = value.toString();
+                            });
+                          },
+                        ),
+                                ),
                                   Text(option),
                                   const SizedBox(width: 16.0),
                                 ],
@@ -114,7 +116,12 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
-                        onPressed: () {
+                          style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 40),
+                          ),
+                      onPressed: () {
                           if (_isImageUploading) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -154,7 +161,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                             );
                           }
                         },
-                        child: const Text('Save profile'),
+                        child: const Text('Save profile', style: TextStyle(fontSize: 20),),
                       );
                     }),
                   ],
@@ -180,6 +187,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: const InputDecoration(
           labelText: 'First name',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -198,6 +206,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: const InputDecoration(
           labelText: 'Last name',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -217,6 +226,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: const InputDecoration(
           labelText: 'Age',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
@@ -238,6 +248,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         maxLines: 8,
         decoration: InputDecoration(
           labelText: 'About you',
+          labelStyle: TextStyle(fontSize: 18),
           hintText: bio,
           border: const OutlineInputBorder(),
         ),

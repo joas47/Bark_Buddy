@@ -156,12 +156,23 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             ) as ImageProvider<Object>,
                     ),
                   ),
-                  Text(
-                    name ?? '',
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name ?? '',
+                        style: const TextStyle(
+                          fontSize: 22.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ), Text(
+                        ', ${age.toString()}',
+                        style: const TextStyle(
+                          fontSize: 22.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     width: 300.0,
@@ -172,7 +183,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       decoration: InputDecoration(
                         hintText: '• Breed: ${breed ?? ''}\n'
                             '• Gender: ${gender ?? ''}\n'
-                            '• Age: ${age.toString()} years old\n'
+                            //'• Age: ${age.toString()} years old\n'
                             '• Size: ${size ?? ''}\n'
                             '• Activity level: ${activityLevel ?? ''}\n'
                             '• $isCastratedText',
