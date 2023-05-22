@@ -44,7 +44,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
     }
     return Scaffold(
         appBar: AppBar(
-          title: const Text('View Dog Profile'),
+          title: const Text('Dog Profile'),
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
@@ -112,19 +112,23 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       child: StreamBuilder<String?>(
                         stream: DatabaseHandler.getOwnerPicStream(userId!),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
-                          } else if (snapshot.hasData &&
-                              snapshot.data != null) {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: NetworkImage(snapshot.data!),
+                          } else if (snapshot.hasData && snapshot.data != null) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: NetworkImage(snapshot.data!),
+                              ),
                             );
                           } else {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                              ),
                             );
                           }
                         },
@@ -198,22 +202,22 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       children: [
                         if (breed != null)
                           Chip(
-                            label: Text(breed),
+                            label: Text('• $breed'),
                             // Add any additional styling properties for the chip as needed
                           ),
                         if (size != null)
                           Chip(
-                            label: Text(size),
+                            label: Text('• $size'),
                             // Add any additional styling properties for the chip as needed
                           ),
                         if (activityLevel != null)
                           Chip(
-                            label: Text('$activityLevel activity level'),
+                            label: Text('• $activityLevel activity level'),
                             // Add any additional styling properties for the chip as needed
                           ),
                         if (isCastrated != null)
                           Chip(
-                            label: Text(isCastrated ? 'Castrated' : 'Not castrated'),
+                            label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
                             // Add any additional styling properties for the chip as needed
                           ),
                       ],
