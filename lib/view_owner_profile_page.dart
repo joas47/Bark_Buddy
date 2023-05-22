@@ -89,20 +89,27 @@ class ViewOwnerProfile extends StatelessWidget {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           } else if (snapshot.hasData && snapshot.data != null) {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: NetworkImage(snapshot.data!),
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: NetworkImage(snapshot.data!),
+                              ),
                             );
                           } else {
-                            return const CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: AssetImage(
-                                'assets/images/placeholder-dog-image.png',
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: AssetImage(
+                                  'assets/images/placeholder-dog-image.png',
+                                ),
                               ),
                             );
                           }
                         },
                       ),
+
 
 
 
@@ -163,56 +170,66 @@ class ViewOwnerProfile extends StatelessWidget {
                       ) as ImageProvider<Object>,
                     ),
                   ),
-                  Text(
+          Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+         child: Text(
                     '$name $surname, ${age.toString()}',
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(
+          ),
+                    SizedBox(
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 1,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: '• $gender',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: currentUser ?
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const EditOwnerProfilePage(),
-                              ),
-                            );
-                          },
-                        ) : null,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Wrap(
+                    spacing: 10.0, // Adjust the spacing between tags as needed
+                    // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                    children: [
+                    if (gender != null)
+                    Chip(
+                    label: Text('• $gender'),
+                    // Add any additional styling properties for the chip as needed
                     ),
-                  ),
+          ],
+          ),
+          ),
                   const SizedBox(height: 10.0),
                   SizedBox(
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        hintText: '• $about',
-                        border: OutlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        TextField(
+                          readOnly: true,
+                          minLines: 5,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText: '• $about',
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        if (currentUser)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EditOwnerProfilePage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
+                  )
                 ],
               ),
             ],

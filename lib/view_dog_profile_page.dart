@@ -44,7 +44,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
     }
     return Scaffold(
         appBar: AppBar(
-          title: const Text('View Dog Profile'),
+          title: const Text('Dog Profile'),
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
@@ -112,19 +112,23 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       child: StreamBuilder<String?>(
                         stream: DatabaseHandler.getOwnerPicStream(userId!),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
-                          } else if (snapshot.hasData &&
-                              snapshot.data != null) {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: NetworkImage(snapshot.data!),
+                          } else if (snapshot.hasData && snapshot.data != null) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: NetworkImage(snapshot.data!),
+                              ),
                             );
                           } else {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                              ),
                             );
                           }
                         },
@@ -156,67 +160,100 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             ) as ImageProvider<Object>,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        name ?? '',
-                        style: const TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the padding as needed
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name ?? '',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ), Text(
-                        ', ${age.toString()}',
-                        style: const TextStyle(
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          ', ${age.toString()}',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                        if (gender == 'Male')
+                          const Icon(
+                            Icons.male,
+                            size: 30.0,
+                            color: Colors.black, // Customize the color as needed
+                          )
+                        else if (gender == 'Female')
+                          const Icon(
+                            Icons.female,
+                            size: 30.0,
+                            color: Colors.black, // Customize the color as needed
+                          ),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 1,
-                      maxLines: 6,
-                      decoration: InputDecoration(
-                        hintText: '• Breed: ${breed ?? ''}\n'
-                            '• Gender: ${gender ?? ''}\n'
-                            //'• Age: ${age.toString()} years old\n'
-                            '• Size: ${size ?? ''}\n'
-                            '• Activity level: ${activityLevel ?? ''}\n'
-                            '• $isCastratedText',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: currentUser ?
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
-                          },
-                        ) : null,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Wrap(
+                      spacing: 10.0, // Adjust the spacing between tags as needed
+                     // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                      children: [
+                        if (breed != null)
+                          Chip(
+                            label: Text('• $breed'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                        if (size != null)
+                          Chip(
+                            label: Text('• $size'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                        if (activityLevel != null)
+                          Chip(
+                            label: Text('• $activityLevel activity level'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                        if (isCastrated != null)
+                          Chip(
+                            label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 10.0),
                   SizedBox(
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        hintText: '• $bio',
-                        border: const OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        TextField(
+                          readOnly: true,
+                          minLines: 5,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText: '• $bio',
+                            border: const OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        if (currentUser)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
+                              },
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
+                  )
                 ],
               ),
             ],

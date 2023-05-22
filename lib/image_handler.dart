@@ -15,7 +15,31 @@ enum ImageType {
   owner,
   location,
 }
-
+// Utility method to ask a Yes/No question
+Future<bool?> showYesNoDialog(BuildContext context, String message) async {
+  return showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('No'),
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          TextButton(
+            child: Text('Yes'),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 class ImageUtils {
   static Future<File?> pickImageFromGallery() async {
     final picker = ImagePicker();
@@ -25,6 +49,8 @@ class ImageUtils {
     }
     return null;
   }
+
+
 
   static Future<List<File>?> pickMultipleImagesFromGallery() async {
     try {
@@ -166,6 +192,8 @@ class ImageUtils {
     }
   }*/
 
+
+
   // TODO: make this not force you to take 5 pictures in a row, but instead let you take 1, then choose to take another
   // TODO: if you choose an image from the gallery and then take 5 pictures it will upload 6 images. Probably it will upload up to 10 images if you choose 5 from the gallery and then take 5 pictures
   static Future<List?> showImageSourceDialog(BuildContext context,
@@ -206,7 +234,38 @@ class ImageUtils {
         } else {
           return await pickMultipleImagesFromGallery();
         }
-      } else if (source == ImageSource.camera) {
+      }else if (source == ImageSource.camera) {
+        if (maxImages == 1) {
+          final File? image = await takePhoto();
+          if (image != null) {
+            return [image];
+          }
+        } else {
+          final images = [];
+          for (int i = 0; i < maxImages; i++) {
+            final image = await takePhoto();
+            if (image != null) {
+              images.add(image);
+              if (i < maxImages - 1) {
+                bool? takeAnother = await showYesNoDialog(
+                    context,
+                    'Do you want to take another photo? You can take ${maxImages - i - 1} more.'
+                );
+                if (takeAnother != true) {
+                  break;
+                }
+              }
+            }
+          }
+          return images;
+        }
+      }
+
+
+
+
+
+      /*else if (source == ImageSource.camera) {
         if (maxImages == 1) {
           final File? image = await takePhoto();
           if (image != null) {
@@ -222,7 +281,7 @@ class ImageUtils {
           }
           return images;
         }
-      }
+      }*/
     }
 
     return null;
