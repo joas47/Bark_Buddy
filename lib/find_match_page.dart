@@ -16,7 +16,6 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,11 +24,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
       ),
       body: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .snapshots(),
-            builder: (context, userSnapshot) {
-              if (userSnapshot.hasData) {
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, userSnapshot) {
+          if (userSnapshot.hasData) {
             final userDocs = userSnapshot.data!.docs;
             List<QueryDocumentSnapshot> toRemove = [];
             for (var doc in userDocs) {
@@ -121,16 +118,16 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       ],
                     );
                   },
-                    );
-                  },
-                  // TODO: this should take into account the size of the screen and try to fill as much as possible
-                  options: CarouselOptions(height: 600),
                 );
-              } else {
-                return const Text("Snapshot has no data");
+              },
+              // TODO: this should take into account the size of the screen and try to fill as much as possible
+              options: CarouselOptions(height: 600),
+            );
+          } else {
+            return const Text("Snapshot has no data");
           }
-            },
-          )),
+        },
+      )),
       /*body: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
