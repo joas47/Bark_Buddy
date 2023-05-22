@@ -104,7 +104,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  Future<void> _timeslotWindow(BuildContext context) async {
+  /*Future<void> _timeslotWindow(BuildContext context) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -123,7 +123,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
         );
       },
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -167,20 +167,35 @@ class _FindMatchPageState extends State<FindMatchPage> {
             for (var doc in userDocs) {
                 // TODO: availability check (timeslot)
                 // TODO: give feedback when liking a dog, right now it just disappears
-                doc.id == FirebaseAuth.instance.currentUser!.uid
+              doc.id == FirebaseAuth.instance.currentUser!.uid
                     ? toRemove.add(doc)
                     : null;
                 doc.data().toString().contains('dogs')
                     ? null
                     : toRemove.add(doc);
-                if (currentUserDoc['matches'].contains(doc.id) ||
-                    currentUserDoc['pendingLikes'].contains(doc.id)) {
-                  toRemove.add(doc);
+                if (currentUserDoc.data().toString().contains('matches')) {
+                  if (currentUserDoc['matches'].contains(doc.id)) {
+                    toRemove.add(doc);
+                  }
                 }
-                /*
-              doc.data().toString().contains('startTime') ? null : toRemove.add(doc);
-              doc.data().toString().contains('endTime') ? null : toRemove.add(doc);
-              if (doc.data().toString().contains('startTime') &&
+                if (currentUserDoc.data().toString().contains('pendingLikes')) {
+                  if (currentUserDoc['pendingLikes'].contains(doc.id)) {
+                    toRemove.add(doc);
+                  }
+                }
+                doc.data().toString().contains('startTime')
+                    ? null
+                    : toRemove.add(doc);
+                doc.data().toString().contains('endTime')
+                    ? null
+                    : toRemove.add(doc);
+                if (!(currentUserDoc.data().toString().contains('startTime') &&
+                    currentUserDoc.data().toString().contains('endTime'))) {
+                  return const Center(
+                    child: Text('Please choose a time'),
+                  );
+                }
+/*              if (doc.data().toString().contains('startTime') &&
                   doc.data().toString().contains('endTime')) {
                 int startTimeHour = int.parse(doc['startTime'].toString().substring(0, 1));
                   if (currentUserDoc['startTime'] >
@@ -191,6 +206,26 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   }
               }*/
               }
+              /*bool isTimeOverlap(DocumentSnapshot other, ) {
+              // Extract hours and minutes from startTime and endTime
+              List<int> startTimeParts = startTime.split(':').map(int.parse).toList();
+              List<int> endTimeParts = endTime.split(':').map(int.parse).toList();
+              List<int> otherStartTimeParts = other.startTime.split(':').map(int.parse).toList();
+              List<int> otherEndTimeParts = other.endTime.split(':').map(int.parse).toList();
+
+              // Convert hours and minutes to minutes since midnight
+              int startMinutes = startTimeParts[0] * 60 + startTimeParts[1];
+              int endMinutes = endTimeParts[0] * 60 + endTimeParts[1];
+              int otherStartMinutes = otherStartTimeParts[0] * 60 + otherStartTimeParts[1];
+              int otherEndMinutes = otherEndTimeParts[0] * 60 + otherEndTimeParts[1];
+
+              // Check for time overlap
+              if (startMinutes <= otherEndMinutes && otherStartMinutes <= endMinutes) {
+                return true;
+              }
+
+              return false;
+            }*/
               userDocs.removeWhere((element) => toRemove.contains(element));
               if (userDocs.isEmpty) {
                 return const Center(
