@@ -25,6 +25,112 @@ class _FindMatchPageState extends State<FindMatchPage> {
       ),
       body: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .where(FieldPath.documentId,
+                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                .snapshots(),
+            builder: (context, userSnapshot) {
+              if (userSnapshot.hasData) {
+                return CarouselSlider.builder(
+                  itemCount: userSnapshot.data!.docs.length,
+                  itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                    DocumentSnapshot doc = userSnapshot.data!.docs[itemIndex];
+                    //String ownerRef = doc.get('owner');
+                    //print(ownerRef);
+
+                    if (doc.get('dogs') == null) {
+                      // DO SOMETHING HERE when yourField doesn't exist
+                    }
+
+                    return StreamBuilder<DocumentSnapshot>(
+                      // TODO: should not include user matches or pending likes
+                      stream: FirebaseFirestore.instance
+                          .collection('Dogs')
+                          .doc(doc['dogs'])
+                          .snapshots(),
+                      builder: (context, dogSnapshot) {
+                        if (dogSnapshot.hasError) {
+                          return const Text(
+                              'Something went wrong: user has no dog');
+                        }
+                        if (dogSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text("Loading");
+                        }
+                        final dogDoc = dogSnapshot.data!;
+                        List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
+                        if (dogPicURLs != null && dogPicURLs.isEmpty) {
+                          return const Text('Error: dog has no picture');
+                        }
+                        String dogPicURL = dogDoc['pictureUrls'][0];
+                        return Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ViewOwnerProfile(userId: doc.id)),
+                                );
+                              },
+                              child: Image(
+                                  image: NetworkImage(doc['picture']), height: 100),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ViewDogProfilePage(userId: doc.id)),
+                                );
+                              },
+                              child: Container(
+                                height: 300,
+                                margin: const EdgeInsets.all(6.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  image: DecorationImage(
+                                    image: NetworkImage(dogPicURL),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Text(dogDoc['Name'] +
+                                    ", " +
+                                    dogDoc['Age'].toString() +
+                                    " " +
+                                    dogDoc['Gender']),
+                                IconButton(
+                                  // TODO: make this a heart icon
+                                  icon: const Icon(Icons.heart_broken),
+                                  onPressed: () {
+                                    // TODO send like
+                                    DatabaseHandler.sendLike(doc.id);
+                                  },
+                                ),
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  // TODO: this should take into account the size of the screen and try to fill as much as possible
+                  options: CarouselOptions(height: 600),
+                );
+              } else {
+                return const Text("No data");
+              }
+            },
+          )),
+      /*body: SingleChildScrollView(
+          child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Dogs')
             .where('owner',
@@ -122,7 +228,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 return const Text("No data");
               }
             },
-          )),
+          )),*/
     );
   }
 }

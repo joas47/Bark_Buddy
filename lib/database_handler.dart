@@ -481,11 +481,14 @@ class DatabaseHandler {
       final snapshot = await usersCollectionRef.get();
       List<String> test = snapshot.docs.map((doc) => doc.id).toList();
       test.remove(userUid);
-      // print(test);
-      // print(allUserIds);
       return test;
     } catch (error) {
       print('Error getting random friend: $error');
     }
+  }
+
+
+  static Future<List<String>> getList(){
+    return Future.value(['1', '2']);
   }
 }
