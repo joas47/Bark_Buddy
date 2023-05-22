@@ -190,31 +190,39 @@ class ViewOwnerProfile extends StatelessWidget {
                   const SizedBox(height: 10.0),
                   SizedBox(
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        hintText: '• $about',
-                        suffixIcon: currentUser ?
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const EditOwnerProfilePage(),
-                              ),
-                            );
-                          },
-                        ) : null,
-                        border: OutlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        TextField(
+                          readOnly: true,
+                          minLines: 5,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText: '• $about',
+                            border: OutlineInputBorder(),
+                          ),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        if (currentUser)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EditOwnerProfilePage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
+                  )
                 ],
               ),
             ],
