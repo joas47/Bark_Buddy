@@ -123,6 +123,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
             onPressed: () async {
               TimeRange result = await showTimeRangePicker(
                 context: context,
+                // TODO: if the user has already set their availability, show that instead of the default
                 start: const TimeOfDay(hour: 9, minute: 0),
                 end: const TimeOfDay(hour: 17, minute: 0),
                 use24HourFormat: true,
@@ -405,6 +406,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
   Column _buildPotentialMatch(BuildContext context,
       DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         InkWell(
           onTap: () {
@@ -441,14 +443,27 @@ class _FindMatchPageState extends State<FindMatchPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(dogDoc['Name'] +
-                ", " +
-                dogDoc['Age'].toString() +
-                " " +
-                dogDoc['Gender']),
+            Text(
+              dogDoc['Name'] + ", " + dogDoc['Age'].toString(),
+              style: const TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Icon(
+              dogDoc['Gender'].toString() == 'Female'
+                  ? Icons.female
+                  : Icons.male,
+              size: 30,
+              color: Colors.black,
+            ),
             IconButton(
-              //TODO: make this a heart icon
-              icon: const Icon(Icons.heart_broken),
+              padding: const EdgeInsets.all(10),
+              icon: const Icon(
+                Icons.favorite,
+                color: Colors.red,
+                size: 30,
+              ),
               onPressed: () async {
                 // TODO: give feedback when liking a dog, right now it just disappears
                 // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
@@ -456,7 +471,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 if (isMatch) {
                   final User? currentUser = FirebaseAuth.instance.currentUser;
                   String? myDogPicUrl =
-                  await DatabaseHandler.getDogPic(currentUser?.uid).first;
+                      await DatabaseHandler.getDogPic(currentUser?.uid).first;
                   _showMatchDialog(context, ownerDoc.id, myDogPicUrl,
                       dogDoc['pictureUrls'][0]);
                 }
