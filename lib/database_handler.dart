@@ -503,6 +503,58 @@ class DatabaseHandler {
     return Future.value(['1', '2']);
   }
 
+  static void storeTimeSlot(TimeOfDay startTime, TimeOfDay endTime) {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+    final batch = firestoreInstance.batch();
+
+    final availability = {
+      "startTime": '${startTime.hour}:${startTime.minute}',
+      "endTime": '${endTime.hour}:${endTime.minute}',
+    };
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+
+    batch.update(userDocumentRef, {'availability': availability});
+    batch.commit();
+  }
+
+// graveyard of broken souls
+/*static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {
+    String startHour = startTime.hour.toString();
+    String startMinute = startTime.minute.toString();
+    if (startTime.hour < 10) {
+      startHour = '0${startTime.hour}';
+    }
+    if (startTime.minute < 10) {
+      startMinute = '0${startTime.minute}';
+    }
+    String endHour = endTime.hour.toString();
+    String endMinute = endTime.minute.toString();
+    if (endTime.hour < 10) {
+      endHour = '0${endTime.hour}';
+    }
+    if (endTime.minute < 10) {
+      endMinute = '0${endTime.minute}';
+    }
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    final batch = firestoreInstance.batch();
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'startTime': '$startHour:$startMinute',
+      'endTime': '$endHour:$endMinute',
+    });
+    batch.commit();
+  }*/
+
 /*  static void _getTimeSlot(String userID, void Function(TimeRange?) callback) {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -553,7 +605,7 @@ class DatabaseHandler {
     });
   }*/
 
-  // works??
+// works?? nej
 /*  static void getTimeSlot(String userID, void Function(TimeRange?) callback) {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -700,56 +752,5 @@ class DatabaseHandler {
     TimeRange timeRange = getTimeSlot(userID) as TimeRange;
     print("getTimeRange: " + timeRange.toString());
     return timeRange;
-  }*/
-
-  static void storeTimeSlot(TimeOfDay startTime, TimeOfDay endTime) {
-    final firestoreInstance = FirebaseFirestore.instance;
-    final usersCollectionRef = firestoreInstance.collection('users');
-    final User? currentUser = FirebaseAuth.instance.currentUser;
-    final String? userUid = currentUser?.uid;
-    final batch = firestoreInstance.batch();
-
-    final availability = {
-      "startTime": '${startTime.hour}:${startTime.minute}',
-      "endTime": '${endTime.hour}:${endTime.minute}',
-    };
-
-    final userDocumentRef = usersCollectionRef.doc(userUid);
-
-    batch.update(userDocumentRef, {'availability': availability});
-    batch.commit();
-  }
-
-/*static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {
-    String startHour = startTime.hour.toString();
-    String startMinute = startTime.minute.toString();
-    if (startTime.hour < 10) {
-      startHour = '0${startTime.hour}';
-    }
-    if (startTime.minute < 10) {
-      startMinute = '0${startTime.minute}';
-    }
-    String endHour = endTime.hour.toString();
-    String endMinute = endTime.minute.toString();
-    if (endTime.hour < 10) {
-      endHour = '0${endTime.hour}';
-    }
-    if (endTime.minute < 10) {
-      endMinute = '0${endTime.minute}';
-    }
-    final firestoreInstance = FirebaseFirestore.instance;
-    final usersCollectionRef = firestoreInstance.collection('users');
-
-    final User? currentUser = FirebaseAuth.instance.currentUser;
-    final String? userUid = currentUser?.uid;
-
-    final batch = firestoreInstance.batch();
-
-    final userDocumentRef = usersCollectionRef.doc(userUid);
-    batch.update(userDocumentRef, {
-      'startTime': '$startHour:$startMinute',
-      'endTime': '$endHour:$endMinute',
-    });
-    batch.commit();
   }*/
 }

@@ -218,12 +218,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
               if (currentUserDoc.data().toString().contains('availability')) {
                 Set<DocumentSnapshot<Object?>> toRemove =
                     _filterOutUsers(userDocs, currentUserDoc);
-                // removes all documents that didn't match the criteria above
                 userDocs.removeWhere((element) => toRemove.contains(element));
 
                 Set<DocumentSnapshot<Object?>> removeSomeMore =
-                    _filterOutBasedOnAvailability(userDocs);
-
+                    _filterOutBasedOnAvailability(userDocs, currentUserDoc);
                 userDocs
                     .removeWhere((element) => removeSomeMore.contains(element));
               } else {
@@ -402,12 +400,69 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   // TODO: filter out users that are not available at the same time as the current user
   Set<DocumentSnapshot> _filterOutBasedOnAvailability(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs) {
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
+      DocumentSnapshot<Object?> currentUserDoc) {
     Set<DocumentSnapshot> filteredUserDocs = {};
 
-    //TimeRange? currentUserAvailabilityRange = DatabaseHandler.getTimeRange(currentUserDoc.id);
+    String currentUserStartTime = currentUserDoc['availability']['startTime'];
+    String currentUserEndTime = currentUserDoc['availability']['endTime'];
+
+    TimeRange currUserTR =
+        _convertToTimeRange(currentUserStartTime, currentUserEndTime);
+    print("Current user time range: " + currUserTR.toString());
+
+    for (var doc in userDocs) {
+      String otherStartTime = doc['availability']['startTime'];
+      String otherEndTime = doc['availability']['endTime'];
+      TimeRange otherUserTR = _convertToTimeRange(otherStartTime, otherEndTime);
+
+      if (!overlapsWith(currUserTR, otherUserTR)) {
+        filteredUserDocs.add(doc);
+        print("Other user time range: " + otherUserTR.toString());
+      } else {
+        print("Other user time range: " +
+            otherUserTR.toString() +
+            " overlaps with current user time range");
+      }
+    }
 
     return filteredUserDocs;
+  }
+
+  bool overlapsWith(TimeRange userTR, TimeRange otherTR) {
+    // Check if the ranges overlap
+    if (userTR.startTime.hour > otherTR.endTime.hour ||
+        userTR.endTime.hour < otherTR.startTime.hour) {
+      return false; // No overlap
+    } else if (userTR.startTime.hour == otherTR.endTime.hour &&
+        userTR.startTime.minute > otherTR.endTime.minute) {
+      return false; // No overlap
+    } else if (userTR.endTime.hour == otherTR.startTime.hour &&
+        userTR.endTime.minute < otherTR.startTime.minute) {
+      return false; // No overlap
+    }
+    return true; // Overlap exists
+  }
+
+  TimeRange _convertToTimeRange(String startTimeString, String endTimeString) {
+    final startTimeParts = startTimeString.split(':');
+    final endTimeParts = endTimeString.split(':');
+
+    final startTime = TimeOfDay(
+      hour: int.parse(startTimeParts[0]),
+      minute: int.parse(startTimeParts[1]),
+    );
+
+    final endTime = TimeOfDay(
+      hour: int.parse(endTimeParts[0]),
+      minute: int.parse(endTimeParts[1]),
+    );
+
+    final TimeRange timeRange = TimeRange(
+      startTime: startTime,
+      endTime: endTime,
+    );
+    return timeRange;
   }
 
   Set<DocumentSnapshot> _filterOutUsers(
