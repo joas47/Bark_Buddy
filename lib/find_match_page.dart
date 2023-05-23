@@ -112,27 +112,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  /*Future<void> _timeslotWindow(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey,
-          titlePadding: const EdgeInsets.all(0),
-          title: Container(
-            color: Colors.lightGreen,
-            padding: const EdgeInsets.all(20),
-            child: const Text(
-              'Choose your availability',
-              style: TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        );
-      },
-    );
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
