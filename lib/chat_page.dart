@@ -238,9 +238,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
   void initState() {
     super.initState();
     setCurrentFriend(widget.friendId);
+    final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+    String firstCheck = widget.friendId + currentUserUid;
+    String secondCheck = currentUserUid + widget.friendId;
+
     _chatStream = FirebaseFirestore.instance
         .collection('chatMessages')
-        .where('participants', arrayContains: widget.friendId)
+        .where('messageId', whereIn: [firstCheck, secondCheck])
         .orderBy('timestamp', descending: true)
         .snapshots();
   }
@@ -429,6 +433,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     FirebaseFirestore.instance.collection('chatMessages').add({
       'participants': [currentUserID, widget.friendId],
+      'messageId' : (currentUserID + widget.friendId),
       'senderId': currentUserID,
       'receiverId': widget.friendId,
       'message': message,
@@ -437,11 +442,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
   }
 
   void _sendMessageFromBarkBuddy(String message, String senderName, String profilePicture, Color color, String link) {
+    final currentUserID = FirebaseAuth.instance.currentUser!.uid;
     FirebaseFirestore.instance.collection('chatMessages').add({
       'participants': [
-        FirebaseAuth.instance.currentUser!.uid,
+        currentUserID,
         widget.friendId,
       ],
+      'messageId' : (currentUserID + widget.friendId),
       'senderId': 'bark-buddy',
       'receiverId': widget.friendId,
       'message': message,
@@ -453,12 +460,14 @@ class _MatchChatPageState extends State<MatchChatPage> {
     });
   }
   void _sendWaitMessageFromBarkBuddy() {
+    final currentUserID = FirebaseAuth.instance.currentUser!.uid;
     final colorHex = Colors.red.value.toRadixString(16);
     FirebaseFirestore.instance.collection('chatMessages').add({
       'participants': [
         FirebaseAuth.instance.currentUser!.uid,
         widget.friendId,
       ],
+      'messageId' : (currentUserID + widget.friendId),
       'senderId': 'bark-buddy-wait-message',
       'receiverId': widget.friendId,
       'message': 'That is all the recommendations for today, check back tomorrow!',
