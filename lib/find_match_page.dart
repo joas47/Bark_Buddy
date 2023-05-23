@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
@@ -44,7 +46,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   CircleAvatar(
                     radius: 50, // Increased the radius of the CircleAvatar
                     backgroundImage:
-                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
                     child: myDogPicUrl == null ? Text('No picture') : null,
                   ),
                   CircleAvatar(
@@ -78,7 +80,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         child: const Text('Chat with match'),
                         style: TextButton.styleFrom(
                           foregroundColor:
-                              Colors.white, // This is the text color
+                          Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -96,7 +98,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         child: const Text('Continue finding matches'),
                         style: TextButton.styleFrom(
                           foregroundColor:
-                              Colors.white, // This is the text color
+                          Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -207,7 +209,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
               final userDocs = userSnapshot.data!.docs;
               // the current user's document, for easy access
               DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
-                  element.id == FirebaseAuth.instance.currentUser!.uid);
+              element.id == FirebaseAuth.instance.currentUser!.uid);
               // remove the current user from the list of potential matches (shouldn't match with yourself)
               userDocs.remove(currentUserDoc);
               // until the user has set their availability, they shouldn't be able to see any matches
@@ -222,6 +224,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     _filterOutBasedOnAvailability(userDocs, currentUserDoc);
                 userDocs
                     .removeWhere((element) => removeSomeMore.contains(element));
+
+                // sort userDocs by distance from current user
+                _sortByDistance(userDocs, currentUserDoc);
               } else {
                 // TODO: make this message prettier
                 return const Center(
@@ -296,6 +301,42 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
+  void _sortByDistance(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
+      DocumentSnapshot<Object?> currentUserDoc) {
+    GeoPoint currUGP = currentUserDoc['LastLocation'];
+    /*print("Current user location: lat: " + currUGP.latitude.toString() + " long: " + currUGP.longitude.toString());
+
+    for (var doc in userDocs) {
+      GeoPoint otherUGP = doc['LastLocation'];
+      print("Other user location: lat: " + otherUGP.latitude.toString() + " long: " + otherUGP.longitude.toString());
+    }*/
+
+    userDocs.sort((a, b) {
+      GeoPoint aGP = a['LastLocation'];
+      GeoPoint bGP = b['LastLocation'];
+      double aDist = _distanceBetween(
+          currUGP.latitude, currUGP.longitude, aGP.latitude, aGP.longitude);
+      double bDist = _distanceBetween(
+          currUGP.latitude, currUGP.longitude, bGP.latitude, bGP.longitude);
+      return aDist.compareTo(bDist);
+    });
+/*
+    for (var element in userDocs) {
+      print(element.get('name') + "'s distance from current user: " + _distanceBetween(currUGP.latitude, currUGP.longitude, element['LastLocation'].latitude, element['LastLocation'].longitude).toString());
+    }*/
+  }
+
+  // https://en.wikipedia.org/wiki/Great-circle_distance
+  // https://stackoverflow.com/a/21623206
+  double _distanceBetween(double lat1, double lon1, double lat2, double lon2) {
+    var p = 0.017453292519943295;
+    var c = 0.5 -
+        cos(p * (lat2 - lat1)) / 2 +
+        cos(p * lat1) * cos(p * lat2) * (1 - cos(p * (lon2 - lon1))) / 2;
+    return 12742 * asin(sqrt(c));
+  }
+
   Set<DocumentSnapshot> _filterOutBasedOnAvailability(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot<Object?> currentUserDoc) {
@@ -306,7 +347,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     TimeRange currUserTR =
         _convertToTimeRange(currentUserStartTime, currentUserEndTime);
-    print("Current user time range: " + currUserTR.toString());
+    //print("Current user time range: " + currUserTR.toString());
 
     for (var doc in userDocs) {
       String otherStartTime = doc['availability']['startTime'];
@@ -317,9 +358,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
         filteredUserDocs.add(doc);
         //print("Other user time range: " + otherUserTR.toString());
       } else {
-        print("Other user time range: " +
-            otherUserTR.toString() +
-            " overlaps with current user time range");
+        //print("Other user time range: " + otherUserTR.toString() + " overlaps with current user time range");
       }
     }
 
@@ -361,8 +400,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return timeRange;
   }
 
-  Set<DocumentSnapshot> _filterOutUsers(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
+  Set<DocumentSnapshot> _filterOutUsers(List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot<Object?> currentUserDoc) {
     Set<DocumentSnapshot> toRemove = {};
 
@@ -441,7 +479,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 if (isMatch) {
                   final User? currentUser = FirebaseAuth.instance.currentUser;
                   String? myDogPicUrl =
-                      await DatabaseHandler.getDogPic(currentUser?.uid).first;
+                  await DatabaseHandler.getDogPic(currentUser?.uid).first;
                   _showMatchDialog(context, ownerDoc.id, myDogPicUrl,
                       dogDoc['pictureUrls'][0]);
                 }
