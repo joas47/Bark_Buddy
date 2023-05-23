@@ -458,11 +458,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
               color: Colors.black,
             ),
             IconButton(
-              padding: const EdgeInsets.all(10),
+              //visualDensity: VisualDensity.compact,
+              //padding: const EdgeInsets.all(10),
               icon: const Icon(
                 Icons.favorite,
-                color: Colors.red,
-                size: 30,
+                color: Colors.redAccent,
+                size: 40,
               ),
               onPressed: () async {
                 // TODO: give feedback when liking a dog, right now it just disappears
