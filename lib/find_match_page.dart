@@ -217,10 +217,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
               // TODO: range based filter. make a button that opens a dialog where you can choose the max distance you want to match with
               if (currentUserDoc.data().toString().contains('availability')) {
                 Set<DocumentSnapshot<Object?>> toRemove =
-                    _theAlgorithm(userDocs, currentUserDoc);
-
+                    _filterOutUsers(userDocs, currentUserDoc);
                 // removes all documents that didn't match the criteria above
                 userDocs.removeWhere((element) => toRemove.contains(element));
+
+                Set<DocumentSnapshot<Object?>> removeSomeMore =
+                    _filterOutBasedOnAvailability(userDocs);
+
+                userDocs
+                    .removeWhere((element) => removeSomeMore.contains(element));
               } else {
                 // TODO: make this message prettier
                 return const Center(
@@ -395,25 +400,22 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  Set<DocumentSnapshot> _theAlgorithm(
+  // TODO: filter out users that are not available at the same time as the current user
+  Set<DocumentSnapshot> _filterOutBasedOnAvailability(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs) {
+    Set<DocumentSnapshot> filteredUserDocs = {};
+
+    //TimeRange? currentUserAvailabilityRange = DatabaseHandler.getTimeRange(currentUserDoc.id);
+
+    return filteredUserDocs;
+  }
+
+  Set<DocumentSnapshot> _filterOutUsers(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot<Object?> currentUserDoc) {
     Set<DocumentSnapshot> toRemove = {};
-    /*Future<TimeRange?> currentUserAvailability =
-        DatabaseHandler.getTimeSlot(currentUserDoc.id);
-    currentUserAvailability.then((value) => print(value));*/
 
-    /*TimeRange? currentUserAvailabilityRange = await currentUserAvailability;*/
-    //TimeRange? currentUserAvailabilityRange = DatabaseHandler.getTimeRange(currentUserDoc.id);
-    TimeRange? currentUserAvailabilityRange;
-    DatabaseHandler.getTimeRange(currentUserDoc.id, (timeRange) {
-      currentUserAvailabilityRange = timeRange;
-      print("In the algo: " + currentUserAvailabilityRange.toString());
-    });
-    print("In the algo: " + currentUserAvailabilityRange.toString());
-    //print("find_match_page: " + currentUserAvailabilityRange.toString());
     for (var doc in userDocs) {
-      // TODO: availability check (timeslot)
       // removes users that don't have a dog
       doc.data().toString().contains('dogs') ? null : toRemove.add(doc);
       // removes users that are already matched with the current user
@@ -430,78 +432,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
       }
       // removes users that hasn't set their availability
       doc.data().toString().contains('availability') ? null : toRemove.add(doc);
-
-      /*TimeRange? userAvailabilityRange = await DatabaseHandler.getTimeSlot(doc.id);*/
-/*
-      DateTime userStartTime = userAvailabilityRange!.startTime as DateTime;
-      DateTime userEndTime = userAvailabilityRange.endTime as DateTime;
-
-      DateTime currentUserStartTime = currentUserAvailabilityRange!.startTime as DateTime;
-      DateTime currentUserEndTime = currentUserAvailabilityRange.endTime as DateTime;
-
-      bool isOverlap = (userStartTime.isBefore(currentUserEndTime) ||
-          userStartTime.isAtSameMomentAs(currentUserEndTime)) &&
-          (userEndTime.isAfter(currentUserStartTime) ||
-              userEndTime.isAtSameMomentAs(currentUserStartTime));
-
-      // removes users that don't have overlapping availability with the current user
-      if (!isOverlap) {
-        toRemove.add(doc);
-      }*/
     }
     return toRemove;
-
-    /*              if (doc.data().toString().contains('startTime') &&
-                  doc.data().toString().contains('endTime')) {
-
-                int startTimeHour = int.parse(doc['startTime'].toString().substring(0, 1));
-                int startTimeMinute = int.parse(doc['startTime'].toString().substring(3, 4));
-                int endTimeHour = int.parse(doc['endTime'].toString().substring(0, 1));
-                int endTimeMinute = int.parse(doc['endTime'].toString().substring(3, 4));
-
-                int currentUserStartTimeHour = int.parse(currentUserDoc['startTime'].toString().substring(0, 1));
-                int currentUserStartTimeMinute = int.parse(currentUserDoc['startTime'].toString().substring(3, 4));
-                int currentUserEndTimeHour = int.parse(currentUserDoc['endTime'].toString().substring(0, 1));
-                int currentUserEndTimeMinute = int.parse(currentUserDoc['endTime'].toString().substring(3, 4));
-
-                if (currentUserStartTimeHour > endTimeHour ||
-                    currentUserEndTimeHour < startTimeHour) {
-                  toRemove.add(doc);
-                } else if (currentUserStartTimeHour == endTimeHour &&
-                    currentUserStartTimeMinute > endTimeMinute) {
-                  toRemove.add(doc);
-                } else if (currentUserEndTimeHour == startTimeHour &&
-                    currentUserEndTimeMinute < startTimeMinute) {
-                  toRemove.add(doc);
-                }*/
-
-/*                  if (currentUserDoc['startTime'] >
-                          doc['endTime'] ||
-                      currentUserDoc['endTime'] <
-                          doc['startTime']) {
-                    toRemove.add(doc);
-                  }*/
-
-    /*bool isTimeOverlap(DocumentSnapshot other, ) {
-              // Extract hours and minutes from startTime and endTime
-              List<int> startTimeParts = startTime.split(':').map(int.parse).toList();
-              List<int> endTimeParts = endTime.split(':').map(int.parse).toList();
-              List<int> otherStartTimeParts = other.startTime.split(':').map(int.parse).toList();
-              List<int> otherEndTimeParts = other.endTime.split(':').map(int.parse).toList();
-
-              // Convert hours and minutes to minutes since midnight
-              int startMinutes = startTimeParts[0] * 60 + startTimeParts[1];
-              int endMinutes = endTimeParts[0] * 60 + endTimeParts[1];
-              int otherStartMinutes = otherStartTimeParts[0] * 60 + otherStartTimeParts[1];
-              int otherEndMinutes = otherEndTimeParts[0] * 60 + otherEndTimeParts[1];
-
-              // Check for time overlap
-              if (startMinutes <= otherEndMinutes && otherStartMinutes <= endMinutes) {
-                return true;
-              }
-
-              return false;
-            }*/
   }
 
   Column _buildPotentialMatch(BuildContext context,

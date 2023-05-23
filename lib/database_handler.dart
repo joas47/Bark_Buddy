@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -429,12 +430,13 @@ class DatabaseHandler {
     if (dogs != null) {
       final dog = FirebaseFirestore.instance.collection('Dogs');
       final name =
-          await dog.doc(dogs).get().then((doc) => doc.get('Name') as String?);
+      await dog.doc(dogs).get().then((doc) => doc.get('Name') as String?);
       yield name;
     } else {
       yield null;
     }
   }
+
   static Stream<String?> getOwnerNameFromOwnerID(String ownerID) async* {
     final users = FirebaseFirestore.instance.collection('users');
     final ownerSnapshot = await users.doc(ownerID).get();
@@ -460,7 +462,7 @@ class DatabaseHandler {
     // Get a random user from the collection excluding the current user
     usersCollectionRef.get().then((snapshot) {
       final List<String> allUserIds =
-          snapshot.docs.map((doc) => doc.id).toList();
+      snapshot.docs.map((doc) => doc.id).toList();
       allUserIds.remove(userUid);
 
       if (allUserIds.isNotEmpty) {
@@ -501,7 +503,58 @@ class DatabaseHandler {
     return Future.value(['1', '2']);
   }
 
-  static void getTimeSlot(String userID, void Function(TimeRange?) callback) {
+/*  static void _getTimeSlot(String userID, void Function(TimeRange?) callback) {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    usersCollectionRef.doc(userID).get().then((userDocumentSnapshot) {
+      if (userDocumentSnapshot.exists) {
+        if (userDocumentSnapshot.data().toString().contains('availability')) {
+          final data = userDocumentSnapshot.data();
+          if (data != null && data['availability'] != null) {
+            final startTimeString = data['availability']['startTime'];
+            final endTimeString = data['availability']['endTime'];
+
+            final startTimeParts = startTimeString.split(':');
+            final endTimeParts = endTimeString.split(':');
+
+            final startTime = TimeOfDay(
+              hour: int.parse(startTimeParts[0]),
+              minute: int.parse(startTimeParts[1]),
+            );
+
+            final endTime = TimeOfDay(
+              hour: int.parse(endTimeParts[0]),
+              minute: int.parse(endTimeParts[1]),
+            );
+
+            final TimeRange timeRange = TimeRange(
+              startTime: startTime,
+              endTime: endTime,
+            );
+            print("getTimeSlot: " + timeRange.toString());
+            callback(timeRange);
+          } else {
+            callback(null);
+          }
+        } else {
+          callback(null);
+        }
+      } else {
+        callback(null);
+      }
+    });
+  }
+
+  static void getTimeRange(String userID, void Function(TimeRange?) callback) {
+    _getTimeSlot(userID, (timeRange) {
+      print("getTimeRange: " + timeRange.toString());
+      callback(timeRange);
+    });
+  }*/
+
+  // works??
+/*  static void getTimeSlot(String userID, void Function(TimeRange?) callback) {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
 
@@ -549,7 +602,7 @@ class DatabaseHandler {
       print("getTimeRange: " + timeRange.toString());
       callback(timeRange);
     });
-  }
+  }*/
 
 /*  static Future<TimeRange?> getTimeSlot(String userID) async {
     final firestoreInstance = FirebaseFirestore.instance;
@@ -667,7 +720,7 @@ class DatabaseHandler {
     batch.commit();
   }
 
-  static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {
+/*static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {
     String startHour = startTime.hour.toString();
     String startMinute = startTime.minute.toString();
     if (startTime.hour < 10) {
@@ -698,5 +751,5 @@ class DatabaseHandler {
       'endTime': '$endHour:$endMinute',
     });
     batch.commit();
-  }
+  }*/
 }
