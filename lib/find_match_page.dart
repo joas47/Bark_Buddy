@@ -17,7 +17,6 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-
   // showMatchDialog to show a dialog when a match is found
   Future<void> _showMatchDialog(BuildContext context, String friendID,
       String? myDogPicUrl, String? friendDogPicUrl) async {
@@ -44,12 +43,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 children: [
                   CircleAvatar(
                     radius: 50, // Increased the radius of the CircleAvatar
-                    backgroundImage: myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    backgroundImage:
+                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
                     child: myDogPicUrl == null ? Text('No picture') : null,
                   ),
                   CircleAvatar(
                     radius: 50, // Increased the radius of the CircleAvatar
-                    backgroundImage: friendDogPicUrl != null ? NetworkImage(friendDogPicUrl) : null,
+                    backgroundImage: friendDogPicUrl != null
+                        ? NetworkImage(friendDogPicUrl)
+                        : null,
                     child: friendDogPicUrl == null ? Text('No picture') : null,
                   ),
                 ],
@@ -61,19 +63,22 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Container(
-                      width: 250, // Adjust the width of the buttons
+                      width: 250,
+                      // Adjust the width of the buttons
                       decoration: BoxDecoration(
                         color: Colors.lightBlue,
                         borderRadius: BorderRadius.circular(4.0),
                       ),
-                      margin: EdgeInsets.only(bottom: 10.0), // Space between the buttons
+                      margin: EdgeInsets.only(bottom: 10.0),
+                      // Space between the buttons
                       child: TextButton(
                         onPressed: () {
                           // navigate to chat
                         },
                         child: const Text('Chat with match'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white, // This is the text color
+                          foregroundColor:
+                              Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -90,7 +95,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         },
                         child: const Text('Continue finding matches'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white, // This is the text color
+                          foregroundColor:
+                              Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -137,10 +143,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
               TimeRange result = await showTimeRangePicker(
                 context: context,
                 start: const TimeOfDay(hour: 9, minute: 0),
-                end: const TimeOfDay(hour: 24, minute: 0),
+                end: const TimeOfDay(hour: 17, minute: 0),
                 use24HourFormat: true,
                 hideButtons: true,
-                labelOffset: 40,
+                labelOffset: -25,
                 strokeWidth: 4,
                 ticks: 24,
                 ticksOffset: -7,
@@ -149,6 +155,42 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 ticksWidth: 4,
                 strokeColor: Colors.lightGreen,
                 selectedColor: Colors.lightGreen,
+                rotateLabels: false,
+                // TODO: implement max and min duration you can be available?
+                maxDuration: const Duration(hours: 12),
+                minDuration: const Duration(hours: 1),
+                labels: [
+                  "24",
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "5",
+                  "6",
+                  "7",
+                  "8",
+                  "9",
+                  "10",
+                  "11",
+                  "12",
+                  "13",
+                  "14",
+                  "15",
+                  "16",
+                  "17",
+                  "18",
+                  "19",
+                  "20",
+                  "21",
+                  "22",
+                  "23",
+                ].asMap().entries.map((e) {
+                  return ClockLabel.fromIndex(
+                    idx: e.key,
+                    length: 24,
+                    text: e.value,
+                  );
+                }).toList(),
               );
               DatabaseHandler.setAvailability(result.startTime, result.endTime);
             },
@@ -156,11 +198,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
         ],
       ),
       body: SingleChildScrollView(
-          child: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
-        builder: (context, userSnapshot) {
-          if (userSnapshot.hasData) {
-            final userDocs = userSnapshot.data!.docs;
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance.collection('users').snapshots(),
+          builder: (context, userSnapshot) {
+            if (userSnapshot.hasData) {
+              final userDocs = userSnapshot.data!.docs;
               List<QueryDocumentSnapshot> toRemove = [];
               DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
                   element.id == FirebaseAuth.instance.currentUser!.uid);
@@ -177,21 +219,24 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       : toRemove.add(doc);
                   if (currentUserDoc.data().toString().contains('matches')) {
                     if (currentUserDoc['matches'].contains(doc.id)) {
-                    toRemove.add(doc);
+                      toRemove.add(doc);
+                    }
                   }
-                }
-                if (currentUserDoc.data().toString().contains('pendingLikes')) {
-                  if (currentUserDoc['pendingLikes'].contains(doc.id)) {
-                    toRemove.add(doc);
+                  if (currentUserDoc
+                      .data()
+                      .toString()
+                      .contains('pendingLikes')) {
+                    if (currentUserDoc['pendingLikes'].contains(doc.id)) {
+                      toRemove.add(doc);
+                    }
                   }
+                  doc.data().toString().contains('startTime')
+                      ? null
+                      : toRemove.add(doc);
+                  doc.data().toString().contains('endTime')
+                      ? null
+                      : toRemove.add(doc);
                 }
-                doc.data().toString().contains('startTime')
-                    ? null
-                    : toRemove.add(doc);
-                doc.data().toString().contains('endTime')
-                    ? null
-                    : toRemove.add(doc);
-              }
 /*              if (doc.data().toString().contains('startTime') &&
                   doc.data().toString().contains('endTime')) {
 
@@ -264,70 +309,72 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         .doc(doc['dogs'])
                         .snapshots(),
                     builder: (context, dogSnapshot) {
-                        if (dogSnapshot.hasError) {
-                          return const Text(
-                              'Something went wrong: user has no dog');
-                        }
-                        if (dogSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Text("Loading");
-                        }
-                        final dogDoc = dogSnapshot.data!;
-                        List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
-                        if (dogPicURLs != null && dogPicURLs.isEmpty) {
-                          return const Text('Error: dog has no picture');
-                        }
-                        String dogPicURL = dogDoc['pictureUrls'][0];
-                        return Column(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ViewOwnerProfile(userId: doc.id)),
-                                );
-                              },
-                              child: Image(
-                                  image: NetworkImage(doc['picture']), height: 100),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ViewDogProfilePage(userId: doc.id)),
-                                );
-                              },
-                              child: Container(
-                                height: 300,
-                                margin: const EdgeInsets.all(6.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  image: DecorationImage(
-                                    image: NetworkImage(dogPicURL),
-                                    fit: BoxFit.cover,
-                                  ),
+                      if (dogSnapshot.hasError) {
+                        return const Text(
+                            'Something went wrong: user has no dog');
+                      }
+                      if (dogSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Text("Loading");
+                      }
+                      final dogDoc = dogSnapshot.data!;
+                      List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
+                      if (dogPicURLs != null && dogPicURLs.isEmpty) {
+                        return const Text('Error: dog has no picture');
+                      }
+                      String dogPicURL = dogDoc['pictureUrls'][0];
+                      return Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ViewOwnerProfile(userId: doc.id)),
+                              );
+                            },
+                            child: Image(
+                                image: NetworkImage(doc['picture']),
+                                height: 100),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ViewDogProfilePage(userId: doc.id)),
+                              );
+                            },
+                            child: Container(
+                              height: 300,
+                              margin: const EdgeInsets.all(6.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                image: DecorationImage(
+                                  image: NetworkImage(dogPicURL),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                            Row(
-                              children: [
-                                Text(dogDoc['Name'] +
-                                    ", " +
-                                    dogDoc['Age'].toString() +
-                                    " " +
-                                    dogDoc['Gender']),
-                                IconButton(
-                                  //TODO: make this a heart icon
-                                  icon: const Icon(Icons.heart_broken),
-                                  onPressed: () async {
-                                    // TODO: if the last dog is liked, the match dialog will not show if there's a match
-                                  bool isMatch = await DatabaseHandler.sendLike(doc.id);
-                                    if (isMatch) {
-                                      final User? currentUser =
+                          ),
+                          Row(
+                            children: [
+                              Text(dogDoc['Name'] +
+                                  ", " +
+                                  dogDoc['Age'].toString() +
+                                  " " +
+                                  dogDoc['Gender']),
+                              IconButton(
+                                //TODO: make this a heart icon
+                                icon: const Icon(Icons.heart_broken),
+                                onPressed: () async {
+                                  // TODO: if the last dog is liked, the match dialog will not show if there's a match
+                                  bool isMatch =
+                                      await DatabaseHandler.sendLike(doc.id);
+                                  if (isMatch) {
+                                    final User? currentUser =
                                         FirebaseAuth.instance.currentUser;
                                     String? myDogPicUrl =
                                         await DatabaseHandler.getDogPic(
@@ -336,12 +383,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                     _showMatchDialog(context, doc.id,
                                         myDogPicUrl, dogPicURL);
                                   }
-                                  },
-                                ),
-                              ],
-                            )
-                          ],
-                        );
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      );
                     },
                   );
                 },
