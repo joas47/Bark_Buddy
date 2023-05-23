@@ -218,14 +218,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
               if (currentUserDoc.data().toString().contains('availability')) {
                 Set<DocumentSnapshot<Object?>> toRemove =
                     _theAlgorithm(userDocs, currentUserDoc);
+
                 // removes all documents that didn't match the criteria above
-                // print elements in userDocs
-                print("före");
-                print(userDocs.length);
-                print(toRemove.length);
                 userDocs.removeWhere((element) => toRemove.contains(element));
-                print("efter");
-                print(userDocs.length);
               } else {
                 // TODO: make this message prettier
                 return const Center(
@@ -410,6 +405,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     /*TimeRange? currentUserAvailabilityRange = await currentUserAvailability;*/
     //TimeRange? currentUserAvailabilityRange = DatabaseHandler.getTimeRange(currentUserDoc.id);
+    TimeRange? currentUserAvailabilityRange;
+    DatabaseHandler.getTimeRange(currentUserDoc.id, (timeRange) {
+      currentUserAvailabilityRange = timeRange;
+      print("In the algo: " + currentUserAvailabilityRange.toString());
+    });
+    print("In the algo: " + currentUserAvailabilityRange.toString());
     //print("find_match_page: " + currentUserAvailabilityRange.toString());
     for (var doc in userDocs) {
       // TODO: availability check (timeslot)
@@ -448,7 +449,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
         toRemove.add(doc);
       }*/
     }
-    print("i algo:" + toRemove.length.toString());
     return toRemove;
 
     /*              if (doc.data().toString().contains('startTime') &&
@@ -506,7 +506,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   Column _buildPotentialMatch(BuildContext context,
       DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
-    //print(dogDoc.id);
     return Column(
       children: [
         InkWell(
