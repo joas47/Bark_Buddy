@@ -9,7 +9,6 @@ import 'firebase_options.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 
 // TODO: handle the case when the user is already logged in
-// TODO: found bug where after you press the logout button in the settings page, then log in to another account, there's now 2 bottom navigation bars stacked ontop of each other.
 void main() async {
   // Firebase initialization
   WidgetsFlutterBinding.ensureInitialized();
