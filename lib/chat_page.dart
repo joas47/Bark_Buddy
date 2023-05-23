@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -249,8 +248,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.friendName),
+      appBar: CustomAppBar(
+        friendName: widget.friendName,
+        onRecommendLocationPressed: () {
+          _recommendLocation();
+          // Handle the recommend location button press here
+          // Add the code to trigger the recommend location functionality
+        },
       ),
       body: Column(
         children: [
@@ -395,10 +399,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
                   },
                   icon: Icon(Icons.send),
                 ),
-                IconButton(
-                  onPressed: _recommendLocation,
-                  icon: Icon(Icons.add),
-                ),
               ],
             ),
           ),
@@ -409,13 +409,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
   String getLastTwoWords(String text) {
     List<String> words = text.split(' ');
     if (words.length < 2) return text;
-    return words.sublist(words.length - 2).join(' ');
+    return words.sublist(words.length - 1).join(' ');
   }
 
   String getMainText(String text) {
     List<String> words = text.split(' ');
     if (words.length < 2) return '';
-    return words.sublist(0, words.length - 2).join(' ');
+    return words.sublist(0, words.length - 1).join(' ');
   }
 
   Future<String?> _getSenderProfilePicture(String senderId) async {
@@ -623,7 +623,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       await userRecommendationsCollection.add(recommendationData);
     }
 
-    final message = 'Hey, I recommend visiting $closestLocationName! $googleMapsLinkTrimmed';
+    final message = 'Hey, I recommend visiting $closestLocationName $googleMapsLinkTrimmed';
     _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png', Colors.red, googleMapsLinkTrimmed);
   }
   Future<bool> checkIfLocationRecommendedBefore(String currentFriend, String currentUserUID, String googleMapsLinkTrimmed, DateTime recommendationTimestamp) async {
@@ -724,4 +724,39 @@ class _MatchChatPageState extends State<MatchChatPage> {
       speedAccuracy: 0,
       timestamp: DateTime.now(),);
   }
+}
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String friendName;
+  final VoidCallback onRecommendLocationPressed;
+
+  const CustomAppBar({
+    required this.friendName,
+    required this.onRecommendLocationPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      title: Text(friendName),
+      actions: [
+        TextButton(
+          onPressed: onRecommendLocationPressed,
+          child: Text(
+            'Recommend a new location',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(AppBar().preferredSize.height);
 }
