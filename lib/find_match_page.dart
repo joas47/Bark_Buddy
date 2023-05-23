@@ -214,7 +214,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
               userDocs.remove(currentUserDoc);
               // until the user has set their availability, they shouldn't be able to see any matches
               // TODO: right now only checks if the fields exist, not their values. Should take current time into account
-              // TODO: range based filter. make a button that opens a dialog where you can choose the max distance you want to match with
               if (currentUserDoc.data().toString().contains('availability')) {
                 Set<DocumentSnapshot<Object?>> toRemove =
                     _filterOutUsers(userDocs, currentUserDoc);
