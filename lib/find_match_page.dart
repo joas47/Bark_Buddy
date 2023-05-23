@@ -17,7 +17,6 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-
   // showMatchDialog to show a dialog when a match is found
   Future<void> _showMatchDialog(BuildContext context, String friendID,
       String? myDogPicUrl, String? friendDogPicUrl) async {
@@ -44,12 +43,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 children: [
                   CircleAvatar(
                     radius: 50, // Increased the radius of the CircleAvatar
-                    backgroundImage: myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    backgroundImage:
+                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
                     child: myDogPicUrl == null ? Text('No picture') : null,
                   ),
                   CircleAvatar(
                     radius: 50, // Increased the radius of the CircleAvatar
-                    backgroundImage: friendDogPicUrl != null ? NetworkImage(friendDogPicUrl) : null,
+                    backgroundImage: friendDogPicUrl != null
+                        ? NetworkImage(friendDogPicUrl)
+                        : null,
                     child: friendDogPicUrl == null ? Text('No picture') : null,
                   ),
                 ],
@@ -61,19 +63,22 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Container(
-                      width: 250, // Adjust the width of the buttons
+                      width: 250,
+                      // Adjust the width of the buttons
                       decoration: BoxDecoration(
                         color: Colors.lightBlue,
                         borderRadius: BorderRadius.circular(4.0),
                       ),
-                      margin: EdgeInsets.only(bottom: 10.0), // Space between the buttons
+                      margin: EdgeInsets.only(bottom: 10.0),
+                      // Space between the buttons
                       child: TextButton(
                         onPressed: () {
                           // navigate to chat
                         },
                         child: const Text('Chat with match'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white, // This is the text color
+                          foregroundColor:
+                              Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -90,7 +95,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         },
                         child: const Text('Continue finding matches'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white, // This is the text color
+                          foregroundColor:
+                              Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -137,10 +143,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
               TimeRange result = await showTimeRangePicker(
                 context: context,
                 start: const TimeOfDay(hour: 9, minute: 0),
-                end: const TimeOfDay(hour: 24, minute: 0),
+                end: const TimeOfDay(hour: 17, minute: 0),
                 use24HourFormat: true,
                 hideButtons: true,
-                labelOffset: 40,
+                labelOffset: -25,
                 strokeWidth: 4,
                 ticks: 24,
                 ticksOffset: -7,
@@ -149,6 +155,42 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 ticksWidth: 4,
                 strokeColor: Colors.lightGreen,
                 selectedColor: Colors.lightGreen,
+                rotateLabels: false,
+                // TODO: implement max and min duration you can be available?
+                maxDuration: const Duration(hours: 12),
+                minDuration: const Duration(hours: 1),
+                labels: [
+                  "24",
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "5",
+                  "6",
+                  "7",
+                  "8",
+                  "9",
+                  "10",
+                  "11",
+                  "12",
+                  "13",
+                  "14",
+                  "15",
+                  "16",
+                  "17",
+                  "18",
+                  "19",
+                  "20",
+                  "21",
+                  "22",
+                  "23",
+                ].asMap().entries.map((e) {
+                  return ClockLabel.fromIndex(
+                    idx: e.key,
+                    length: 24,
+                    text: e.value,
+                  );
+                }).toList(),
               );
               DatabaseHandler.setAvailability(result.startTime, result.endTime);
             },
@@ -156,45 +198,52 @@ class _FindMatchPageState extends State<FindMatchPage> {
         ],
       ),
       body: SingleChildScrollView(
-          child: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
-        builder: (context, userSnapshot) {
-          if (userSnapshot.hasData) {
-            final userDocs = userSnapshot.data!.docs;
-            List<QueryDocumentSnapshot> toRemove = [];
-            DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
-                element.id == FirebaseAuth.instance.currentUser!.uid);
-            for (var doc in userDocs) {
-                // TODO: availability check (timeslot)
-                // TODO: give feedback when liking a dog, right now it just disappears
-              doc.id == FirebaseAuth.instance.currentUser!.uid
-                    ? toRemove.add(doc)
-                    : null;
-                doc.data().toString().contains('dogs')
-                    ? null
-                    : toRemove.add(doc);
-                if (currentUserDoc.data().toString().contains('matches')) {
-                  if (currentUserDoc['matches'].contains(doc.id)) {
-                    toRemove.add(doc);
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance.collection('users').snapshots(),
+          builder: (context, userSnapshot) {
+            if (userSnapshot.hasData) {
+              // all documents in the users collection
+              final userDocs = userSnapshot.data!.docs;
+              // documents that should be removed from the list of potential matches
+              List<QueryDocumentSnapshot> toRemove = [];
+              // the current user's document, for easy access
+              DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
+                  element.id == FirebaseAuth.instance.currentUser!.uid);
+              // remove the current user from the list of potential matches (shouldn't match with yourself)
+              userDocs.remove(currentUserDoc);
+              // until the user has set their availability, they shouldn't be able to see any matches
+              // TODO: right now only checks if the fields exist, not their values. Should take current time into account
+              // TODO: range based filter. make a button that opens a dialog where you can choose the max distance you want to match with
+              if (currentUserDoc.data().toString().contains('startTime') &&
+                  currentUserDoc.data().toString().contains('endTime')) {
+                for (var doc in userDocs) {
+                  // TODO: availability check (timeslot)
+                  // removes users that don't have a dog
+                  doc.data().toString().contains('dogs')
+                      ? null
+                      : toRemove.add(doc);
+                  // removes users that are already matched with the current user
+                  if (currentUserDoc.data().toString().contains('matches')) {
+                    if (currentUserDoc['matches'].contains(doc.id)) {
+                      toRemove.add(doc);
+                    }
                   }
-                }
-                if (currentUserDoc.data().toString().contains('pendingLikes')) {
-                  if (currentUserDoc['pendingLikes'].contains(doc.id)) {
-                    toRemove.add(doc);
+                  // removes users that the current user has already liked
+                  if (currentUserDoc
+                      .data()
+                      .toString()
+                      .contains('pendingLikes')) {
+                    if (currentUserDoc['pendingLikes'].contains(doc.id)) {
+                      toRemove.add(doc);
+                    }
                   }
-                }
-                doc.data().toString().contains('startTime')
-                    ? null
-                    : toRemove.add(doc);
-                doc.data().toString().contains('endTime')
-                    ? null
-                    : toRemove.add(doc);
-                if (!(currentUserDoc.data().toString().contains('startTime') &&
-                    currentUserDoc.data().toString().contains('endTime'))) {
-                  return const Center(
-                    child:
-                        Text('Click the clock icon to set your availability'),
-                  );
+                  // removes users that hasn't set their availability
+                  doc.data().toString().contains('startTime')
+                      ? null
+                      : toRemove.add(doc);
+                  doc.data().toString().contains('endTime')
+                      ? null
+                      : toRemove.add(doc);
                 }
 /*              if (doc.data().toString().contains('startTime') &&
                   doc.data().toString().contains('endTime')) {
@@ -226,6 +275,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           doc['startTime']) {
                     toRemove.add(doc);
                   }*/
+              } else {
+                // TODO: make this message prettier
+                return const Center(
+                  child: Text('Click the clock icon to set your availability'),
+                );
               }
               /*bool isTimeOverlap(DocumentSnapshot other, ) {
               // Extract hours and minutes from startTime and endTime
@@ -247,100 +301,58 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
               return false;
             }*/
+              // removes all documents that didn't match the criteria above
               userDocs.removeWhere((element) => toRemove.contains(element));
+              // TODO: make this message prettier
+              // if there's no users left that match the criteria, displays a message.
               if (userDocs.isEmpty) {
                 return const Center(
                   child: Text('No matches found'),
                 );
               }
+              /*// TODO: Special case: what to do if there's only one potential match to show?
+              if (userDocs.length == 1) {
+                DocumentSnapshot ownerDoc = userDocs.first;
+                final dogDoc = FirebaseFirestore.instance
+                    .collection('Dogs')
+                    .doc(ownerDoc['dogs']);
+                return _buildPotentialMatch(context, userDocs.first, dogDoc);
+              }*/
+              // begins the process of displaying the matches
               return CarouselSlider.builder(
                 itemCount: userDocs.length,
+                // loops through the list of potential matches one by one
                 itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                  DocumentSnapshot doc = userDocs[itemIndex];
-
+                  DocumentSnapshot ownerDoc = userDocs[itemIndex];
                   return StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('Dogs')
-                        .doc(doc['dogs'])
+                        .doc(ownerDoc['dogs'])
                         .snapshots(),
                     builder: (context, dogSnapshot) {
-                        if (dogSnapshot.hasError) {
-                          return const Text(
-                              'Something went wrong: user has no dog');
-                        }
-                        if (dogSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Text("Loading");
-                        }
-                        final dogDoc = dogSnapshot.data!;
-                        List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
-                        if (dogPicURLs != null && dogPicURLs.isEmpty) {
-                          return const Text('Error: dog has no picture');
-                        }
-                        String dogPicURL = dogDoc['pictureUrls'][0];
-                        return Column(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ViewOwnerProfile(userId: doc.id)),
-                                );
-                              },
-                              child: Image(
-                                  image: NetworkImage(doc['picture']), height: 100),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ViewDogProfilePage(userId: doc.id)),
-                                );
-                              },
-                              child: Container(
-                                height: 300,
-                                margin: const EdgeInsets.all(6.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  image: DecorationImage(
-                                    image: NetworkImage(dogPicURL),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(dogDoc['Name'] +
-                                    ", " +
-                                    dogDoc['Age'].toString() +
-                                    " " +
-                                    dogDoc['Gender']),
-                                IconButton(
-                                  //TODO: make this a heart icon
-                                  icon: const Icon(Icons.heart_broken),
-                                  onPressed: () async {
-                                    bool isMatch = await DatabaseHandler.sendLike(doc.id);
-                                    if (isMatch) {
-                                      final User? currentUser =
-                                        FirebaseAuth.instance.currentUser;
-                                    String? myDogPicUrl =
-                                        await DatabaseHandler.getDogPic(
-                                                currentUser?.uid)
-                                            .first;
-                                    _showMatchDialog(context, doc.id,
-                                        myDogPicUrl, dogPicURL);
-                                  }
-                                  },
-                                ),
-                              ],
-                            )
-                          ],
+                      if (dogSnapshot.hasError) {
+                        return const Text(
+                            'Something went wrong: user has no dog probably');
+                      }
+                      if (dogSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
                         );
+                      }
+                      final dogDoc = dogSnapshot.data!;
+                      // check if the dog document has a field called 'pictureUrls'.
+                      // If not, display an error message.
+                      // Should never happen, but just in case.
+                      // You should never be able to create a dog without a picture.
+                      if (!dogDoc.data().toString().contains('pictureUrls')) {
+                        return const Text('Error: dog has no picture');
+                      }
+                      /*List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
+                      if (dogPicURLs != null && dogPicURLs.isEmpty) {
+                        return const Text('Error: dog has no picture');
+                      }*/
+                      return _buildPotentialMatch(context, ownerDoc, dogDoc);
                     },
                   );
                 },
@@ -453,6 +465,72 @@ class _FindMatchPageState extends State<FindMatchPage> {
               }
             },
           )),*/
+    );
+  }
+
+  Column _buildPotentialMatch(BuildContext context,
+      DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ViewOwnerProfile(userId: ownerDoc.id)),
+            );
+          },
+          child: Image(image: NetworkImage(ownerDoc['picture']), height: 100),
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ViewDogProfilePage(userId: ownerDoc.id)),
+            );
+          },
+          child: Container(
+            // TODO: 'height' should take into account the size of the screen and try to fill as much as possible without overflowing
+            height: 420,
+            margin: const EdgeInsets.all(6.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              image: DecorationImage(
+                image: NetworkImage(dogDoc['pictureUrls'][0]),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(dogDoc['Name'] +
+                ", " +
+                dogDoc['Age'].toString() +
+                " " +
+                dogDoc['Gender']),
+            IconButton(
+              //TODO: make this a heart icon
+              icon: const Icon(Icons.heart_broken),
+              onPressed: () async {
+                // TODO: give feedback when liking a dog, right now it just disappears
+                // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
+                bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
+                if (isMatch) {
+                  final User? currentUser = FirebaseAuth.instance.currentUser;
+                  String? myDogPicUrl =
+                      await DatabaseHandler.getDogPic(currentUser?.uid).first;
+                  _showMatchDialog(context, ownerDoc.id, myDogPicUrl,
+                      dogDoc['pictureUrls'][0]);
+                }
+              },
+            ),
+          ],
+        )
+      ],
     );
   }
 }
