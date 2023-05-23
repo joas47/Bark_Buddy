@@ -73,59 +73,83 @@ class _FriendPageState extends State<FriendPage> {
                           }
                           String? dogName = dogNameSnapshot.data;
 
-                          return ListTile(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
-                          },title: Text(friendData['name'].toString()),
-                            subtitle: Text("(${dogName!})"),
-                            leading: CircleAvatar(
-                              backgroundImage:
-                              NetworkImage(friendData['picture']),
-                              radius: 30.0,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    // Take to chat page
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                        const MatchChatPage(),
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.chat),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    _showActivityLevelInfoSheet(friendId);
-                                  },
-                                  icon: const Icon(Icons.menu),
-                                ),
-                              ],
-                            ),
-                            onLongPress: () {
-                              // TODO: make something with this? (low priority)
-                            },
-                          );
+                          return _buildFriendRow(
+                              context, friendId, friendData, dogName);
                         },
                       );
                     },
                   );
                 },
               );
-            }
-            else {
-              return ListTile(
+            } else {
+              return const ListTile(
                 title: Text('no friends'),
               );
             }
           },
         ),
       ),
+    );
+  }
+
+  ListTile _buildFriendRow(BuildContext context, String friendId,
+      Map<String, dynamic> friendData, String? dogName) {
+    return ListTile(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ViewDogProfilePage(userId: friendId)));
+      },
+      title: Text(friendData['name'].toString()),
+      subtitle: Text("(${dogName!})"),
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(friendData['picture']),
+        radius: 30.0,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // TODO: check if user is available, not just if they have an availability field
+          friendData['availability'] == null
+              ? const Text('Not available',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.red,
+                  ))
+              : Text(
+                  'Available \n' +
+                      friendData['availability']['startTime'].toString() +
+                      ' - ' +
+                      friendData['availability']['endTime'].toString(),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.green,
+                  )),
+          IconButton(
+            onPressed: () {
+              // Take to chat page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MatchChatPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.chat),
+          ),
+          IconButton(
+            onPressed: () {
+              _showActivityLevelInfoSheet(friendId);
+            },
+            icon: const Icon(Icons.menu_outlined),
+          ),
+        ],
+      ),
+      onLongPress: () {
+        // TODO: make something with this? (low priority)
+      },
     );
   }
 
