@@ -501,7 +501,7 @@ class DatabaseHandler {
     return Future.value(['1', '2']);
   }
 
-  static Future<TimeRange?> getTimeSlot(String userID) async {
+/*  static Future<TimeRange?> getTimeSlot(String userID) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
 
@@ -529,11 +529,60 @@ class DatabaseHandler {
           startTime: startTime,
           endTime: endTime,
         );
+        print (timeRange);
         return timeRange;
       }
       return null;
     }
     return null;
+  }*/
+
+  static Stream<TimeRange?> getTimeSlot(String userID) async* {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final userDocumentSnapshot = await usersCollectionRef.doc(userID).get();
+    if (userDocumentSnapshot.exists) {
+      if (userDocumentSnapshot.data().toString().contains('availability')) {
+        final data = userDocumentSnapshot.data();
+        if (data != null && data['availability'] != null) {
+          final startTimeString = data['availability']['startTime'];
+          final endTimeString = data['availability']['endTime'];
+
+          final startTimeParts = startTimeString.split(':');
+          final endTimeParts = endTimeString.split(':');
+
+          final startTime = TimeOfDay(
+            hour: int.parse(startTimeParts[0]),
+            minute: int.parse(startTimeParts[1]),
+          );
+
+          final endTime = TimeOfDay(
+            hour: int.parse(endTimeParts[0]),
+            minute: int.parse(endTimeParts[1]),
+          );
+
+          final TimeRange timeRange = TimeRange(
+            startTime: startTime,
+            endTime: endTime,
+          );
+          print("getTimeSlot: " + timeRange.toString());
+          yield timeRange;
+        } else {
+          yield null;
+        }
+      } else {
+        yield null;
+      }
+    } else {
+      yield null;
+    }
+  }
+
+  static TimeRange? getTimeRange(String userID) {
+    TimeRange timeRange = getTimeSlot(userID) as TimeRange;
+    print("getTimeRange: " + timeRange.toString());
+    return timeRange;
   }
 
   static void storeTimeSlot(TimeOfDay startTime, TimeOfDay endTime) {

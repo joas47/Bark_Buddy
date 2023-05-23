@@ -206,7 +206,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
               // all documents in the users collection
               final userDocs = userSnapshot.data!.docs;
               // documents that should be removed from the list of potential matches
-              List<QueryDocumentSnapshot> toRemove = [];
+              //List<QueryDocumentSnapshot> toRemove = [];
               // the current user's document, for easy access
               DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
                   element.id == FirebaseAuth.instance.currentUser!.uid);
@@ -216,15 +216,22 @@ class _FindMatchPageState extends State<FindMatchPage> {
               // TODO: right now only checks if the fields exist, not their values. Should take current time into account
               // TODO: range based filter. make a button that opens a dialog where you can choose the max distance you want to match with
               if (currentUserDoc.data().toString().contains('availability')) {
-                _theAlgorithm(userDocs, toRemove, currentUserDoc);
+                Set<DocumentSnapshot<Object?>> toRemove =
+                    _theAlgorithm(userDocs, currentUserDoc);
+                // removes all documents that didn't match the criteria above
+                // print elements in userDocs
+                print("före");
+                print(userDocs.length);
+                print(toRemove.length);
+                userDocs.removeWhere((element) => toRemove.contains(element));
+                print("efter");
+                print(userDocs.length);
               } else {
                 // TODO: make this message prettier
                 return const Center(
                   child: Text('Click the clock icon to set your availability'),
                 );
               }
-              // removes all documents that didn't match the criteria above
-              userDocs.removeWhere((element) => toRemove.contains(element));
               // TODO: make this message prettier
               // if there's no users left that match the criteria, displays a message.
               if (userDocs.isEmpty) {
@@ -246,6 +253,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 // loops through the list of potential matches one by one
                 itemBuilder: (context, int itemIndex, int pageViewIndex) {
                   DocumentSnapshot ownerDoc = userDocs[itemIndex];
+                  if (!ownerDoc.data().toString().contains('dogs')) {
+                    return const Text('Error: user has no dog!!');
+                  }
                   return StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('Dogs')
@@ -270,10 +280,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       if (!dogDoc.data().toString().contains('pictureUrls')) {
                         return const Text('Error: dog has no picture');
                       }
-                      /*List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
+                      List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
                       if (dogPicURLs != null && dogPicURLs.isEmpty) {
                         return const Text('Error: dog has no picture');
-                      }*/
+                      }
                       return _buildPotentialMatch(context, ownerDoc, dogDoc);
                     },
                   );
@@ -390,16 +400,17 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  Future<void> _theAlgorithm(
+  Set<DocumentSnapshot> _theAlgorithm(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
-      List<QueryDocumentSnapshot<Object?>> toRemove,
-      DocumentSnapshot<Object?> currentUserDoc) async {
-    /*currentUserDoc.data().toString().contains('availaility')
-        ? null
-        : toRemove.add(currentUserDoc);*/
-    Future<TimeRange?> timeRange =
+      DocumentSnapshot<Object?> currentUserDoc) {
+    Set<DocumentSnapshot> toRemove = {};
+    /*Future<TimeRange?> currentUserAvailability =
         DatabaseHandler.getTimeSlot(currentUserDoc.id);
-    //timeRange.then((value) => print(value));
+    currentUserAvailability.then((value) => print(value));*/
+
+    /*TimeRange? currentUserAvailabilityRange = await currentUserAvailability;*/
+    //TimeRange? currentUserAvailabilityRange = DatabaseHandler.getTimeRange(currentUserDoc.id);
+    //print("find_match_page: " + currentUserAvailabilityRange.toString());
     for (var doc in userDocs) {
       // TODO: availability check (timeslot)
       // removes users that don't have a dog
@@ -418,7 +429,27 @@ class _FindMatchPageState extends State<FindMatchPage> {
       }
       // removes users that hasn't set their availability
       doc.data().toString().contains('availability') ? null : toRemove.add(doc);
+
+      /*TimeRange? userAvailabilityRange = await DatabaseHandler.getTimeSlot(doc.id);*/
+/*
+      DateTime userStartTime = userAvailabilityRange!.startTime as DateTime;
+      DateTime userEndTime = userAvailabilityRange.endTime as DateTime;
+
+      DateTime currentUserStartTime = currentUserAvailabilityRange!.startTime as DateTime;
+      DateTime currentUserEndTime = currentUserAvailabilityRange.endTime as DateTime;
+
+      bool isOverlap = (userStartTime.isBefore(currentUserEndTime) ||
+          userStartTime.isAtSameMomentAs(currentUserEndTime)) &&
+          (userEndTime.isAfter(currentUserStartTime) ||
+              userEndTime.isAtSameMomentAs(currentUserStartTime));
+
+      // removes users that don't have overlapping availability with the current user
+      if (!isOverlap) {
+        toRemove.add(doc);
+      }*/
     }
+    print("i algo:" + toRemove.length.toString());
+    return toRemove;
 
     /*              if (doc.data().toString().contains('startTime') &&
                   doc.data().toString().contains('endTime')) {
@@ -475,6 +506,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   Column _buildPotentialMatch(BuildContext context,
       DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
+    //print(dogDoc.id);
     return Column(
       children: [
         InkWell(
