@@ -205,8 +205,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
             if (userSnapshot.hasData) {
               // all documents in the users collection
               final userDocs = userSnapshot.data!.docs;
-              // documents that should be removed from the list of potential matches
-              //List<QueryDocumentSnapshot> toRemove = [];
               // the current user's document, for easy access
               DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
                   element.id == FirebaseAuth.instance.currentUser!.uid);
