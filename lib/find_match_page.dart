@@ -5,6 +5,7 @@ import 'package:cross_platform_test/match_chat_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
@@ -17,6 +18,79 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
+  //flutter local notification plugin
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  List<String>? oldMatches;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize the plugin
+    AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+    final InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    // Get the current user ID
+    final currentUserID = FirebaseAuth.instance.currentUser!.uid;
+
+    // Listen for updates to the 'matches' field in the user's document
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserID)
+        .snapshots()
+        .listen((DocumentSnapshot documentSnapshot) {
+      Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+      // check if the 'matches' field has changed
+      // (you'll need to implement a way to check this, such as storing the old 'matches' value in a variable)
+
+      List<String> newMatches = data['matches'].cast<String>();
+      if (oldMatches != null && _areListsDifferent(oldMatches!, newMatches)) {
+        // if the 'matches' list has been changed, show a notification
+        _showNotification();
+      }
+      //save the new list for the next comparison
+      oldMatches = newMatches;
+    });
+  }
+
+  //function to compare two lists
+  bool _areListsDifferent(List<String> list1, List<String> list2){
+    //if lengths are not equal
+    if(list1.length != list2.length){
+      return true;
+    }
+    //check for equality
+    for(int i = 0; i < list1.length; i++){
+      if(list1[i] != list2[i]){
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+
+
+
+  Future<void> _showNotification() async {
+    // show a notification
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+        'new matches messages', 'new match messages','your channel description',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'New Match', 'You have a new match', platformChannelSpecifics);
+  }
+
+
+
   // showMatchDialog to show a dialog when a match is found
   Future<void> _showMatchDialog(BuildContext context, String friendID,
       String? myDogPicUrl, String? friendDogPicUrl) async {
