@@ -27,11 +27,10 @@ class SettingsPage extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                      (route) => false);
+                  Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                        (route) => false,
+                  );
                 },
                 child: const Text('Logout'),
               ),
