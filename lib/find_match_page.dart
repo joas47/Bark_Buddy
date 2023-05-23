@@ -202,26 +202,33 @@ class _FindMatchPageState extends State<FindMatchPage> {
           stream: FirebaseFirestore.instance.collection('users').snapshots(),
           builder: (context, userSnapshot) {
             if (userSnapshot.hasData) {
+              // all documents in the users collection
               final userDocs = userSnapshot.data!.docs;
+              // documents that should be removed from the list of potential matches
               List<QueryDocumentSnapshot> toRemove = [];
+              // the current user's document, for easy access
               DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
                   element.id == FirebaseAuth.instance.currentUser!.uid);
+              // remove the current user from the list of potential matches (shouldn't match with yourself)
+              userDocs.remove(currentUserDoc);
+              // until the user has set their availability, they shouldn't be able to see any matches
+              // TODO: right now only checks if the fields exist, not their values. Should take current time into account
+              // TODO: range based filter. make a button that opens a dialog where you can choose the max distance you want to match with
               if (currentUserDoc.data().toString().contains('startTime') &&
                   currentUserDoc.data().toString().contains('endTime')) {
                 for (var doc in userDocs) {
                   // TODO: availability check (timeslot)
-                  // TODO: give feedback when liking a dog, right now it just disappears
-                  doc.id == FirebaseAuth.instance.currentUser!.uid
-                      ? toRemove.add(doc)
-                      : null;
+                  // removes users that don't have a dog
                   doc.data().toString().contains('dogs')
                       ? null
                       : toRemove.add(doc);
+                  // removes users that are already matched with the current user
                   if (currentUserDoc.data().toString().contains('matches')) {
                     if (currentUserDoc['matches'].contains(doc.id)) {
                       toRemove.add(doc);
                     }
                   }
+                  // removes users that the current user has already liked
                   if (currentUserDoc
                       .data()
                       .toString()
@@ -230,6 +237,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       toRemove.add(doc);
                     }
                   }
+                  // removes users that hasn't set their availability
                   doc.data().toString().contains('startTime')
                       ? null
                       : toRemove.add(doc);
@@ -268,6 +276,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     toRemove.add(doc);
                   }*/
               } else {
+                // TODO: make this message prettier
                 return const Center(
                   child: Text('Click the clock icon to set your availability'),
                 );
@@ -292,12 +301,16 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
               return false;
             }*/
+              // removes all documents that didn't match the criteria above
               userDocs.removeWhere((element) => toRemove.contains(element));
+              // TODO: make this message prettier
+              // if there's no users left that match the criteria, displays a message.
               if (userDocs.isEmpty) {
                 return const Center(
                   child: Text('No matches found'),
                 );
               }
+              // begins the process of displaying the matches
               return CarouselSlider.builder(
                 itemCount: userDocs.length,
                 itemBuilder: (context, int itemIndex, int pageViewIndex) {
@@ -370,7 +383,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                 //TODO: make this a heart icon
                                 icon: const Icon(Icons.heart_broken),
                                 onPressed: () async {
-                                  // TODO: if the last dog is liked, the match dialog will not show if there's a match
+                                  // TODO: give feedback when liking a dog, right now it just disappears
+                                  // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
                                   bool isMatch =
                                       await DatabaseHandler.sendLike(doc.id);
                                   if (isMatch) {
