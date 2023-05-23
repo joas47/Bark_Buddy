@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/material/time.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:time_range_picker/time_range_picker.dart';
 
 class DatabaseHandler {
   static Future<void> getOwnerProfileData() async {
@@ -493,10 +494,64 @@ class DatabaseHandler {
     } catch (error) {
       print('Error getting random friend: $error');
     }
+    return null;
   }
 
   static Future<List<String>> getList() {
     return Future.value(['1', '2']);
+  }
+
+  static Future<TimeRange?> getTimeSlot(String userID) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final userDocumentSnapshot = await usersCollectionRef.doc(userID).get();
+    if (userDocumentSnapshot.exists) {
+      final data = userDocumentSnapshot.data();
+      if (data != null && data['availability'] != null) {
+        final startTimeString = data['availability']['startTime'];
+        final endTimeString = data['availability']['endTime'];
+
+        final startTimeParts = startTimeString.split(':');
+        final endTimeParts = endTimeString.split(':');
+
+        final startTime = TimeOfDay(
+          hour: int.parse(startTimeParts[0]),
+          minute: int.parse(startTimeParts[1]),
+        );
+
+        final endTime = TimeOfDay(
+          hour: int.parse(endTimeParts[0]),
+          minute: int.parse(endTimeParts[1]),
+        );
+
+        final TimeRange timeRange = TimeRange(
+          startTime: startTime,
+          endTime: endTime,
+        );
+        return timeRange;
+      }
+      return null;
+    }
+    return null;
+  }
+
+  static void storeTimeSlot(TimeOfDay startTime, TimeOfDay endTime) {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+    final batch = firestoreInstance.batch();
+
+    final availability = {
+      "startTime": '${startTime.hour}:${startTime.minute}',
+      "endTime": '${endTime.hour}:${endTime.minute}',
+    };
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+
+    batch.update(userDocumentRef, {'availability': availability});
+    batch.commit();
   }
 
   static void setAvailability(TimeOfDay startTime, TimeOfDay endTime) {

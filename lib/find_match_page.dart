@@ -192,7 +192,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   );
                 }).toList(),
               );
-              DatabaseHandler.setAvailability(result.startTime, result.endTime);
+              //DatabaseHandler.setAvailability(result.startTime, result.endTime);
+              DatabaseHandler.storeTimeSlot(result.startTime, result.endTime);
             },
           ),
         ],
@@ -214,8 +215,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
               // until the user has set their availability, they shouldn't be able to see any matches
               // TODO: right now only checks if the fields exist, not their values. Should take current time into account
               // TODO: range based filter. make a button that opens a dialog where you can choose the max distance you want to match with
-              if (currentUserDoc.data().toString().contains('startTime') &&
-                  currentUserDoc.data().toString().contains('endTime')) {
+              if (currentUserDoc.data().toString().contains('availability')) {
                 _theAlgorithm(userDocs, toRemove, currentUserDoc);
               } else {
                 // TODO: make this message prettier
@@ -390,10 +390,16 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  void _theAlgorithm(
+  Future<void> _theAlgorithm(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       List<QueryDocumentSnapshot<Object?>> toRemove,
-      DocumentSnapshot<Object?> currentUserDoc) {
+      DocumentSnapshot<Object?> currentUserDoc) async {
+    /*currentUserDoc.data().toString().contains('availaility')
+        ? null
+        : toRemove.add(currentUserDoc);*/
+    Future<TimeRange?> timeRange =
+        DatabaseHandler.getTimeSlot(currentUserDoc.id);
+    //timeRange.then((value) => print(value));
     for (var doc in userDocs) {
       // TODO: availability check (timeslot)
       // removes users that don't have a dog
@@ -411,8 +417,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
         }
       }
       // removes users that hasn't set their availability
-      doc.data().toString().contains('startTime') ? null : toRemove.add(doc);
-      doc.data().toString().contains('endTime') ? null : toRemove.add(doc);
+      doc.data().toString().contains('availability') ? null : toRemove.add(doc);
     }
 
     /*              if (doc.data().toString().contains('startTime') &&
