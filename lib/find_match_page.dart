@@ -469,7 +469,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
   }
 
   Column _buildPotentialMatch(BuildContext context,
-      DocumentSnapshot<Object?> doc, DocumentSnapshot<Object?> dogDoc) {
+      DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
     return Column(
       children: [
         InkWell(
@@ -477,17 +477,18 @@ class _FindMatchPageState extends State<FindMatchPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ViewOwnerProfile(userId: doc.id)),
+                  builder: (context) => ViewOwnerProfile(userId: ownerDoc.id)),
             );
           },
-          child: Image(image: NetworkImage(doc['picture']), height: 100),
+          child: Image(image: NetworkImage(ownerDoc['picture']), height: 100),
         ),
         InkWell(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ViewDogProfilePage(userId: doc.id)),
+                  builder: (context) =>
+                      ViewDogProfilePage(userId: ownerDoc.id)),
             );
           },
           child: Container(
@@ -504,6 +505,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
           ),
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(dogDoc['Name'] +
                 ", " +
@@ -516,13 +518,13 @@ class _FindMatchPageState extends State<FindMatchPage> {
               onPressed: () async {
                 // TODO: give feedback when liking a dog, right now it just disappears
                 // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
-                bool isMatch = await DatabaseHandler.sendLike(doc.id);
+                bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
                 if (isMatch) {
                   final User? currentUser = FirebaseAuth.instance.currentUser;
                   String? myDogPicUrl =
                       await DatabaseHandler.getDogPic(currentUser?.uid).first;
-                  _showMatchDialog(
-                      context, doc.id, myDogPicUrl, dogDoc['pictureUrls'][0]);
+                  _showMatchDialog(context, ownerDoc.id, myDogPicUrl,
+                      dogDoc['pictureUrls'][0]);
                 }
               },
             ),
