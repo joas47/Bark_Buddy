@@ -233,6 +233,7 @@ class MatchChatPage extends StatefulWidget {
 class _MatchChatPageState extends State<MatchChatPage> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _chatStream;
   final TextEditingController _messageController = TextEditingController();
+  int buttonClicks = 0;
 
   @override
   void initState() {
@@ -451,6 +452,22 @@ class _MatchChatPageState extends State<MatchChatPage> {
       'color': '#${color.value.toRadixString(16)}',
     });
   }
+  void _sendWaitMessageFromBarkBuddy() {
+    final colorHex = Colors.red.value.toRadixString(16);
+    FirebaseFirestore.instance.collection('chatMessages').add({
+      'participants': [
+        FirebaseAuth.instance.currentUser!.uid,
+        widget.friendId,
+      ],
+      'senderId': 'bark-buddy-wait-message',
+      'receiverId': widget.friendId,
+      'message': 'That is all the recommendations for today, check back tomorrow!',
+      'timestamp': FieldValue.serverTimestamp(),
+      'senderName': 'Bark-buddy',
+      'profilePicture': 'assets/images/logoWhiteBg.png',
+      'color': colorHex,
+    });
+  }
 
   Future<String> _formatTimestamp(Timestamp? timestamp, String senderId, bool isPlaceRecommendation) async {
     if (timestamp != null && !isPlaceRecommendation) {
@@ -538,11 +555,16 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
   }
 
+
   void _recommendLocation() async {
     final currentUserLocation = await getCurrentUserLocation();
     final Stream<Position?> otherUserLocationStream = getOtherUserLocation(currentFriend);
-
+    List<String?>? closestLocationData;
+    String? closestLocationMidPoint;
+    String? closestLocationName;
     Position? otherUserLocation;
+    DateTime timestamp = DateTime.now();
+    bool resetToday = false;
     await for (final position in otherUserLocationStream) {
       otherUserLocation = position;
       break; // Stop listening after receiving the first position
@@ -553,24 +575,67 @@ class _MatchChatPageState extends State<MatchChatPage> {
       return;
     }
 
-    final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation as Position);
-    final closestLocationData = await findClosestLocation(midpoint);
+    if (buttonClicks == 0 || timestamp?.day != DateTime.now().day) {
+      // Set the timestamp to the current time and reset buttonClicks
+      timestamp = DateTime.now();
+      buttonClicks = 1;
+      resetToday = true;
+    } else {
+      buttonClicks++;
+    }
 
-    final closestLocationMidPoint = closestLocationData![0];
-    final closestLocationName = closestLocationData![1];
+    final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
+    if (buttonClicks <= 3) {
+      closestLocationData = await findClosestLocation(midpoint, buttonClicks);
+    } else {
+      _sendWaitMessageFromBarkBuddy();
+      return;
+    }
+    closestLocationMidPoint = closestLocationData![0];
+    closestLocationName = closestLocationData[1];
+    closestLocationName ??= 'this dog-friendly spot at';
 
     if (closestLocationMidPoint == null || closestLocationName == null) {
-      _sendMessage('Unable to find a recommended location.');
+      _sendMessageFromBarkBuddy('Unable to find a recommended location.', 'bark-buddy', 'assets/images/logoWhiteBg.png', Colors.red, 'googleMapsLinkTrimmed');
       return;
     }
 
     String googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
     final String googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
-    print(googleMapsLink.replaceAll(' ', ''));
+
+    // Check if the location was recommended in the last 24 hours
+    final isLocationRecommended = await checkIfLocationRecommendedBefore(currentFriend, FirebaseAuth.instance.currentUser!.uid, googleMapsLinkTrimmed, timestamp);
+    if (isLocationRecommended) {
+      _sendMessageFromBarkBuddy('This location was already recommended in the last 24 hours.', 'bark-buddy', 'assets/images/logoWhiteBg.png', Colors.red, googleMapsLinkTrimmed);
+      return;
+    }
+
+    // Store the recommendation in Firestore
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final recommendationData = {
+        'location': closestLocationName,
+        'link': googleMapsLinkTrimmed,
+        'timestamp': FieldValue.serverTimestamp(),
+        'participants': [currentFriend, currentUser.uid],
+      };
+      final userRecommendationsCollection = FirebaseFirestore.instance.collection('recommendation_data');
+      await userRecommendationsCollection.add(recommendationData);
+    }
+
     final message = 'Hey, I recommend visiting $closestLocationName! $googleMapsLinkTrimmed';
     _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png', Colors.red, googleMapsLinkTrimmed);
   }
+  Future<bool> checkIfLocationRecommendedBefore(String currentFriend, String currentUserUID, String googleMapsLinkTrimmed, DateTime recommendationTimestamp) async {
+    final userRecommendationsCollection = FirebaseFirestore.instance.collection('user_recommendations');
+    final querySnapshot = await userRecommendationsCollection
+        .where('participants', arrayContainsAny: [currentFriend, currentUserUID])
+        .where('link', isEqualTo: googleMapsLinkTrimmed)
+        .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
+        .get();
 
+    return querySnapshot.docs.isNotEmpty;
+  }
   Position calculateMidpoint(Position location1, Position location2) {
     double lat1 = location1.latitude;
     double lon1 = location1.longitude;
@@ -610,12 +675,11 @@ class _MatchChatPageState extends State<MatchChatPage> {
     return radian * 180 / pi;
   }
 
-  Future<List<String?>?> findClosestLocation(Position midpoint) async {
+  Future<List<String?>?> findClosestLocation(Position midpoint, int index) async {
     final parksCollection = FirebaseFirestore.instance.collection('parks');
 
+    List<String?> closestLocations = [];
     double minDistance = double.infinity;
-    String? closestLocationName;
-    String? closestLocationMidPoint;
 
     final snapshot = await parksCollection.get();
     snapshot.docs.forEach((doc) {
@@ -631,13 +695,22 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
         if (distance < minDistance) {
           minDistance = distance;
-          closestLocationName = doc['od_gis_id'] as String?;
-          closestLocationMidPoint = doc['mid_point'] as String?;
+          closestLocations.insert(0, doc['mid_point'] as String?);
+          closestLocations.insert(1, doc['od_gis_id'] as String?);
+        } else if (closestLocations.length >= index * 2) {
+          closestLocations.insert(index * 2, doc['mid_point'] as String?);
+          closestLocations.insert(index * 2 + 1, doc['od_gis_id'] as String?);
         }
       }
     });
 
-    return [closestLocationMidPoint, closestLocationName];
+    if (closestLocations.isEmpty) {
+      return null;
+    }
+
+    return closestLocations.length >= index * 2
+        ? closestLocations.sublist((index - 1) * 2, index * 2 + 1)
+        : null;
   }
 
   Position parseCoordinatesString(String coordinatesString) {
