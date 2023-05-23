@@ -295,110 +295,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
           },
         ),
       ),
-      /*body: SingleChildScrollView(
-          child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('Dogs')
-            .where('owner',
-                isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder: (context, dogSnapshot) {
-          if (dogSnapshot.hasData) {
-            return CarouselSlider.builder(
-              itemCount: dogSnapshot.data!.docs.length,
-              itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                DocumentSnapshot doc = dogSnapshot.data!.docs[itemIndex];
-                String ownerRef = doc.get('owner');
-                print(ownerRef);
-                return StreamBuilder<String?>(
-                  // TODO: should not include user matches or pending likes
-                  stream: DatabaseHandler.getOwnerPicStream(doc['owner']),
-                  // TODO: Can we pass the context without creating a new BuildContext?
-                  builder: (BuildContext context,
-                      AsyncSnapshot<String?> ownerSnapshot) {
-                    if (ownerSnapshot.hasError) {
-                      return const Text(
-                          'Something went wrong: user has no dog');
-                    }
-                    if (ownerSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Text("Loading");
-                    }
-                    String? ownerPicURL = ownerSnapshot.data;
-                    List<dynamic>? dogPicURLs = doc['pictureUrls'];
-                    if (dogPicURLs != null && dogPicURLs.isEmpty) {
-                      return const Text('Error: dog has no picture');
-                    }
-                    String dogPicURL = doc['pictureUrls'][0];
-                    return Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ViewOwnerProfile(userId: doc['owner'])),
-                            );
-                          },
-                          child: Image(
-                              image: NetworkImage(ownerPicURL!), height: 100),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ViewDogProfilePage(userId: doc['owner'])),
-                            );
-                          },
-                          child: Container(
-                            height: 300,
-                            margin: const EdgeInsets.all(6.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.0),
-                              image: DecorationImage(
-                                image: NetworkImage(dogPicURL),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(doc['Name'] +
-                                ", " +
-                                doc['Age'].toString() +
-                                " " +
-                                doc['Gender']),
-                            IconButton(
-                              // TODO: make this a heart icon
-                              icon: const Icon(Icons.heart_broken),
-                              onPressed: () {
-                                // TODO send like
-                                DatabaseHandler.sendLike(doc['owner']);
-                              },
-                            ),
-                          ],
-                        )
-                      ],
-                    );
-                  },
-                );
-              },
-              // TODO: this should take into account the size of the screen and try to fill as much as possible
-              options: CarouselOptions(height: 600),
-            );
-          } else {
-                return const Text("No data");
-              }
-            },
-          )),*/
     );
   }
 
-  // TODO: filter out users that are not available at the same time as the current user
   Set<DocumentSnapshot> _filterOutBasedOnAvailability(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot<Object?> currentUserDoc) {
@@ -418,7 +317,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
       if (!overlapsWith(currUserTR, otherUserTR)) {
         filteredUserDocs.add(doc);
-        print("Other user time range: " + otherUserTR.toString());
+        //print("Other user time range: " + otherUserTR.toString());
       } else {
         print("Other user time range: " +
             otherUserTR.toString() +
@@ -430,18 +329,17 @@ class _FindMatchPageState extends State<FindMatchPage> {
   }
 
   bool overlapsWith(TimeRange userTR, TimeRange otherTR) {
-    // Check if the ranges overlap
     if (userTR.startTime.hour > otherTR.endTime.hour ||
         userTR.endTime.hour < otherTR.startTime.hour) {
-      return false; // No overlap
+      return false;
     } else if (userTR.startTime.hour == otherTR.endTime.hour &&
         userTR.startTime.minute > otherTR.endTime.minute) {
-      return false; // No overlap
+      return false;
     } else if (userTR.endTime.hour == otherTR.startTime.hour &&
         userTR.endTime.minute < otherTR.startTime.minute) {
-      return false; // No overlap
+      return false;
     }
-    return true; // Overlap exists
+    return true;
   }
 
   TimeRange _convertToTimeRange(String startTimeString, String endTimeString) {
