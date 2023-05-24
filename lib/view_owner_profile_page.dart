@@ -59,10 +59,15 @@ class ViewOwnerProfile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: currentUser
-                        ? ElevatedButton.icon(
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 120.0), // Adjust the padding value as needed
+                          child: currentUser
+                              ? ElevatedButton.icon(
                             icon: const Icon(Icons.add_location),
                             label: const Text('Add location'),
                             onPressed: () {
@@ -74,7 +79,10 @@ class ViewOwnerProfile extends StatelessWidget {
                               );
                             },
                           )
-                        : null,
+                              : null,
+                        ),
+                      ),
+                    ),
                   ),
                   Align(
                     alignment: Alignment.topRight,
@@ -206,27 +214,12 @@ class ViewOwnerProfile extends StatelessWidget {
                           maxLines: 5,
                           decoration: InputDecoration(
                             hintText: '• $about',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                           ),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18.0,
                           ),
                         ),
-                        if (currentUser)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const EditOwnerProfilePage(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
                       ],
                     ),
                   )

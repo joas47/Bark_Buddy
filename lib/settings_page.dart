@@ -1,3 +1,5 @@
+import 'package:cross_platform_test/edit_dog_profile_page.dart';
+import 'package:cross_platform_test/edit_owner_profile.dart';
 import 'package:cross_platform_test/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,24 +18,55 @@ class SettingsPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Settings',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
+              const Padding(
+                padding: EdgeInsets.only(top: 25.0), // Adjust the bottom padding as needed
+                child: Text(
+                  'Settings',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 32.0),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditDogProfilePage(),
+                      ),
+                    );
+                  },
+                  child: const Text('Edit dog profile'),
+              ),
               TextButton(
                 onPressed: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                        (route) => false,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditOwnerProfilePage(),
+                    ),
                   );
                 },
-                child: const Text('Logout'),
+                child: const Text('Edit owner profile'),
               ),
+          TextButton(
+          onPressed: () {
+            FirebaseAuth.instance.signOut();
+            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
+            );
+          },
+          child: const Text('Log out'),
+                // Textbutton(
+                //     icon: const Icon(Icons.edit),
+                //     onPressed: () {
+                //       Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
+                //     },
+                //   ),
+          ),
             ],
           ),
         ),

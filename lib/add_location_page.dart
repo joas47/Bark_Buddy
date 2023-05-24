@@ -257,7 +257,13 @@ class _AddLocationPageState extends State<AddLocationPage> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Tap on the map to add location'),
-          backgroundColor: Colors.green[700],
+         backgroundColor: Colors.green[700],
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+         ),
         ),
         body: Stack(
           children: <Widget>[
