@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
-import 'package:cross_platform_test/match_chat_page.dart';
+import 'package:cross_platform_test/chat_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,8 +14,9 @@ class FriendPage extends StatefulWidget {
   State<FriendPage> createState() => _FriendPageState();
 }
 
-class _FriendPageState extends State<FriendPage> {
+// unfriend testa mer. skärmen blev svart.
 
+class _FriendPageState extends State<FriendPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,15 +29,17 @@ class _FriendPageState extends State<FriendPage> {
               .collection('users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
             }
-            Map<String, dynamic> data = snapshot.data!.data()! as Map<String, dynamic>;
-            if(data['friends'] != null){
+            Map<String, dynamic> data =
+                snapshot.data!.data()! as Map<String, dynamic>;
+            if (data['friends'] != null) {
               List<dynamic> friends = data['friends'];
               return ListView.builder(
                 itemCount: friends.length,
@@ -57,7 +60,7 @@ class _FriendPageState extends State<FriendPage> {
                         return const Text("Loading");
                       }
                       Map<String, dynamic> friendData =
-                      friendSnapshot.data!.data() as Map<String, dynamic>;
+                          friendSnapshot.data!.data() as Map<String, dynamic>;
 
                       return StreamBuilder<String?>(
                         stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
@@ -65,7 +68,7 @@ class _FriendPageState extends State<FriendPage> {
                             AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
                             return const Text(
-                              'Something went wrong: user has no dog');
+                                'Something went wrong: user has no dog');
                           }
                           if (dogNameSnapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -95,45 +98,55 @@ class _FriendPageState extends State<FriendPage> {
   ListTile _buildFriendRow(BuildContext context, String friendId,
       Map<String, dynamic> friendData, String? dogName) {
     return ListTile(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ViewDogProfilePage(userId: friendId)));
-      },
+      splashColor: Colors.transparent,
       title: Text(friendData['name'].toString()),
       subtitle: Text("(${dogName!})"),
       leading: CircleAvatar(
-        backgroundImage: NetworkImage(friendData['picture']),
-        radius: 30.0,
-      ),
+          backgroundImage: NetworkImage(friendData['picture']),
+          radius: 30.0,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ViewDogProfilePage(userId: friendId)));
+            },
+          )),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Container(
+            // TODO: What happens if the owner/dog has a long name? Then the name will be too close to the text 'available'
+            padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+            child: friendData['availability'] == null
+                ? const Text('Not available',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.red,
+                    ),
+                    textAlign: TextAlign.center)
+                : Text(
+                    'Available \n${friendData['availability']['startTime']} - ${friendData['availability']['endTime']}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.green,
+                    ),
+                    textAlign: TextAlign.center),
+          ),
           // TODO: check if user is available, not just if they have an availability field
-          friendData['availability'] == null
-              ? const Text('Not available',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.red,
-                  ))
-              : Text(
-                  'Available \n' +
-                      friendData['availability']['startTime'].toString() +
-                      ' - ' +
-                      friendData['availability']['endTime'].toString(),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: Colors.green,
-                  )),
+
           IconButton(
             onPressed: () {
               // Take to chat page
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MatchChatPage(),
+                  builder: (context) => MatchChatPage(
+                    friendId: friendId,
+                    friendName: friendData['name'],
+                  ),
                 ),
               );
             },
