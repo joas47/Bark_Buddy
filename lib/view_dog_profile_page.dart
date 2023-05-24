@@ -45,6 +45,17 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Dog Profile'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                );
+              },
+            ),
+          ],
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
@@ -83,22 +94,30 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: currentUser
-                        ? ElevatedButton.icon(
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 120.0), // Adjust the padding value as needed
+                          child: currentUser
+                              ? ElevatedButton.icon(
                             icon: const Icon(Icons.add_location),
                             label: const Text('Add location'),
                             onPressed: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AddLocationPage()),
+                                  builder: (context) => const AddLocationPage(),
+                                ),
                               );
                             },
                           )
-                        : null,
+                              : null,
+                        ),
+                      ),
+                    ),
                   ),
                   Align(
                     alignment: Alignment.topRight,
@@ -241,16 +260,6 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             fontSize: 18.0,
                           ),
                         ),
-                        if (currentUser)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
-                              },
-                            ),
-                          ),
                       ],
                     ),
                   )
