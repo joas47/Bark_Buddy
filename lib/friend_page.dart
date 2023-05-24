@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/chat_page.dart';
+import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +24,17 @@ class _FriendPageState extends State<FriendPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Friends'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.people),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -99,6 +111,7 @@ class _FriendPageState extends State<FriendPage> {
   ListTile _buildFriendRow(BuildContext context, String friendId,
       Map<String, dynamic> friendData, String? dogName) {
     return ListTile(
+      contentPadding: const EdgeInsets.fromLTRB(12, 10, 10, 0),
       splashColor: Colors.transparent,
       title: Text(friendData['name'].toString()),
       subtitle: Text("(${dogName!})"),
@@ -168,15 +181,24 @@ class _FriendPageState extends State<FriendPage> {
   }
 
   void _showActivityLevelInfoSheet(String friendId) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return SizedBox(
-          height: 400,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return Dialog(
+          child: Material(
+            type: MaterialType.transparency,
+          // clipBehavior: Clip.hardEdge,
+          //height: 400,
+          child: Container(
+            height: 250, // Change as per your requirement
+            width: 120, // Change as per your requirement
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(120, 30),
+                ),
                 onPressed: () {
                   showDialog(
                     context: context,
@@ -210,6 +232,9 @@ class _FriendPageState extends State<FriendPage> {
                 child: const Text('Unfriend'),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(120, 30),
+                ),
                 onPressed: () {
                   // TODO: block
                   Navigator.pop(context);
@@ -223,6 +248,9 @@ class _FriendPageState extends State<FriendPage> {
                 child: const Text('Block'),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(120, 30),
+                ),
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -230,7 +258,7 @@ class _FriendPageState extends State<FriendPage> {
               )
             ],
           ),
-        );
+        )));
       },
     );
   }
