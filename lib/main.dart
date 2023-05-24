@@ -1,12 +1,7 @@
 import 'package:cross_platform_test/login_page.dart';
 import 'package:flutter/material.dart';
-
-//should see this
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
-// for the MatchChatPage
-//import 'package:cloud_firestore/cloud_firestore.dart';
 
 // TODO: handle the case when the user is already logged in
 void main() async {
