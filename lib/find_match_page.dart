@@ -519,9 +519,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
         OutlinedButton(
           style: OutlinedButton.styleFrom(
             shape: const CircleBorder(),
+            minimumSize: const Size(45, 45),
             side: const BorderSide(width: 2, color: Colors.redAccent),
           ),
           child: const Icon(
+            size: 30,
             Icons.favorite,
             color: Colors.redAccent,
           ),
