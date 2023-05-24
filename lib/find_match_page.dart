@@ -181,8 +181,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          //mainAxisSize: MainAxisSize.min,
+          //verticalDirection: VerticalDirection.down,
           children: [
-            const SizedBox(height: 10),
+            //const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -198,7 +200,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           title: const Text('Filter Options'),
                           content: SingleChildScrollView(
                             child: ListBody(
-                              children: <Widget>[
+                              children: const <Widget>[
                                 // Add your filter options here
                                 ExpansionTile(
                                   title: Text('Dogs'),
@@ -209,7 +211,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                         FilterCheckbox(title: 'Small'),
                                         FilterCheckbox(title: 'Medium'),
                                         FilterCheckbox(title: 'Large'),
-
                                       ],
                                     ),
                                     ExpansionTile(
@@ -520,7 +521,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Stack(alignment: AlignmentDirectional.bottomCenter, children: [
+        Stack(children: [
           InkWell(
             onTap: () {
               Navigator.push(
@@ -532,8 +533,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
             },
             child: Container(
               // TODO: 'height' should take into account the size of the screen and try to fill as much as possible without overflowing
-              height: 420,
-              margin: const EdgeInsets.all(6.0),
+              height: MediaQuery.of(context).size.height * 0.6,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
                 image: DecorationImage(
@@ -544,8 +545,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
             ),
           ),
           Positioned(
-            bottom: 330,
-            left: 230,
+            top: 0,
+            right: 10,
             child: InkWell(
               borderRadius: BorderRadius.circular(45),
               onTap: () {
@@ -570,8 +571,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
             ),
           ),
           Positioned(
-            bottom: 380,
-            right: 280,
+            left: 15,
+            top: 15,
             child: InkWell(
               onTap: () {
                 Navigator.push(
