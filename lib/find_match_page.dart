@@ -181,7 +181,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
         ],
       ),
       body: SingleChildScrollView(
-        // TODO: wrap the carousel with something that allows us to add filter buttons that won't scroll with the carousel
         child: Column(
           children: [
             Row(
@@ -519,7 +518,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
               size: 30,
               color: Colors.black,
             ),
-            // TODO: move the heart button so it's below everything else, make it bigger and more obvious that it's a button
           ],
         ),
         OutlinedButton(
