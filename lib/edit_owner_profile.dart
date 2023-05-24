@@ -42,7 +42,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit profile'),
+        title: const Text('Edit owner profile'),
       ),
       body: SingleChildScrollView(
         child: StreamBuilder<DocumentSnapshot>(
