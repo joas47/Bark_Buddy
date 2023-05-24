@@ -28,9 +28,7 @@ class _ChatPageState extends State<ChatPage> {
         title: const Text('Match-chat'),
         actions: [
           TextButton(
-            onPressed: () {
-
-            },
+            onPressed: () {},
             child: const Text('Recommend location'),
           ),
         ],
@@ -49,32 +47,47 @@ class _ChatPageState extends State<ChatPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
             }
-            Map<String, dynamic>? data = snapshot.data?.data() as Map<String, dynamic>?;
-            if (data != null && data['friends'] != null) {
-              List<dynamic> friends = data['friends'];
+            Map<String, dynamic>? data =
+            snapshot.data?.data() as Map<String, dynamic>?;
+            if (data != null) {
+              List<dynamic> friends = data['friends'] ?? [];
+              List<dynamic> matches = data['matches'] ?? [];
+              List<dynamic> allUsers = [...friends, ...matches];
+
+              if (allUsers.isEmpty) {
+                return ListTile(
+                  title: Text('No friends or matches'),
+                );
+              }
+
               return ListView.builder(
-                itemCount: friends.length,
+                itemCount: allUsers.length,
                 itemBuilder: (BuildContext context, int index) {
-                  String friendId = friends[index];
+                  String userId = allUsers[index];
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                     stream: FirebaseFirestore.instance
                         .collection('users')
-                        .doc(friendId)
+                        .doc(userId)
                         .snapshots(),
                     builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
-                      if (friendSnapshot.hasError) {
+                        AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                      if (userSnapshot.hasError) {
                         return const Text('Something went wrong');
                       }
-                      if (friendSnapshot.connectionState ==
+                      if (userSnapshot.connectionState ==
                           ConnectionState.waiting) {
                         return const Text("Loading");
                       }
-                      Map<String, dynamic>? friendData = friendSnapshot.data?.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? userData =
+                      userSnapshot.data?.data() as Map<String, dynamic>?;
 
+                      if (userData == null) {
+                        return const Text('User not found');
+                      }
 
                       return StreamBuilder<String?>(
-                        stream: _MatchChatPageState.getOwnerNameFromOwnerID(friendId),
+                        stream: _MatchChatPageState.getOwnerNameFromOwnerID(
+                            userId),
                         builder: (BuildContext context,
                             AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
@@ -89,13 +102,20 @@ class _ChatPageState extends State<ChatPage> {
 
                           return ListTile(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ViewDogProfilePage(userId: friendId)));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewDogProfilePage(
+                                    userId: userId,
+                                  ),
+                                ),
+                              );
                             },
-                            title: Text(friendData?['name'].toString() ?? ''),
+                            title: Text(userData['name'].toString() ?? ''),
                             subtitle: Text("($dogName)"),
                             leading: CircleAvatar(
                               backgroundImage:
-                              NetworkImage(friendData?['picture'] ?? ''),
+                              NetworkImage(userData['picture'] ?? ''),
                               radius: 30.0,
                             ),
                             trailing: Row(
@@ -108,8 +128,8 @@ class _ChatPageState extends State<ChatPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => MatchChatPage(
-                                          friendId: friendId,
-                                          friendName: friendData!['name'],
+                                          friendId: userId,
+                                          friendName: userData['name'],
                                         ),
                                       ),
                                     );
@@ -118,7 +138,7 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _showActivityLevelInfoSheet(friendId);
+                                    _showActivityLevelInfoSheet(userId);
                                   },
                                   icon: const Icon(Icons.menu),
                                 ),
@@ -136,7 +156,7 @@ class _ChatPageState extends State<ChatPage> {
               );
             } else {
               return ListTile(
-                title: Text('No friends'),
+                title: Text('No friends or matches'),
               );
             }
           },
@@ -144,6 +164,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
+
 
   void _showActivityLevelInfoSheet(String friendId) {
     showModalBottomSheet(
@@ -154,37 +175,70 @@ class _ChatPageState extends State<ChatPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Confirmation'),
-                        content: const Text('Are you sure you want to unfriend?'),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Should be two pop calls, one for the dialog and one for the bottom sheet
-                              // the bottom sheet is not relevant after the friend is removed
-                              Navigator.pop(context);
-                              DatabaseHandler.removeFriend(friendId);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Confirm'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+              StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Something went wrong');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  Map<String, dynamic>? data =
+                  snapshot.data?.data() as Map<String, dynamic>?;
+                  if (data != null && data['friends'] != null) {
+                    List<dynamic> friends = data['friends'];
+                    bool isFriend = friends.contains(friendId);
+
+                    return ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Confirmation'),
+                              content: isFriend
+                                  ? const Text('Are you sure you want to unfriend?')
+                                  : const Text('Are you sure you want to add as a friend?'),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context); // Close the dialog
+
+                                    if (isFriend) {
+                                      // Unfriend
+                                      DatabaseHandler.removeFriend(friendId);
+                                    } else {
+                                      // Add as friend
+                                      DatabaseHandler.addFriend(friendId);
+                                    }
+
+                                    Navigator.pop(context); // Close the bottom sheet
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context); // Close the dialog
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: isFriend ? const Text('Unfriend') : const Text('Add Friend'),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
                 },
-                child: const Text('Unfriend'),
               ),
               ElevatedButton(
                 onPressed: () {
