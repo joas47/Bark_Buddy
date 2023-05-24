@@ -182,12 +182,101 @@ class _FindMatchPageState extends State<FindMatchPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text('Filter: '),
-                _filterDropdown(),
-                _buildSubcategoryDropdown(),
+                const SizedBox(width: 18),
+                const Text('Filter: '),
+                IconButton(
+                  icon: const Icon(Icons.filter_list),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Filter Options'),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                // Add your filter options here
+                                ExpansionTile(
+                                  title: Text('Dogs'),
+                                  children: <Widget>[
+                                    ExpansionTile(
+                                      title: Text('Size'),
+                                      children: <Widget>[
+                                        FilterCheckbox(title: 'Small'),
+                                        FilterCheckbox(title: 'Medium'),
+                                        FilterCheckbox(title: 'Large'),
+
+                                      ],
+                                    ),
+                                    ExpansionTile(
+                                      title: Text('Gender'),
+                                      children: <Widget>[
+                                        FilterCheckbox(title: 'Male'),
+                                        FilterCheckbox(title: 'Female'),
+                                        FilterCheckbox(title: 'Neutered'),
+                                      ],
+                                    ),
+                                    ExpansionTile(
+                                      title: Text('Activity level'),
+                                      children: <Widget>[
+                                        FilterCheckbox(title: 'Low'),
+                                        FilterCheckbox(title: 'Medium'),
+                                        FilterCheckbox(title: 'High'),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                ExpansionTile(
+                                  title: Text('Owners'),
+                                  children: <Widget>[
+                                    ExpansionTile(
+                                      title: Text('Age'),
+                                      children: <Widget>[
+                                        FilterCheckbox(title: '18 - 24'),
+                                        FilterCheckbox(title: '25 - 35'),
+                                        FilterCheckbox(title: '36+'),
+                                      ],
+                                    ),
+                                    ExpansionTile(
+                                      title: Text('Gender'),
+                                      children: <Widget>[
+                                        FilterCheckbox(title: 'Male'),
+                                        FilterCheckbox(title: 'Female'),
+                                        FilterCheckbox(title: 'Other'),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Apply'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                // Implement filter logic here based on selected options
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                // You can place other children here as required
+                //_filterDropdown(),
+                //_buildSubcategoryDropdown(),
               ],
             ),
             StreamBuilder(
@@ -599,5 +688,33 @@ class _FindMatchPageState extends State<FindMatchPage> {
   void initState() {
     super.initState();
     _selectedSubcategory = _subcategories[_selectedCategory]![0];
+  }
+}
+
+class FilterCheckbox extends StatefulWidget {
+  final String title;
+
+  const FilterCheckbox({super.key, required this.title});
+
+  @override
+  _FilterCheckboxState createState() => _FilterCheckboxState();
+}
+
+class _FilterCheckboxState extends State<FilterCheckbox> {
+  bool isChecked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return CheckboxListTile(
+      title: Text(widget.title),
+      value: isChecked,
+      onChanged: (bool? value) {
+        setState(() {
+          isChecked = value!;
+        });
+        // Handle checkbox state change here
+        print('Checkbox ${widget.title} changed to $value');
+      },
+    );
   }
 }

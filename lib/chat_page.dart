@@ -39,8 +39,8 @@ class _ChatPageState extends State<ChatPage> {
               .collection('users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .snapshots(),
-          builder: (BuildContext context,
-              AsyncSnapshot<DocumentSnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
@@ -48,7 +48,7 @@ class _ChatPageState extends State<ChatPage> {
               return const Text("Loading");
             }
             Map<String, dynamic>? data =
-            snapshot.data?.data() as Map<String, dynamic>?;
+                snapshot.data?.data() as Map<String, dynamic>?;
             if (data != null) {
               List<dynamic> friends = data['friends'] ?? [];
               List<dynamic> matches = data['matches'] ?? [];
@@ -79,15 +79,15 @@ class _ChatPageState extends State<ChatPage> {
                         return const Text("Loading");
                       }
                       Map<String, dynamic>? userData =
-                      userSnapshot.data?.data() as Map<String, dynamic>?;
+                          userSnapshot.data?.data() as Map<String, dynamic>?;
 
                       if (userData == null) {
                         return const Text('User not found');
                       }
 
                       return StreamBuilder<String?>(
-                        stream: _MatchChatPageState.getOwnerNameFromOwnerID(
-                            userId),
+                        stream:
+                            _MatchChatPageState.getDogNameFromOwnerID(userId),
                         builder: (BuildContext context,
                             AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
@@ -105,22 +105,38 @@ class _ChatPageState extends State<ChatPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ViewDogProfilePage(
-                                    userId: userId,
+                                  builder: (context) => MatchChatPage(
+                                    friendId: userId,
+                                    friendName: userData['name'],
                                   ),
                                 ),
+                                // MaterialPageRoute(
+                                //   builder: (context) => ViewDogProfilePage(
+                                //     userId: userId,
+                                //   ),
+                                // ),
                               );
                             },
                             title: Text(userData['name'].toString() ?? ''),
-                            subtitle: Text("($dogName)"),
+                            subtitle: Text("(${dogName!})"),
                             leading: CircleAvatar(
-                              backgroundImage:
-                              NetworkImage(userData['picture'] ?? ''),
-                              radius: 30.0,
-                            ),
+                                backgroundImage:
+                                    NetworkImage(userData['picture'] ?? ''),
+                                radius: 30.0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ViewDogProfilePage(
+                                                    userId: userId)));
+                                  },
+                                )),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                // TODO: do wo need to keep this icon?
                                 IconButton(
                                   onPressed: () {
                                     // Take to chat page
@@ -165,7 +181,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-
   void _showActivityLevelInfoSheet(String friendId) {
     showModalBottomSheet(
       context: context,
@@ -190,7 +205,7 @@ class _ChatPageState extends State<ChatPage> {
                   }
 
                   Map<String, dynamic>? data =
-                  snapshot.data?.data() as Map<String, dynamic>?;
+                      snapshot.data?.data() as Map<String, dynamic>?;
                   if (data != null && data['friends'] != null) {
                     List<dynamic> friends = data['friends'];
                     bool isFriend = friends.contains(friendId);
@@ -203,8 +218,10 @@ class _ChatPageState extends State<ChatPage> {
                             return AlertDialog(
                               title: const Text('Confirmation'),
                               content: isFriend
-                                  ? const Text('Are you sure you want to unfriend?')
-                                  : const Text('Are you sure you want to add as a friend?'),
+                                  ? const Text(
+                                      'Are you sure you want to unfriend?')
+                                  : const Text(
+                                      'Are you sure you want to add as a friend?'),
                               actions: [
                                 ElevatedButton(
                                   onPressed: () {
@@ -218,7 +235,8 @@ class _ChatPageState extends State<ChatPage> {
                                       DatabaseHandler.addFriend(friendId);
                                     }
 
-                                    Navigator.pop(context); // Close the bottom sheet
+                                    Navigator.pop(
+                                        context); // Close the bottom sheet
                                   },
                                   child: const Text('Confirm'),
                                 ),
@@ -233,7 +251,9 @@ class _ChatPageState extends State<ChatPage> {
                           },
                         );
                       },
-                      child: isFriend ? const Text('Unfriend') : const Text('Add Friend'),
+                      child: isFriend
+                          ? const Text('Unfriend')
+                          : const Text('Add Friend'),
                     );
                   } else {
                     return const SizedBox.shrink();
@@ -265,9 +285,6 @@ class _ChatPageState extends State<ChatPage> {
       },
     );
   }
-
-
-
 }
 
 class MatchChatPage extends StatefulWidget {
@@ -340,7 +357,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
                     final timestamp = messageData['timestamp'] as Timestamp?;
                     final String? link = messageData['link'] as String?;
 
-                    if (messageData.containsKey('senderName') || messageData.containsValue('senderName')){
+                    if (messageData.containsKey('senderName') ||
+                        messageData.containsValue('senderName')) {
                       isPlaceRecommendation = true;
                     }
 
@@ -358,7 +376,11 @@ class _MatchChatPageState extends State<MatchChatPage> {
                         ),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isPlaceRecommendation ? Colors.red[400] : isSender ? Colors.blue : Colors.grey,
+                          color: isPlaceRecommendation
+                              ? Colors.red[400]
+                              : isSender
+                                  ? Colors.blue
+                                  : Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -372,14 +394,15 @@ class _MatchChatPageState extends State<MatchChatPage> {
                                   return CircularProgressIndicator();
                                 }
                                 final profilePictureUrl = snapshot.data;
-                                if(isPlaceRecommendation){
+                                if (isPlaceRecommendation) {
                                   return const CircleAvatar(
-                                    backgroundImage: AssetImage('assets/images/logoWhiteBg.png'  ?? ''),
+                                    backgroundImage: AssetImage(
+                                        'assets/images/logoWhiteBg.png' ?? ''),
                                   );
                                 } else {
                                   return CircleAvatar(
                                     backgroundImage:
-                                    NetworkImage(profilePictureUrl ?? ''),
+                                        NetworkImage(profilePictureUrl ?? ''),
                                   );
                                 }
                               },
@@ -387,33 +410,35 @@ class _MatchChatPageState extends State<MatchChatPage> {
                             SizedBox(height: 8),
                             isPlaceRecommendation && link != null
                                 ? RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: getMainText(messageText),
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: getMainText(messageText),
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        TextSpan(
+                                            text: getLastTwoWords(messageText),
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                decoration:
+                                                    TextDecoration.underline),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () {
+                                                Uri linkToMaps =
+                                                    Uri.parse(link);
+                                                launchUrl(linkToMaps);
+                                              }),
+                                      ],
+                                    ),
+                                  )
+                                : Text(
+                                    messageText,
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  TextSpan(
-                                      text: getLastTwoWords(messageText),
-                                      style: TextStyle(color: Colors.white, decoration: TextDecoration.underline),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          Uri linkToMaps = Uri.parse(link);
-                                          launchUrl(linkToMaps);
-                                        }
-                                  ),
-                                ],
-                              ),
-                            )
-                                : Text(
-                              messageText,
-                              style: TextStyle(color: Colors.white),
-                            ),
                             FutureBuilder<String?>(
-                              future: _formatTimestamp(timestamp, senderId, isPlaceRecommendation),
-                              builder: (context, snapshot)
-
-                              {
+                              future: _formatTimestamp(
+                                  timestamp, senderId, isPlaceRecommendation),
+                              builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return Text(
@@ -421,7 +446,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
                                     style: TextStyle(color: Colors.white),
                                   );
                                 }
-                                final formattedTimestamp = snapshot.data ?? 'Unknown';
+                                final formattedTimestamp =
+                                    snapshot.data ?? 'Unknown';
                                 return Text(
                                   formattedTimestamp,
                                   style: TextStyle(color: Colors.white),
@@ -464,6 +490,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       ),
     );
   }
+
   String getLastTwoWords(String text) {
     List<String> words = text.split(' ');
     if (words.length < 2) return text;
@@ -482,12 +509,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
     final data = snapshot.data();
     return data?['picture'] as String?;
   }
+
   void _sendMessage(String message) {
     final currentUserID = FirebaseAuth.instance.currentUser!.uid;
 
     FirebaseFirestore.instance.collection('chatMessages').add({
       'participants': [currentUserID, widget.friendId],
-      'messageId' : (currentUserID + widget.friendId),
+      'messageId': (currentUserID + widget.friendId),
       'senderId': currentUserID,
       'receiverId': widget.friendId,
       'message': message,
@@ -495,24 +523,26 @@ class _MatchChatPageState extends State<MatchChatPage> {
     });
   }
 
-  void _sendMessageFromBarkBuddy(String message, String senderName, String profilePicture, Color color, String link) {
+  void _sendMessageFromBarkBuddy(String message, String senderName,
+      String profilePicture, Color color, String link) {
     final currentUserID = FirebaseAuth.instance.currentUser!.uid;
     FirebaseFirestore.instance.collection('chatMessages').add({
       'participants': [
         currentUserID,
         widget.friendId,
       ],
-      'messageId' : (currentUserID + widget.friendId),
+      'messageId': (currentUserID + widget.friendId),
       'senderId': 'bark-buddy',
       'receiverId': widget.friendId,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
       'senderName': senderName,
       'profilePicture': profilePicture,
-      'link' : link,
+      'link': link,
       'color': '#${color.value.toRadixString(16)}',
     });
   }
+
   void _sendWaitMessageFromBarkBuddy() {
     final currentUserID = FirebaseAuth.instance.currentUser!.uid;
     final colorHex = Colors.red.value.toRadixString(16);
@@ -521,10 +551,11 @@ class _MatchChatPageState extends State<MatchChatPage> {
         FirebaseAuth.instance.currentUser!.uid,
         widget.friendId,
       ],
-      'messageId' : (currentUserID + widget.friendId),
+      'messageId': (currentUserID + widget.friendId),
       'senderId': 'bark-buddy-wait-message',
       'receiverId': widget.friendId,
-      'message': 'That is all the recommendations for today, check back tomorrow!',
+      'message':
+          'That is all the recommendations for today, check back tomorrow!',
       'timestamp': FieldValue.serverTimestamp(),
       'senderName': 'Bark-buddy',
       'profilePicture': 'assets/images/logoWhiteBg.png',
@@ -532,14 +563,15 @@ class _MatchChatPageState extends State<MatchChatPage> {
     });
   }
 
-  Future<String> _formatTimestamp(Timestamp? timestamp, String senderId, bool isPlaceRecommendation) async {
+  Future<String> _formatTimestamp(
+      Timestamp? timestamp, String senderId, bool isPlaceRecommendation) async {
     if (timestamp != null && !isPlaceRecommendation) {
       final dateTime = timestamp.toDate();
       final formatter = DateFormat('MMM d, HH:mm');
       final ownerName = await getOwnerNameFromOwnerID(senderId).first;
       final formattedTimestamp = formatter.format(dateTime);
       return '$formattedTimestamp - ${ownerName ?? 'Unknown'}';
-    } else if(timestamp != null && isPlaceRecommendation) {
+    } else if (timestamp != null && isPlaceRecommendation) {
       final dateTime = timestamp.toDate();
       final formatter = DateFormat('MMM d, HH:mm');
       const ownerName = 'Bark-Buddy';
@@ -547,6 +579,23 @@ class _MatchChatPageState extends State<MatchChatPage> {
       return '$formattedTimestamp - ${ownerName ?? 'Unknown'}';
     }
     return 'Loading...';
+  }
+
+  static Stream<String?> getDogNameFromOwnerID(String ownerID) async* {
+    final users = FirebaseFirestore.instance.collection('users');
+    final dogs = await users
+        .doc(ownerID)
+        .get()
+        .then((doc) => doc.get('dogs') as String?);
+
+    if (dogs != null) {
+      final dog = FirebaseFirestore.instance.collection('Dogs');
+      final name =
+      await dog.doc(dogs).get().then((doc) => doc.get('Name') as String?);
+      yield name;
+    } else {
+      yield null;
+    }
   }
 
   static Stream<String?> getOwnerNameFromOwnerID(String ownerID) async* {
@@ -561,15 +610,18 @@ class _MatchChatPageState extends State<MatchChatPage> {
       yield null;
     }
   }
+
   // Implement the following helper methods based on your existing code and location database access:
   String currentFriend = 'null';
-  void setCurrentFriend(String friendId){
+
+  void setCurrentFriend(String friendId) {
     currentFriend = friendId;
   }
+
   Future<Position?> getCurrentUserLocation() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     final userData =
-    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
 
     if (userData.exists) {
       final data = userData.data();
@@ -618,10 +670,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
   }
 
-
   void _recommendLocation() async {
     final currentUserLocation = await getCurrentUserLocation();
-    final Stream<Position?> otherUserLocationStream = getOtherUserLocation(currentFriend);
+    final Stream<Position?> otherUserLocationStream =
+        getOtherUserLocation(currentFriend);
     List<String?>? closestLocationData;
     String? closestLocationMidPoint;
     String? closestLocationName;
@@ -659,17 +711,32 @@ class _MatchChatPageState extends State<MatchChatPage> {
     closestLocationName ??= 'this dog-friendly spot at';
 
     if (closestLocationMidPoint == null || closestLocationName == null) {
-      _sendMessageFromBarkBuddy('Unable to find a recommended location.', 'bark-buddy', 'assets/images/logoWhiteBg.png', Colors.red, 'googleMapsLinkTrimmed');
+      _sendMessageFromBarkBuddy(
+          'Unable to find a recommended location.',
+          'bark-buddy',
+          'assets/images/logoWhiteBg.png',
+          Colors.red,
+          'googleMapsLinkTrimmed');
       return;
     }
 
-    String googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
+    String googleMapsLink =
+        'https://maps.google.com/?q=$closestLocationMidPoint';
     final String googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
 
     // Check if the location was recommended in the last 24 hours
-    final isLocationRecommended = await checkIfLocationRecommendedBefore(currentFriend, FirebaseAuth.instance.currentUser!.uid, googleMapsLinkTrimmed, timestamp);
+    final isLocationRecommended = await checkIfLocationRecommendedBefore(
+        currentFriend,
+        FirebaseAuth.instance.currentUser!.uid,
+        googleMapsLinkTrimmed,
+        timestamp);
     if (isLocationRecommended) {
-      _sendMessageFromBarkBuddy('This location was already recommended in the last 24 hours.', 'bark-buddy', 'assets/images/logoWhiteBg.png', Colors.red, googleMapsLinkTrimmed);
+      _sendMessageFromBarkBuddy(
+          'This location was already recommended in the last 24 hours.',
+          'bark-buddy',
+          'assets/images/logoWhiteBg.png',
+          Colors.red,
+          googleMapsLinkTrimmed);
       return;
     }
 
@@ -682,23 +749,34 @@ class _MatchChatPageState extends State<MatchChatPage> {
         'timestamp': FieldValue.serverTimestamp(),
         'participants': [currentFriend, currentUser.uid],
       };
-      final userRecommendationsCollection = FirebaseFirestore.instance.collection('recommendation_data');
+      final userRecommendationsCollection =
+          FirebaseFirestore.instance.collection('recommendation_data');
       await userRecommendationsCollection.add(recommendationData);
     }
 
-    final message = 'Hey, I recommend visiting $closestLocationName $googleMapsLinkTrimmed';
-    _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png', Colors.red, googleMapsLinkTrimmed);
+    final message =
+        'Hey, I recommend visiting $closestLocationName $googleMapsLinkTrimmed';
+    _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png',
+        Colors.red, googleMapsLinkTrimmed);
   }
-  Future<bool> checkIfLocationRecommendedBefore(String currentFriend, String currentUserUID, String googleMapsLinkTrimmed, DateTime recommendationTimestamp) async {
-    final userRecommendationsCollection = FirebaseFirestore.instance.collection('user_recommendations');
+
+  Future<bool> checkIfLocationRecommendedBefore(
+      String currentFriend,
+      String currentUserUID,
+      String googleMapsLinkTrimmed,
+      DateTime recommendationTimestamp) async {
+    final userRecommendationsCollection =
+        FirebaseFirestore.instance.collection('user_recommendations');
     final querySnapshot = await userRecommendationsCollection
-        .where('participants', arrayContainsAny: [currentFriend, currentUserUID])
+        .where('participants',
+            arrayContainsAny: [currentFriend, currentUserUID])
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
 
     return querySnapshot.docs.isNotEmpty;
   }
+
   Position calculateMidpoint(Position location1, Position location2) {
     double lat1 = location1.latitude;
     double lon1 = location1.longitude;
@@ -715,19 +793,24 @@ class _MatchChatPageState extends State<MatchChatPage> {
     double bx = cos(lat2) * cos(dLon);
     double by = cos(lat2) * sin(dLon);
 
-    double lat3 = atan2(sin(lat1) + sin(lat2), sqrt((cos(lat1) + bx) * (cos(lat1) + bx) + by * by));
+    double lat3 = atan2(sin(lat1) + sin(lat2),
+        sqrt((cos(lat1) + bx) * (cos(lat1) + bx) + by * by));
     double lon3 = lon1 + atan2(by, cos(lat1) + bx);
 
     // Convert back to degrees
     lat3 = _toDegrees(lat3);
     lon3 = _toDegrees(lon3);
 
-    return Position(latitude: lat3, longitude: lon3, accuracy: 0,
+    return Position(
+      latitude: lat3,
+      longitude: lon3,
+      accuracy: 0,
       altitude: 0,
       heading: 0,
       speed: 0,
       speedAccuracy: 0,
-      timestamp: DateTime.now(),);
+      timestamp: DateTime.now(),
+    );
   }
 
   double _toRadians(double degree) {
@@ -738,7 +821,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
     return radian * 180 / pi;
   }
 
-  Future<List<String?>?> findClosestLocation(Position midpoint, int index) async {
+  Future<List<String?>?> findClosestLocation(
+      Position midpoint, int index) async {
     final parksCollection = FirebaseFirestore.instance.collection('parks');
 
     List<String?> closestLocations = [];
@@ -780,12 +864,16 @@ class _MatchChatPageState extends State<MatchChatPage> {
     final coordinatesList = coordinatesString.split(', ');
     final latitude = double.parse(coordinatesList[0]);
     final longitude = double.parse(coordinatesList[1]);
-    return Position(latitude: latitude, longitude: longitude, accuracy: 0,
+    return Position(
+      latitude: latitude,
+      longitude: longitude,
+      accuracy: 0,
       altitude: 0,
       heading: 0,
       speed: 0,
       speedAccuracy: 0,
-      timestamp: DateTime.now(),);
+      timestamp: DateTime.now(),
+    );
   }
 }
 

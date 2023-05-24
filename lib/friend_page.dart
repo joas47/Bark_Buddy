@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/chat_page.dart';
-import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
+import 'friend_requests_page.dart';
 
 class FriendPage extends StatefulWidget {
   const FriendPage({super.key});
@@ -16,22 +15,59 @@ class FriendPage extends StatefulWidget {
 }
 
 // unfriend testa mer. skärmen blev svart.
+//
 
 class _FriendPageState extends State<FriendPage> {
+  int counter = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Friends'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.people),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
+        actions: <Widget>[
+          Stack(
+            children: <Widget>[
+              // TODO: connect notification with nr of friend requests
+              // TODO: counter needs to be updated automatically
+              IconButton(
+                icon: const Icon(Icons.people),
+                onPressed: () {
+                  setState(() {
+                    counter = 0;
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FriendRequestsPage()),
+                  );
+                },
+              ),
+              counter != 0
+                  ? Positioned(
+                      right: 11,
+                      top: 11,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: const BoxConstraints(
+                          minHeight: 14,
+                          minWidth: 14,
+                        ),
+                        child: Text('$counter',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                        ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ],
           ),
         ],
       ),
