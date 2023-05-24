@@ -181,8 +181,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          //mainAxisSize: MainAxisSize.min,
-          //verticalDirection: VerticalDirection.down,
           children: [
             //const SizedBox(height: 10),
             Row(
