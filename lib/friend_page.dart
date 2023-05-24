@@ -181,85 +181,92 @@ class _FriendPageState extends State<FriendPage> {
   }
 
   void _showActivityLevelInfoSheet(String friendId) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) {
-        return Dialog(
-          child: Material(
-            type: MaterialType.transparency,
-          // clipBehavior: Clip.hardEdge,
-          //height: 400,
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return Align(
+          alignment: Alignment.center,
           child: Container(
-            height: 250, // Change as per your requirement
-            width: 120, // Change as per your requirement
-            child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(120, 30),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Confirmation'),
-                        content:
-                            const Text('Are you sure you want to unfriend?'),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Should be two pop calls, one for the dialog and one for the bottom sheet
-                              // the bottom sheet is not relevant after the friend is removed
-                              Navigator.pop(context);
-                              DatabaseHandler.removeFriend(friendId);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Confirm'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: const Text('Unfriend'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(120, 30),
-                ),
-                onPressed: () {
-                  // TODO: block
-                  Navigator.pop(context);
-                  // "not implemented" snack bar
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Not implemented yet'),
+            width: 180, // Set width as needed
+            color: Colors.white,
+            child: Material(
+              type: MaterialType.transparency,
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(120, 30),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Confirmation'),
+                              content: const Text(
+                                  'Are you sure you want to unfriend?'),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Should be two pop calls, one for the dialog and one for the bottom sheet
+                                    // the bottom sheet is not relevant after the friend is removed
+                                    Navigator.pop(context);
+                                    DatabaseHandler.removeFriend(friendId);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: const Text('Unfriend'),
                     ),
-                  );
-                },
-                child: const Text('Block'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(120, 30),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(120, 30),
+                      ),
+                      onPressed: () {
+                        // TODO: block
+                        Navigator.pop(context);
+                        // "not implemented" snack bar
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Not implemented yet'),
+                          ),
+                        );
+                      },
+                      child: const Text('Block'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(120, 30),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Cancel'),
+                    )
+                  ],
                 ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
-              )
-            ],
+              ),
+            ),
           ),
-        )));
+        );
       },
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     );
   }
 }
