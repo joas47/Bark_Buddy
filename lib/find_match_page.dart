@@ -184,7 +184,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
         // TODO: wrap the carousel with something that allows us to add filter buttons that won't scroll with the carousel
         child: Column(
           children: [
-            Text('Above carousel: filter buttons placeholder'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Filter: '),
+                _filterDropdown(),
+                _buildSubcategoryDropdown(),
+              ],
+            ),
             StreamBuilder(
               stream:
                   FirebaseFirestore.instance.collection('users').snapshots(),
@@ -290,7 +297,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 }
               },
             ),
-            Text("Below carousel"),
           ],
         ),
       ),
@@ -542,5 +548,59 @@ class _FindMatchPageState extends State<FindMatchPage> {
         ),
       ],
     );
+  }
+
+  String _selectedCategory = 'Dog';
+  String _selectedSubcategory = 'Size';
+
+  List<String> _categories = ['Dog', 'Owner'];
+  Map<String, List<String>> _subcategories = {
+    'Dog': ['Size', 'Gender', 'Activity Level'],
+    'Owner': ['Age', 'Location', 'Experience'],
+    'Size': ['Small', 'Medium', 'Large'],
+    'Gender': ['Male', 'Female'],
+    'Activity Level': ['High', 'Medium', 'Low'],
+    'Age': ['Young', 'Adult', 'Senior']
+  };
+
+  Widget _filterDropdown() {
+    return DropdownButton<String>(
+      value: _selectedCategory,
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedCategory = newValue!;
+          _selectedSubcategory = _subcategories[newValue]![0];
+        });
+      },
+      items: _categories.map((String category) {
+        return DropdownMenuItem<String>(
+          value: category,
+          child: Text(category),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildSubcategoryDropdown() {
+    return DropdownButton<String>(
+      value: _selectedSubcategory,
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedSubcategory = newValue!;
+        });
+      },
+      items: _subcategories[_selectedCategory]!.map((String subcategory) {
+        return DropdownMenuItem<String>(
+          value: subcategory,
+          child: Text(subcategory),
+        );
+      }).toList(),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSubcategory = _subcategories[_selectedCategory]![0];
   }
 }
