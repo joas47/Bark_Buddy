@@ -125,8 +125,19 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ViewOwnerProfile(userId: userId)),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ViewOwnerProfile(userId: userId)),
                         );
+                        // something like this is probably needed
+/*                        if (!currentUser) {
+                          Navigator.pop(context);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ViewOwnerProfile(userId: userId)),
+                          );
+                        }*/
                       },
                       child: StreamBuilder<String?>(
                         stream: DatabaseHandler.getOwnerPicStream(userId!),
