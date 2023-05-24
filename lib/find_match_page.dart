@@ -46,7 +46,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   CircleAvatar(
                     radius: 50, // Increased the radius of the CircleAvatar
                     backgroundImage:
-                    myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
                     child: myDogPicUrl == null ? Text('No picture') : null,
                   ),
                   CircleAvatar(
@@ -80,7 +80,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         child: const Text('Chat with match'),
                         style: TextButton.styleFrom(
                           foregroundColor:
-                          Colors.white, // This is the text color
+                              Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -98,7 +98,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         child: const Text('Continue finding matches'),
                         style: TextButton.styleFrom(
                           foregroundColor:
-                          Colors.white, // This is the text color
+                              Colors.white, // This is the text color
                         ),
                       ),
                     ),
@@ -138,7 +138,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 strokeColor: Colors.lightGreen,
                 selectedColor: Colors.lightGreen,
                 rotateLabels: false,
-                // TODO: implement max and min duration you can be available?
+                // TODO: implement max and min duration you can be available? Min 1 hour, max 12-16 hours?
                 maxDuration: const Duration(hours: 12),
                 minDuration: const Duration(hours: 1),
                 labels: [
@@ -181,44 +181,55 @@ class _FindMatchPageState extends State<FindMatchPage> {
         ],
       ),
       body: SingleChildScrollView(
-        child: StreamBuilder(
-          stream: FirebaseFirestore.instance.collection('users').snapshots(),
-          builder: (context, userSnapshot) {
-            if (userSnapshot.hasData) {
-              // all documents in the users collection
-              final userDocs = userSnapshot.data!.docs;
-              // the current user's document, for easy access
-              DocumentSnapshot currentUserDoc = userDocs.firstWhere((element) =>
-              element.id == FirebaseAuth.instance.currentUser!.uid);
-              // remove the current user from the list of potential matches (shouldn't match with yourself)
-              userDocs.remove(currentUserDoc);
-              // until the user has set their availability, they shouldn't be able to see any matches
-              if (currentUserDoc.data().toString().contains('availability')) {
-                Set<DocumentSnapshot<Object?>> toRemove =
-                    _filterOutUsers(userDocs, currentUserDoc);
-                userDocs.removeWhere((element) => toRemove.contains(element));
+        // TODO: wrap the carousel with something that allows us to add filter buttons that won't scroll with the carousel
+        child: Column(
+          children: [
+            Text('lies above the carousel'),
+            StreamBuilder(
+              stream:
+                  FirebaseFirestore.instance.collection('users').snapshots(),
+              builder: (context, userSnapshot) {
+                if (userSnapshot.hasData) {
+                  // all documents in the users collection
+                  final userDocs = userSnapshot.data!.docs;
+                  // the current user's document, for easy access
+                  DocumentSnapshot currentUserDoc = userDocs.firstWhere(
+                      (element) =>
+                          element.id == FirebaseAuth.instance.currentUser!.uid);
+                  // remove the current user from the list of potential matches (shouldn't match with yourself)
+                  userDocs.remove(currentUserDoc);
+                  // until the user has set their availability, they shouldn't be able to see any matches
+                  if (currentUserDoc
+                      .data()
+                      .toString()
+                      .contains('availability')) {
+                    Set<DocumentSnapshot<Object?>> toRemove =
+                        _filterOutUsers(userDocs, currentUserDoc);
+                    userDocs
+                        .removeWhere((element) => toRemove.contains(element));
 
-                Set<DocumentSnapshot<Object?>> removeSomeMore =
-                    _filterOutBasedOnAvailability(userDocs, currentUserDoc);
-                userDocs
-                    .removeWhere((element) => removeSomeMore.contains(element));
+                    Set<DocumentSnapshot<Object?>> removeSomeMore =
+                        _filterOutBasedOnAvailability(userDocs, currentUserDoc);
+                    userDocs.removeWhere(
+                        (element) => removeSomeMore.contains(element));
 
-                // sort userDocs by distance from current user
-                _sortByDistance(userDocs, currentUserDoc);
-              } else {
-                // TODO: make this message prettier
-                return const Center(
-                  child: Text('Click the clock icon to set your availability'),
-                );
-              }
-              // TODO: make this message prettier
-              // if there's no users left that match the criteria, displays a message.
-              if (userDocs.isEmpty) {
-                return const Center(
-                  child: Text('No matches found'),
-                );
-              }
-              /*// TODO: Special case: what to do if there's only one potential match to show?
+                    // sort userDocs by distance from current user
+                    _sortByDistance(userDocs, currentUserDoc);
+                  } else {
+                    // TODO: make this message prettier
+                    return const Center(
+                      child:
+                          Text('Click the clock icon to set your availability'),
+                    );
+                  }
+                  // TODO: make this message prettier
+                  // if there's no users left that match the criteria, displays a message.
+                  if (userDocs.isEmpty) {
+                    return const Center(
+                      child: Text('No matches found'),
+                    );
+                  }
+                  /*// TODO: Special case: what to do if there's only one potential match to show?
               if (userDocs.length == 1) {
                 DocumentSnapshot ownerDoc = userDocs.first;
                 final dogDoc = FirebaseFirestore.instance
@@ -226,54 +237,61 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     .doc(ownerDoc['dogs']);
                 return _buildPotentialMatch(context, userDocs.first, dogDoc);
               }*/
-              // begins the process of displaying the matches
-              return CarouselSlider.builder(
-                itemCount: userDocs.length,
-                // loops through the list of potential matches one by one
-                itemBuilder: (context, int itemIndex, int pageViewIndex) {
-                  DocumentSnapshot ownerDoc = userDocs[itemIndex];
-                  if (!ownerDoc.data().toString().contains('dogs')) {
-                    return const Text('Error: user has no dog!!');
-                  }
-                  return StreamBuilder<DocumentSnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('Dogs')
-                        .doc(ownerDoc['dogs'])
-                        .snapshots(),
-                    builder: (context, dogSnapshot) {
-                      if (dogSnapshot.hasError) {
-                        return const Text(
-                            'Something went wrong: user has no dog probably');
+                  // begins the process of displaying the matches
+                  return CarouselSlider.builder(
+                    itemCount: userDocs.length,
+                    // loops through the list of potential matches one by one
+                    itemBuilder: (context, int itemIndex, int pageViewIndex) {
+                      DocumentSnapshot ownerDoc = userDocs[itemIndex];
+                      if (!ownerDoc.data().toString().contains('dogs')) {
+                        return const Text('Error: user has no dog!!');
                       }
-                      if (dogSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      final dogDoc = dogSnapshot.data!;
-                      // check if the dog document has a field called 'pictureUrls'.
-                      // If not, display an error message.
-                      // Should never happen, but just in case.
-                      // You should never be able to create a dog without a picture.
-                      if (!dogDoc.data().toString().contains('pictureUrls')) {
-                        return const Text('Error: dog has no picture');
-                      }
-                      List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
-                      if (dogPicURLs != null && dogPicURLs.isEmpty) {
-                        return const Text('Error: dog has no picture');
-                      }
-                      return _buildPotentialMatch(context, ownerDoc, dogDoc);
+                      return StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('Dogs')
+                            .doc(ownerDoc['dogs'])
+                            .snapshots(),
+                        builder: (context, dogSnapshot) {
+                          if (dogSnapshot.hasError) {
+                            return const Text(
+                                'Something went wrong: user has no dog probably');
+                          }
+                          if (dogSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          final dogDoc = dogSnapshot.data!;
+                          // check if the dog document has a field called 'pictureUrls'.
+                          // If not, display an error message.
+                          // Should never happen, but just in case.
+                          // You should never be able to create a dog without a picture.
+                          if (!dogDoc
+                              .data()
+                              .toString()
+                              .contains('pictureUrls')) {
+                            return const Text('Error: dog has no picture');
+                          }
+                          List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
+                          if (dogPicURLs != null && dogPicURLs.isEmpty) {
+                            return const Text('Error: dog has no picture');
+                          }
+                          return _buildPotentialMatch(
+                              context, ownerDoc, dogDoc);
+                        },
+                      );
                     },
+                    // TODO: this should take into account the size of the screen and try to fill as much as possible
+                    options: CarouselOptions(height: 600),
                   );
-                },
-                // TODO: this should take into account the size of the screen and try to fill as much as possible
-                options: CarouselOptions(height: 600),
-              );
-            } else {
-              return const Text("No data");
-            }
-          },
+                } else {
+                  return const Text("No data");
+                }
+              },
+            ),
+            Text("Should not be able to scroll this text"),
+          ],
         ),
       ),
     );
@@ -332,7 +350,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       String otherEndTime = doc['availability']['endTime'];
       TimeRange otherUserTR = _convertToTimeRange(otherStartTime, otherEndTime);
 
-      if (!overlapsWith(currUserTR, otherUserTR)) {
+      if (!_overlapsWith(currUserTR, otherUserTR)) {
         filteredUserDocs.add(doc);
         //print("Other user time range: " + otherUserTR.toString());
       } else {
@@ -343,7 +361,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return filteredUserDocs;
   }
 
-  bool overlapsWith(TimeRange userTR, TimeRange otherTR) {
+  bool _overlapsWith(TimeRange userTR, TimeRange otherTR) {
     if (userTR.startTime.hour > otherTR.endTime.hour ||
         userTR.endTime.hour < otherTR.startTime.hour) {
       return false;
@@ -378,7 +396,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return timeRange;
   }
 
-  Set<DocumentSnapshot> _filterOutUsers(List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
+  Set<DocumentSnapshot> _filterOutUsers(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot<Object?> currentUserDoc) {
     Set<DocumentSnapshot> toRemove = {};
 
@@ -408,6 +427,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        // TODO: move this so it's on top of the dog image
         InkWell(
           onTap: () {
             Navigator.push(
@@ -418,6 +438,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
           },
           child: Image(image: NetworkImage(ownerDoc['picture']), height: 100),
         ),
+        // TODO: add an icon indicating that the image is clickable (maybe a hand pointing to the image)
         InkWell(
           onTap: () {
             Navigator.push(
@@ -457,6 +478,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
               size: 30,
               color: Colors.black,
             ),
+            // TODO: move the heart button so it's below everything else, make it bigger and more obvious that it's a button
             IconButton(
               //visualDensity: VisualDensity.compact,
               //padding: const EdgeInsets.all(10),
