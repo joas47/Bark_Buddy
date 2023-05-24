@@ -184,7 +184,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
         // TODO: wrap the carousel with something that allows us to add filter buttons that won't scroll with the carousel
         child: Column(
           children: [
-            Text('lies above the carousel'),
+            Text('Above carousel: filter buttons placeholder'),
             StreamBuilder(
               stream:
                   FirebaseFirestore.instance.collection('users').snapshots(),
@@ -290,7 +290,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 }
               },
             ),
-            Text("Should not be able to scroll this text"),
+            Text("Below carousel"),
           ],
         ),
       ),
@@ -425,42 +425,77 @@ class _FindMatchPageState extends State<FindMatchPage> {
   Column _buildPotentialMatch(BuildContext context,
       DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // TODO: move this so it's on top of the dog image
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ViewOwnerProfile(userId: ownerDoc.id)),
-            );
-          },
-          child: Image(image: NetworkImage(ownerDoc['picture']), height: 100),
-        ),
-        // TODO: add an icon indicating that the image is clickable (maybe a hand pointing to the image)
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ViewDogProfilePage(userId: ownerDoc.id)),
-            );
-          },
-          child: Container(
-            // TODO: 'height' should take into account the size of the screen and try to fill as much as possible without overflowing
-            height: 420,
-            margin: const EdgeInsets.all(6.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              image: DecorationImage(
-                image: NetworkImage(dogDoc['pictureUrls'][0]),
-                fit: BoxFit.cover,
+        Stack(alignment: AlignmentDirectional.bottomCenter, children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ViewDogProfilePage(userId: ownerDoc.id)),
+              );
+            },
+            child: Container(
+              // TODO: 'height' should take into account the size of the screen and try to fill as much as possible without overflowing
+              height: 420,
+              margin: const EdgeInsets.all(6.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                image: DecorationImage(
+                  image: NetworkImage(dogDoc['pictureUrls'][0]),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
-        ),
+          Positioned(
+            bottom: 330,
+            left: 230,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(45),
+              onTap: () {
+                // TODO: when pressing the owner profile from here, and in the view owner profile page pressing the dog profile it goes back to the find match page. (pops the navigation stack)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ViewOwnerProfile(userId: ownerDoc.id)),
+                );
+              },
+              child: CircleAvatar(
+                backgroundColor: Colors.grey,
+                radius: 46,
+                child: CircleAvatar(
+                  radius: 44,
+                  backgroundImage: NetworkImage(
+                    ownerDoc['picture'],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 380,
+            right: 280,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ViewDogProfilePage(userId: ownerDoc.id)),
+                );
+              },
+              child: const Icon(
+                Icons.touch_app_outlined,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ]),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -479,29 +514,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
               color: Colors.black,
             ),
             // TODO: move the heart button so it's below everything else, make it bigger and more obvious that it's a button
-            IconButton(
-              //visualDensity: VisualDensity.compact,
-              //padding: const EdgeInsets.all(10),
-              icon: const Icon(
-                Icons.favorite,
-                color: Colors.redAccent,
-                size: 40,
-              ),
-              onPressed: () async {
-                // TODO: give feedback when liking a dog, right now it just disappears
-                // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
-                bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
-                if (isMatch) {
-                  final User? currentUser = FirebaseAuth.instance.currentUser;
-                  String? myDogPicUrl =
-                      await DatabaseHandler.getDogPic(currentUser?.uid).first;
-                  _showMatchDialog(context, ownerDoc.id, myDogPicUrl,
-                      dogDoc['pictureUrls'][0]);
-                }
-              },
-            ),
           ],
-        )
+        ),
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            shape: const CircleBorder(),
+            side: const BorderSide(width: 2, color: Colors.redAccent),
+          ),
+          child: const Icon(
+            Icons.favorite,
+            color: Colors.redAccent,
+          ),
+          onPressed: () async {
+            // TODO: give feedback when liking a dog, right now it just disappears
+            // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
+            bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
+            if (isMatch) {
+              final User? currentUser = FirebaseAuth.instance.currentUser;
+              String? myDogPicUrl =
+                  await DatabaseHandler.getDogPic(currentUser?.uid).first;
+              _showMatchDialog(
+                  context, ownerDoc.id, myDogPicUrl, dogDoc['pictureUrls'][0]);
+            }
+          },
+        ),
       ],
     );
   }
