@@ -182,6 +182,31 @@ class DatabaseHandler {
     await batch.commit();
   }
 
+  static Future<void> unmatch(String matchUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Remove the matchUid from the owner's 'matches' array in the 'users' collection
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'matches': FieldValue.arrayRemove([matchUid])
+    });
+
+    final friendDocumentRef = usersCollectionRef.doc(matchUid);
+    batch.update(friendDocumentRef, {
+      'matches': FieldValue.arrayRemove([userUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
   static Future<void> addUserToDatabase(String fName, String lName,
       String gender, int age, String bio, String? profilePic) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;
