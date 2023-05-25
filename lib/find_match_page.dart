@@ -694,7 +694,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
               );
             },
             child: Container(
-              // TODO: 'height' should take into account the size of the screen and try to fill as much as possible without overflowing
               height: MediaQuery.of(context).size.height * 0.6,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
