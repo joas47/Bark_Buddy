@@ -33,7 +33,6 @@ class StartPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.w900,
-                color: Colors.redAccent,
               ),
             ),
             const SizedBox(height: 30),

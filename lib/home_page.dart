@@ -16,6 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _showStartPage = true;
+  bool _buttonDisabled = true;
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
       _showStartPage = false; // Hide the StartPage when any item is tapped
+      _buttonDisabled = false;
     });
 
     if (!_showStartPage) {
@@ -97,13 +99,20 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
+          // currentIndex: (_selectedIndex != -1) ? 0 : _selectedIndex,
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
-          selectedItemColor: Theme.of(context).colorScheme.background,
+          selectedItemColor: _buttonDisabled == true ? Colors.grey[600] :
+          Theme.of(context).colorScheme.background,
+          selectedFontSize: _buttonDisabled == true ? 12.0 : 16.0,
+          // onTap: _onItemTapped,
+          // selectedItemColor: Theme.of(context).colorScheme.background,
+          // ignoreItems: _showStartPage,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),
-              label: 'Match-chat',
+              // activeIcon: Icon(Icons.ice_skating, color: Colors.cyan,),
+              label: 'Chat',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.pets),
