@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 import 'package:cross_platform_test/chat_page.dart';
-//import 'package:cross_platform_test/match_chat_page.dart';
+
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -136,9 +136,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChatPage(
-
-                              ),
+                              builder: (context) => ChatPage(),
                             ),
                           );
                         },
