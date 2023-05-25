@@ -17,7 +17,9 @@ class StartPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Start page'),
       ),
-      body: Center(
+      // Changed this to a SingleChildScrollView to avoid the overflow error,
+      // but we should probably set the dimensions of the container to be the same as the screen size
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
