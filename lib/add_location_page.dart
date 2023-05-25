@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'database_handler.dart';
-import 'file_selector_handler.dart';
+//import 'file_selector_handler.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -31,8 +31,8 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
   // Initialize to a default location
   LatLng _center = LatLng(59.334591, 18.063240);
-
-
+  bool _uploading = false; // Variable to control the state of uploading
+  final TextEditingController _bioController = TextEditingController();
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -140,7 +140,19 @@ class _AddLocationPageState extends State<AddLocationPage> {
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
-          if (_showThanksDialog) {
+          // If _uploading is true, show a dialog with a progress indicator
+          if (_uploading) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text('Uploading location...'),
+                  CircularProgressIndicator(),
+                  Text("Uploading Image, please wait..."),
+                ],
+              ),
+            );
+          } else if (_showThanksDialog) {
             return AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -191,14 +203,13 @@ class _AddLocationPageState extends State<AddLocationPage> {
                         TextField(
                           minLines: 1,
                           maxLines: 6,
+                          controller: _bioController, // use _bioController here
                           decoration: InputDecoration(
                             hintText: 'Describe the dog-friendly location',
                           ),
                           onChanged: (value) {
-                            setState(() {
-                              _bio = value;
-                              _showBioError = false; // Reset the error state
-                            });
+                            _bio = value;
+                            _showBioError = false; // Reset the error state
                           },
                         ),
                         // show bio error message
@@ -214,18 +225,23 @@ class _AddLocationPageState extends State<AddLocationPage> {
                         ElevatedButton.icon(
                           icon: Icon(Icons.camera),
                           label: Text('Upload image'),
-                          onPressed: () async {
+                          onPressed: _uploading? null : () async { //disable the button if uploading is true
+
                             final selectedImages = await ImageUtils.showImageSourceDialog(context);
 
                             if (selectedImages != null  && selectedImages.isNotEmpty) {
                               // TODO: make user wait for image to be uploaded and resized before continuing
+                              setState((){
+                                _uploading = true; //set the uploading state to true
+                              });
                               final imageUrl = await ImageUtils.uploadImageToFirebase(
                                 selectedImages[0],
-                                      storageUrl,
-                                      ImageType.location);
+                                storageUrl,
+                                ImageType.location);
                               setState(() {
                                 _locationPic = imageUrl;
                                 _showImageError = false; // Reset the error state
+                                _uploading = false; //set the uploading state to false
                               });
                             } else {
                               setState(() {
@@ -245,7 +261,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
                         // ElevatedButton for adding location
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: _uploading ? null : () { //disable the button if uploading is true
                             if (_bio.isEmpty || _locationPic == null || _locationPic!.isEmpty) {
                               setState(() {
                                 _showBioError = _bio.isEmpty;
