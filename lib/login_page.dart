@@ -37,15 +37,17 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 64.0),
               Image.asset(
                 'assets/images/logo.png',
-                height: 150,
+                height: 180,
+                width: 250,
               ),
-              const SizedBox(height: 64.0),
-              const Text(
-                'Welcome to Bark Buddy!',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/barkbuddytext.png',
+                    width: 250,
+                    height: 100,)
+                ],
               ),
               const SizedBox(height: 32.0),
               TextField(
@@ -85,7 +87,8 @@ class _LoginPageState extends State<LoginPage> {
                                 builder: (context) =>
                                     const MakeOwnerProfilePage()),
                             (route) => false);
-                      } else if (!await DatabaseHandler.doesCurrentUserHaveDogProfile()) {
+                      } else if (!await DatabaseHandler
+                          .doesCurrentUserHaveDogProfile()) {
                         //Check if dog profile does not exist
                         Navigator.pushAndRemoveUntil(
                             context,
