@@ -133,6 +133,10 @@ class _FriendPageState extends State<FriendPage> {
                           ConnectionState.waiting) {
                         return const Text("Loading");
                       }
+
+                      DocumentSnapshot<Object?> friendSnapshotData =
+                          friendSnapshot.data!;
+
                       Map<String, dynamic> friendData =
                           friendSnapshot.data!.data() as Map<String, dynamic>;
 
@@ -150,8 +154,8 @@ class _FriendPageState extends State<FriendPage> {
                           }
                           String? dogName = dogNameSnapshot.data;
 
-                          return _buildFriendRow(
-                              context, friendId, friendData, dogName);
+                          return _buildFriendRow(context, friendId, friendData,
+                              dogName, friendSnapshotData);
                         },
                       );
                     },
@@ -169,8 +173,12 @@ class _FriendPageState extends State<FriendPage> {
     );
   }
 
-  ListTile _buildFriendRow(BuildContext context, String friendId,
-      Map<String, dynamic> friendData, String? dogName) {
+  ListTile _buildFriendRow(
+      BuildContext context,
+      String friendId,
+      Map<String, dynamic> friendData,
+      String? dogName,
+      DocumentSnapshot<Object?> friendSnapshotData) {
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(12, 10, 10, 0),
       splashColor: Colors.transparent,
@@ -195,7 +203,8 @@ class _FriendPageState extends State<FriendPage> {
           Container(
             // TODO: What happens if the owner/dog has a long name? Then the name will be too close to the text 'available'
             padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-            child: friendData['availability'] == null
+            child: /*friendData['availability'] == null*/ !_isAvailabilityValid(
+                    friendSnapshotData)
                 ? const Text('Not available',
                     style: TextStyle(
                       fontSize: 15,
@@ -239,6 +248,25 @@ class _FriendPageState extends State<FriendPage> {
         // TODO: make something with this? (low priority)
       },
     );
+  }
+
+  bool _isAvailabilityValid(DocumentSnapshot<Object?> userDoc) {
+    // if the user has not set their availability yet, return false
+    if (userDoc.data().toString().contains('availability') &&
+        userDoc['availability']['createdOn'] != null) {
+      Timestamp availability = userDoc['availability']['createdOn'];
+      DateTime dateTime = availability.toDate();
+
+      print(userDoc.get('name') + " " + dateTime.toString());
+
+      // if the availability is from yesterday, it's not valid, return false
+      if (DateUtils.isSameDay(dateTime, DateTime.now())) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
   }
 
   void _showActivityLevelInfoSheet(String friendId) {
