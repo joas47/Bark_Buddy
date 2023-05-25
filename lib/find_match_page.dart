@@ -597,12 +597,17 @@ class _FindMatchPageState extends State<FindMatchPage> {
     //print("Current user time range: " + currUserTR.toString());
 
     for (var doc in userDocs) {
+      if (!_isAvailabilityValid(doc)) {
+        filteredUserDocs.add(doc);
+        continue;
+      }
       String otherStartTime = doc['availability']['startTime'];
       String otherEndTime = doc['availability']['endTime'];
       TimeRange otherUserTR = _convertToTimeRange(otherStartTime, otherEndTime);
 
       if (!_overlapsWith(currUserTR, otherUserTR)) {
         filteredUserDocs.add(doc);
+        continue;
         //print("Other user time range: " + otherUserTR.toString());
       } else {
         //print("Other user time range: " + otherUserTR.toString() + " overlaps with current user time range");
@@ -850,7 +855,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   bool _isAvailabilityValid(DocumentSnapshot<Object?> userDoc) {
     // if the user has not set their availability yet, return false
-    if (userDoc.data().toString().contains('availability')) {
+    if (userDoc.data().toString().contains('availability') &&
+        userDoc['availability']['createdOn'] != null) {
       Timestamp availability = userDoc['availability']['createdOn'];
       DateTime dateTime = availability.toDate();
 
