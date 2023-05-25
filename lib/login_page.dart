@@ -44,11 +44,6 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Text('Welcome to ', style: TextStyle(
-                  //   fontSize: 28.0,
-                  //   fontWeight: FontWeight.bold,
-                  //   color: Colors.black,
-                  // ),),
                   Image.asset('assets/images/barkbuddytext.png',
                     width: 250,
                     height: 100,)
