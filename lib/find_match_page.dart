@@ -13,7 +13,6 @@ import 'package:cross_platform_test/chat_page.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class FindMatchPage extends StatefulWidget {
   const FindMatchPage({super.key});
 
@@ -66,6 +65,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       sharedPreferences = prefs;
     });
   }
+
   void _checkMatch(String friendID) async {
     if (sharedPreferences != null) {
       bool? isShown = sharedPreferences!.getBool('match_dialog_$friendID');
@@ -73,31 +73,43 @@ class _FindMatchPageState extends State<FindMatchPage> {
         final User? currentUser = FirebaseAuth.instance.currentUser;
 
         // Get friend's document
-        final DocumentSnapshot<Object?> friendSnapshot =
-        await FirebaseFirestore.instance.collection('users').doc(friendID).get();
+        final DocumentSnapshot<Object?> friendSnapshot = await FirebaseFirestore
+            .instance
+            .collection('users')
+            .doc(friendID)
+            .get();
 
         if (friendSnapshot.exists) {
           final data = friendSnapshot.data() as Map<String, dynamic>?;
           if (data != null && data.containsKey('matches')) {
-            final List<String> friendMatches = List<String>.from(data['matches'] ?? []);
+            final List<String> friendMatches =
+                List<String>.from(data['matches'] ?? []);
 
             if (friendMatches.contains(currentUser?.uid)) {
               // Fetch friend's dog id
               final String friendDogId = data['dogs'] ?? '';
 
               // Fetch friend's dog picture
-              final DocumentSnapshot<Object?> dogSnapshot = await FirebaseFirestore.instance.collection('Dogs').doc(friendDogId).get();
+              final DocumentSnapshot<Object?> dogSnapshot =
+                  await FirebaseFirestore.instance
+                      .collection('Dogs')
+                      .doc(friendDogId)
+                      .get();
 
-              if(dogSnapshot.exists){
+              if (dogSnapshot.exists) {
                 final dogData = dogSnapshot.data() as Map<String, dynamic>?;
-                final List<dynamic>? pictureUrls = dogData?['pictureUrls'] ?? [];
-                final String friendDogPicUrl = (pictureUrls != null && pictureUrls.isNotEmpty)
-                    ? pictureUrls[0].toString()
-                    : '';
+                final List<dynamic>? pictureUrls =
+                    dogData?['pictureUrls'] ?? [];
+                final String friendDogPicUrl =
+                    (pictureUrls != null && pictureUrls.isNotEmpty)
+                        ? pictureUrls[0].toString()
+                        : '';
 
-                String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUser?.uid).first;
+                String? myDogPicUrl =
+                    await DatabaseHandler.getDogPic(currentUser?.uid).first;
 
-                _showMatchDialog(context, friendSnapshot.id, myDogPicUrl, friendDogPicUrl);
+                _showMatchDialog(
+                    context, friendSnapshot.id, myDogPicUrl, friendDogPicUrl);
                 sharedPreferences!.setBool('match_dialog_$friendID', true);
               }
             }
@@ -107,7 +119,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
     }
   }
 
-  Future<void> _showMatchDialog(BuildContext context, String friendID, String? myDogPicUrl, String? friendDogPicUrl) async {
+  Future<void> _showMatchDialog(BuildContext context, String friendID,
+      String? myDogPicUrl, String? friendDogPicUrl) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -131,12 +144,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    backgroundImage:
+                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
                     child: myDogPicUrl == null ? Text('No picture') : null,
                   ),
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: friendDogPicUrl != null ? NetworkImage(friendDogPicUrl) : null,
+                    backgroundImage: friendDogPicUrl != null
+                        ? NetworkImage(friendDogPicUrl)
+                        : null,
                     child: friendDogPicUrl == null ? Text('No picture') : null,
                   ),
                 ],
@@ -187,7 +203,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -602,18 +617,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   userDocs.remove(currentUserDoc);
                   // until the user has set their availability, they shouldn't be able to see any matches
                   if (_isAvailabilityValid(currentUserDoc)) {
-                    Set<DocumentSnapshot<Object?>> toRemove =
-                        _filterOutUsers(userDocs, currentUserDoc);
-                    userDocs
-                        .removeWhere((element) => toRemove.contains(element));
-
-                    Set<DocumentSnapshot<Object?>> removeSomeMore =
-                        _filterOutBasedOnAvailability(userDocs, currentUserDoc);
-                    userDocs.removeWhere(
-                        (element) => removeSomeMore.contains(element));
-
-                    // sort userDocs by distance from current user
-                    _sortByDistance(userDocs, currentUserDoc);
+                    // filter out users that shouldn't be shown
+                    _refineMatches(userDocs, currentUserDoc);
                   } else {
                     // TODO: make this message prettier
                     return const Center(
@@ -695,16 +700,26 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
+  void _refineMatches(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
+      DocumentSnapshot currentUserDoc) {
+    // filter out users based on their dog's size
+    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
+    userDocs.removeWhere((element) => toRemove.contains(element));
+
+    // filter out users based on their availability
+    Set<DocumentSnapshot> removeSomeMore =
+        _filterOutBasedOnAvailability(userDocs, currentUserDoc);
+    userDocs.removeWhere((element) => removeSomeMore.contains(element));
+
+    // sort userDocs by distance from current user
+    _sortByDistance(userDocs, currentUserDoc);
+  }
+
   void _sortByDistance(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
-      DocumentSnapshot<Object?> currentUserDoc) {
+      DocumentSnapshot currentUserDoc) {
     GeoPoint currUGP = currentUserDoc['LastLocation'];
-    /*print("Current user location: lat: " + currUGP.latitude.toString() + " long: " + currUGP.longitude.toString());
-
-    for (var doc in userDocs) {
-      GeoPoint otherUGP = doc['LastLocation'];
-      print("Other user location: lat: " + otherUGP.latitude.toString() + " long: " + otherUGP.longitude.toString());
-    }*/
 
     userDocs.sort((a, b) {
       GeoPoint aGP = a['LastLocation'];
@@ -715,21 +730,20 @@ class _FindMatchPageState extends State<FindMatchPage> {
           currUGP.latitude, currUGP.longitude, bGP.latitude, bGP.longitude);
       return aDist.compareTo(bDist);
     });
-/*
-    for (var element in userDocs) {
-      print(element.get('name') + "'s distance from current user: " + _distanceBetween(currUGP.latitude, currUGP.longitude, element['LastLocation'].latitude, element['LastLocation'].longitude).toString());
-    }*/
   }
 
-  int _distanceBetweenTwoUsers(
-      DocumentSnapshot<Object?> a, DocumentSnapshot<Object?> b) {
+  int _distanceBetweenTwoUsers(DocumentSnapshot a, DocumentSnapshot b) {
     GeoPoint aGP = a['LastLocation'];
     GeoPoint bGP = b['LastLocation'];
     double dist = _distanceBetween(
         aGP.latitude, aGP.longitude, bGP.latitude, bGP.longitude);
 
     // returns distance in kilometers
-    return dist.round();
+    if (dist < 1) {
+      return 1;
+    } else {
+      return dist.round();
+    }
   }
 
   // https://en.wikipedia.org/wiki/Great-circle_distance
@@ -745,7 +759,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   Set<DocumentSnapshot> _filterOutBasedOnAvailability(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
-      DocumentSnapshot<Object?> currentUserDoc) {
+      DocumentSnapshot currentUserDoc) {
     Set<DocumentSnapshot> filteredUserDocs = {};
 
     String currentUserStartTime = currentUserDoc['availability']['startTime'];
@@ -753,7 +767,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     TimeRange currUserTR =
         _convertToTimeRange(currentUserStartTime, currentUserEndTime);
-    //print("Current user time range: " + currUserTR.toString());
 
     for (var doc in userDocs) {
       if (!_isAvailabilityValid(doc)) {
@@ -764,27 +777,23 @@ class _FindMatchPageState extends State<FindMatchPage> {
       String otherEndTime = doc['availability']['endTime'];
       TimeRange otherUserTR = _convertToTimeRange(otherStartTime, otherEndTime);
 
-      if (!_overlapsWith(currUserTR, otherUserTR)) {
+      if (!_availabilityOverlaps(currUserTR, otherUserTR)) {
         filteredUserDocs.add(doc);
-        continue;
-        //print("Other user time range: " + otherUserTR.toString());
-      } else {
-        //print("Other user time range: " + otherUserTR.toString() + " overlaps with current user time range");
       }
     }
 
     return filteredUserDocs;
   }
 
-  bool _overlapsWith(TimeRange userTR, TimeRange otherTR) {
+  bool _availabilityOverlaps(TimeRange userTR, TimeRange otherTR) {
+    if (userTR.endTime.hour < otherTR.startTime.hour ||
+        (userTR.endTime.hour == otherTR.startTime.hour &&
+            userTR.endTime.minute < otherTR.startTime.minute)) {
+      return false;
+    }
     if (userTR.startTime.hour > otherTR.endTime.hour ||
-        userTR.endTime.hour < otherTR.startTime.hour) {
-      return false;
-    } else if (userTR.startTime.hour == otherTR.endTime.hour &&
-        userTR.startTime.minute > otherTR.endTime.minute) {
-      return false;
-    } else if (userTR.endTime.hour == otherTR.startTime.hour &&
-        userTR.endTime.minute < otherTR.startTime.minute) {
+        (userTR.startTime.hour == otherTR.endTime.hour &&
+            userTR.startTime.minute > otherTR.endTime.minute)) {
       return false;
     }
     return true;
@@ -811,37 +820,87 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return timeRange;
   }
 
-  Set<DocumentSnapshot> _filterOutUsers(
+/*  Set<DocumentSnapshot> _filterOutUsers(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot<Object?> currentUserDoc) {
     Set<DocumentSnapshot> toRemove = {};
 
     for (var doc in userDocs) {
       // removes users that don't have a dog
-      doc.data().toString().contains('dogs') ? null : toRemove.add(doc);
+      if (!doc.data().toString().contains('dogs')) {
+        toRemove.add(doc);
+        continue;
+      }
+      // removes users that hasn't set their availability
+      if (!doc.data().toString().contains('availability')) {
+        toRemove.add(doc);
+        continue;
+      }
       // removes users that are already matched with the current user
-      if (currentUserDoc.data().toString().contains('matches')) {
+      if (currentUserDoc.data().toString().contains('matches') &&
+          currentUserDoc['matches'] != null) {
         if (currentUserDoc['matches'].contains(doc.id)) {
           toRemove.add(doc);
+          continue;
         }
       }
       // removes users that the current user has already liked
-      if (currentUserDoc.data().toString().contains('pendingLikes')) {
+      if (currentUserDoc.data().toString().contains('pendingLikes') &&
+          currentUserDoc['pendingLikes'] != null) {
         if (currentUserDoc['pendingLikes'].contains(doc.id)) {
           toRemove.add(doc);
         }
       }
-      // removes users that hasn't set their availability
-      doc.data().toString().contains('availability') ? null : toRemove.add(doc);
     }
+    return toRemove;
+  }*/
+
+  Set<DocumentSnapshot> _filterOutUsers(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
+      DocumentSnapshot currentUserDoc) {
+    Set<DocumentSnapshot> toRemove = {};
+
+    for (var doc in userDocs) {
+      Map<String, dynamic> userData = doc.data();
+
+      // removes users that don't have a dog
+      if (!userData.containsKey('dogs')) {
+        toRemove.add(doc);
+        continue;
+      }
+
+      // removes users that haven't set their availability
+      if (!userData.containsKey('availability')) {
+        toRemove.add(doc);
+        continue;
+      }
+
+      Map<String, dynamic> currentUserData =
+          currentUserDoc.data() as Map<String, dynamic>;
+
+      // removes users that are already matched with the current user
+      if (currentUserData.containsKey('matches') &&
+          currentUserData['matches'] != null) {
+        if (currentUserData['matches'].contains(doc.id)) {
+          toRemove.add(doc);
+          continue;
+        }
+      }
+
+      // removes users that the current user has already liked
+      if (currentUserData.containsKey('pendingLikes') &&
+          currentUserData['pendingLikes'] != null) {
+        if (currentUserData['pendingLikes'].contains(doc.id)) {
+          toRemove.add(doc);
+        }
+      }
+    }
+
     return toRemove;
   }
 
-  Column _buildPotentialMatch(
-      BuildContext context,
-      DocumentSnapshot<Object?> ownerDoc,
-      DocumentSnapshot<Object?> dogDoc,
-      DocumentSnapshot<Object?> currentUserDoc) {
+  Column _buildPotentialMatch(BuildContext context, DocumentSnapshot ownerDoc,
+      DocumentSnapshot dogDoc, DocumentSnapshot currentUserDoc) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -966,16 +1025,18 @@ class _FindMatchPageState extends State<FindMatchPage> {
               final User? currentUser = FirebaseAuth.instance.currentUser;
               String? myDogPicUrl =
                   await DatabaseHandler.getDogPic(currentUser?.uid).first;
-
             }
           },
         ),
-
       ],
     );
   }
+
   void clearMatchDialogData() async {
-    sharedPreferences!.getKeys().where((key) => key.startsWith('match_dialog_')).forEach((key) {
+    sharedPreferences!
+        .getKeys()
+        .where((key) => key.startsWith('match_dialog_'))
+        .forEach((key) {
       sharedPreferences!.remove(key);
       print('data is removed');
     });
@@ -1029,10 +1090,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  bool _isAvailabilityValid(DocumentSnapshot<Object?> userDoc) {
+  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
     // if the user has not set their availability yet, return false
     if (userDoc.data().toString().contains('availability') &&
-        userDoc['availability']['createdOn'] != null) {
+        userDoc['availability'] != null &&
+        userDoc.data().toString().contains('createdOn')) {
       Timestamp availability = userDoc['availability']['createdOn'];
       DateTime dateTime = availability.toDate();
 
@@ -1050,7 +1112,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     print(_36OwnerAgeFilter);
   }
 
-  /*@override
+/*@override
   void initState() {
     super.initState();
     _selectedSubcategory = _subcategories[_selectedCategory]![0];
