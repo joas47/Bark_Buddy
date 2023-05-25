@@ -311,11 +311,11 @@ class _ChatPageState extends State<ChatPage> {
                             DatabaseHandler.removeFriend(friendId);
                           } else {
                             // Add as friend
-                            DatabaseHandler.addFriend(friendId);
+                            DatabaseHandler.sendFriendRequest(friendId);
                           }
                         }
                       },
-                      child: isFriend ? const Text('Unfriend') : const Text('Add Friend'),
+                      child: isFriend ? const Text('Unfriend') : const Text('Send friend request'),
                     );
                   } else {
                     return const SizedBox.shrink();
