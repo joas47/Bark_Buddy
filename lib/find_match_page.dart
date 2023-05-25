@@ -530,7 +530,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                             return const Text('Error: dog has no picture');
                           }
                           return _buildPotentialMatch(
-                              context, ownerDoc, dogDoc);
+                              context, ownerDoc, dogDoc, currentUserDoc);
                         },
                       );
                     },
@@ -572,6 +572,17 @@ class _FindMatchPageState extends State<FindMatchPage> {
     for (var element in userDocs) {
       print(element.get('name') + "'s distance from current user: " + _distanceBetween(currUGP.latitude, currUGP.longitude, element['LastLocation'].latitude, element['LastLocation'].longitude).toString());
     }*/
+  }
+
+  int _distanceBetweenTwoUsers(
+      DocumentSnapshot<Object?> a, DocumentSnapshot<Object?> b) {
+    GeoPoint aGP = a['LastLocation'];
+    GeoPoint bGP = b['LastLocation'];
+    double dist = _distanceBetween(
+        aGP.latitude, aGP.longitude, bGP.latitude, bGP.longitude);
+
+    // returns distance in kilometers
+    return dist.round();
   }
 
   // https://en.wikipedia.org/wiki/Great-circle_distance
@@ -678,8 +689,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return toRemove;
   }
 
-  Column _buildPotentialMatch(BuildContext context,
-      DocumentSnapshot<Object?> ownerDoc, DocumentSnapshot<Object?> dogDoc) {
+  Column _buildPotentialMatch(
+      BuildContext context,
+      DocumentSnapshot<Object?> ownerDoc,
+      DocumentSnapshot<Object?> dogDoc,
+      DocumentSnapshot<Object?> currentUserDoc) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -694,7 +708,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
               );
             },
             child: Container(
-              // TODO: 'height' should take into account the size of the screen and try to fill as much as possible without overflowing
               height: MediaQuery.of(context).size.height * 0.6,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
@@ -750,6 +763,21 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 color: Colors.white,
               ),
             ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: 15,
+            child: Row(children: [
+              const Icon(
+                Icons.location_on,
+                size: 20,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                  "${_distanceBetweenTwoUsers(currentUserDoc, ownerDoc)} km away",
+                  style: const TextStyle(color: Colors.white, fontSize: 18)),
+            ]),
           ),
         ]),
         Row(
