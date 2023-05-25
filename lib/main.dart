@@ -20,7 +20,7 @@ class BarkBuddy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Bark Buddy',
+        title: 'BarkBuddy',
         theme: ThemeData(
           primarySwatch: Colors.blueGrey,
         ),
