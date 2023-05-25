@@ -456,10 +456,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   // remove the current user from the list of potential matches (shouldn't match with yourself)
                   userDocs.remove(currentUserDoc);
                   // until the user has set their availability, they shouldn't be able to see any matches
-                  if (currentUserDoc
-                      .data()
-                      .toString()
-                      .contains('availability')) {
+                  if (_isAvailabilityValid(currentUserDoc)) {
                     Set<DocumentSnapshot<Object?>> toRemove =
                         _filterOutUsers(userDocs, currentUserDoc);
                     userDocs
@@ -475,8 +472,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   } else {
                     // TODO: make this message prettier
                     return const Center(
-                      child:
-                          Text('Click the clock icon to set your availability'),
+                      child: Text(
+                          'Click the clock icon to set your availability for today!'),
                     );
                   }
                   // TODO: make this message prettier
@@ -851,6 +848,22 @@ class _FindMatchPageState extends State<FindMatchPage> {
         );
       }).toList(),
     );
+  }
+
+  bool _isAvailabilityValid(DocumentSnapshot<Object?> userDoc) {
+    // if the user has not set their availability yet, return false
+    if (userDoc.data().toString().contains('availability')) {
+      Timestamp availability = userDoc['availability']['createdOn'];
+      DateTime dateTime = availability.toDate();
+
+      // if the availability is from yesterday, it's not valid, return false
+      if (DateUtils.isSameDay(dateTime, DateTime.now())) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
   }
 
   /*@override
