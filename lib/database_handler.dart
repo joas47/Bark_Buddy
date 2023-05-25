@@ -164,6 +164,26 @@ class DatabaseHandler {
     await batch.commit();
   }
 
+  static Future<void> removeFriendrequest(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    // Remove the friendUid from the owner's 'friends' array in the 'users' collection
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'friendrequests': FieldValue.arrayRemove([friendUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
   /*static Future<void> sendFriendRequest(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
