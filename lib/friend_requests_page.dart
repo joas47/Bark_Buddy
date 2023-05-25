@@ -80,6 +80,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
+                              // TODO: add confirmation if click deny
                               children: [
                                 IconButton(
                                   onPressed: () {

@@ -541,6 +541,19 @@ class DatabaseHandler {
     }
   }
 
+  static Future<bool> checkIfFriendRequestSent(String friendID) async {
+    final users = FirebaseFirestore.instance.collection('users');
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    final friendSnapshot = await users.doc(friendID).get();
+    final friendData = friendSnapshot.data();
+
+    if (friendData != null && friendData.containsKey('friendrequests') && friendData['friendrequests'].contains(userUid)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   static void addRandomFriend() {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');

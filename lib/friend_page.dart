@@ -8,17 +8,24 @@ import 'package:flutter/material.dart';
 import 'friend_requests_page.dart';
 
 class FriendPage extends StatefulWidget {
-  const FriendPage({super.key});
+  const FriendPage({Key? key}) : super(key: key);
 
   @override
   State<FriendPage> createState() => _FriendPageState();
 }
 
-// unfriend testa mer. skärmen blev svart.
-//
-
 class _FriendPageState extends State<FriendPage> {
-  int counter = 0;
+  Stream<DocumentSnapshot<Map<String, dynamic>>>? _friendRequestStream;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the stream in the initState
+    _friendRequestStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,45 +35,63 @@ class _FriendPageState extends State<FriendPage> {
         actions: <Widget>[
           Stack(
             children: <Widget>[
-              // TODO: connect notification with nr of friend requests
-              // TODO: counter needs to be updated automatically
               IconButton(
                 icon: const Icon(Icons.people),
                 onPressed: () {
-                  setState(() {
-                    counter = 0;
-                  });
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const FriendRequestsPage()),
+                      builder: (context) => const FriendRequestsPage(),
+                    ),
                   );
                 },
               ),
-              counter != 0
-                  ? Positioned(
-                      right: 11,
-                      top: 11,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        constraints: const BoxConstraints(
-                          minHeight: 14,
-                          minWidth: 14,
-                        ),
-                        child: Text('$counter',
+              StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: _friendRequestStream,
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                    snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Something went wrong');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Text("Loading");
+                  }
+                  int counter = 0;
+                  if (snapshot.data != null) {
+                    Map<String, dynamic>? data = snapshot.data!.data();
+                    if (data != null && data['friendrequests'] != null) {
+                      List<dynamic> friendRequestList = data['friendrequests'];
+                      counter = friendRequestList.length;
+                    }
+                  }
+                  return counter != 0
+                      ? Positioned(
+                    right: 11,
+                    top: 11,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      constraints: const BoxConstraints(
+                        minHeight: 14,
+                        minWidth: 14,
+                      ),
+                      child: Text(
+                        '$counter',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 8,
                         ),
-                          textAlign: TextAlign.center,
-                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    )
-                  : Container(),
+                    ),
+                  )
+                      : Container();
+                },
+              ),
             ],
           ),
         ],
@@ -87,6 +112,7 @@ class _FriendPageState extends State<FriendPage> {
             }
             Map<String, dynamic> data =
                 snapshot.data!.data()! as Map<String, dynamic>;
+
             if (data['friends'] != null) {
               List<dynamic> friends = data['friends'];
               return ListView.builder(
