@@ -588,6 +588,7 @@ class DatabaseHandler {
     final batch = firestoreInstance.batch();
 
     final availability = {
+      "createdOn": DateTime.now(),
       "startTime": '${startTime.hour}:${startTime.minute}',
       "endTime": '${endTime.hour}:${endTime.minute}',
     };
