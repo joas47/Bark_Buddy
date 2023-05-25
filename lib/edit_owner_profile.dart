@@ -87,7 +87,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                       child: _formUI(name, surname, about, age, gender, about),
                     ),
                     const SizedBox(height: 16.0),
-                    // TODO: move this Text so it's next to the radio buttons instead of above.
+
                     const Text('Gender', style: TextStyle(fontSize: 18),),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

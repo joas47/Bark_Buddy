@@ -192,10 +192,6 @@ class ImageUtils {
     }
   }*/
 
-
-
-  // TODO: make this not force you to take 5 pictures in a row, but instead let you take 1, then choose to take another
-  // TODO: if you choose an image from the gallery and then take 5 pictures it will upload 6 images. Probably it will upload up to 10 images if you choose 5 from the gallery and then take 5 pictures
   static Future<List?> showImageSourceDialog(BuildContext context,
       {int maxImages = 1}) async {
     final ImageSource? source = await showDialog<ImageSource>(
