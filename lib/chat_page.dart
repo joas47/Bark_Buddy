@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -181,7 +182,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void _showActivityLevelInfoSheet(String friendId) {
+  void _showActivityLevelInfoSheet(String friendId) async {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -205,44 +206,34 @@ class _ChatPageState extends State<ChatPage> {
                   }
 
                   Map<String, dynamic>? data =
-                      snapshot.data?.data() as Map<String, dynamic>?;
+                  snapshot.data?.data() as Map<String, dynamic>?;
                   if (data != null && data['friends'] != null) {
                     List<dynamic> friends = data['friends'];
                     bool isFriend = friends.contains(friendId);
 
                     return ElevatedButton(
-                      onPressed: () {
-                        showDialog(
+                      onPressed: () async {
+                        Navigator.pop(context); // Close the bottom sheet
+
+                        // Show confirmation dialog
+                        bool? confirmed = await showDialog<bool>(
                           context: context,
                           builder: (context) {
                             return AlertDialog(
                               title: const Text('Confirmation'),
                               content: isFriend
-                                  ? const Text(
-                                      'Are you sure you want to unfriend?')
-                                  : const Text(
-                                      'Are you sure you want to add as a friend?'),
+                                  ? const Text('Are you sure you want to unfriend?')
+                                  : const Text('Are you sure you want to add as a friend?'),
                               actions: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pop(context); // Close the dialog
-
-                                    if (isFriend) {
-                                      // Unfriend
-                                      DatabaseHandler.removeFriend(friendId);
-                                    } else {
-                                      // Add as friend
-                                      DatabaseHandler.addFriend(friendId);
-                                    }
-
-                                    Navigator.pop(
-                                        context); // Close the bottom sheet
+                                    Navigator.pop(context, true); // Return true to confirm
                                   },
                                   child: const Text('Confirm'),
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pop(context); // Close the dialog
+                                    Navigator.pop(context, false); // Return false to cancel
                                   },
                                   child: const Text('Cancel'),
                                 ),
@@ -250,16 +241,26 @@ class _ChatPageState extends State<ChatPage> {
                             );
                           },
                         );
+
+                        if (confirmed != null && confirmed) {
+                          // Perform the action based on the confirmation result
+                          if (isFriend) {
+                            // Unfriend
+                            DatabaseHandler.removeFriend(friendId);
+                          } else {
+                            // Add as friend
+                            DatabaseHandler.addFriend(friendId);
+                          }
+                        }
                       },
-                      child: isFriend
-                          ? const Text('Unfriend')
-                          : const Text('Add Friend'),
+                      child: isFriend ? const Text('Unfriend') : const Text('Add Friend'),
                     );
                   } else {
                     return const SizedBox.shrink();
                   }
                 },
               ),
+
               ElevatedButton(
                 onPressed: () {
                   // TODO: block
