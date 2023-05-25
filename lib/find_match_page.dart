@@ -647,9 +647,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // loops through the list of potential matches one by one
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
                       DocumentSnapshot ownerDoc = userDocs[itemIndex];
-                      if (!ownerDoc.data().toString().contains('dogs')) {
+                      /*Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
+                      if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
-                      }
+                      }*/
                       return StreamBuilder<DocumentSnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('Dogs')
@@ -671,7 +672,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           // If not, display an error message.
                           // Should never happen, but just in case.
                           // You should never be able to create a dog without a picture.
-                          if (!dogDoc
+                          Map<String, dynamic>? dogData =
+                              dogDoc.data() as Map<String, dynamic>?;
+                          if (!dogData!.containsKey('pictureUrls') ||
+                              dogData['pictureUrls'] == null ||
+                              dogData['pictureUrls'].isEmpty) {
+                            return const Text('Error: dog has no picture(s)');
+                          }
+/*                          if (!dogDoc
                               .data()
                               .toString()
                               .contains('pictureUrls')) {
@@ -680,7 +688,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
                           if (dogPicURLs != null && dogPicURLs.isEmpty) {
                             return const Text('Error: dog has no picture');
-                          }
+                          }*/
                           return _buildPotentialMatch(
                               context, ownerDoc, dogDoc, currentUserDoc);
                         },
@@ -703,14 +711,13 @@ class _FindMatchPageState extends State<FindMatchPage> {
   void _refineMatches(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot currentUserDoc) {
-    // filter out users based on their dog's size
-    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
-    userDocs.removeWhere((element) => toRemove.contains(element));
-
     // filter out users based on their availability
     Set<DocumentSnapshot> removeSomeMore =
         _filterOutBasedOnAvailability(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => removeSomeMore.contains(element));
+
+    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
+    userDocs.removeWhere((element) => toRemove.contains(element));
 
     // sort userDocs by distance from current user
     _sortByDistance(userDocs, currentUserDoc);
@@ -864,7 +871,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
       Map<String, dynamic> userData = doc.data();
 
       // removes users that don't have a dog
-      if (!userData.containsKey('dogs')) {
+      if (!userData.containsKey('dogs') ||
+          userData['dogs'] == null ||
+          userData['dogs'].isEmpty) {
         toRemove.add(doc);
         continue;
       }
@@ -1090,7 +1099,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
+/*  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
     // if the user has not set their availability yet, return false
     if (userDoc.data().toString().contains('availability') &&
         userDoc['availability'] != null &&
@@ -1105,6 +1114,27 @@ class _FindMatchPageState extends State<FindMatchPage> {
         return false;
       }
     }
+    return false;
+  }*/
+
+  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
+    Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+
+    if (userData != null) {
+      // If the user has not set their availability yet, return false
+      if (userData.containsKey('availability') &&
+          userData['availability'] is Map<String, dynamic> &&
+          userData['availability']!.containsKey('createdOn')) {
+        Timestamp availability = userData['availability']['createdOn'];
+        DateTime dateTime = availability.toDate();
+
+        // If the availability is from yesterday, it's not valid, return false
+        if (DateUtils.isSameDay(dateTime, DateTime.now())) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 
