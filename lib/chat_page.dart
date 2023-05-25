@@ -22,6 +22,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  bool requestSent = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,6 +185,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _showActivityLevelInfoSheet(String friendId) async {
     bool isFriend = false;
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -275,9 +277,13 @@ class _ChatPageState extends State<ChatPage> {
 
                     return ElevatedButton(
                       onPressed: () async {
+
                         Navigator.pop(context); // Close the bottom sheet
 
+
+
                         // Show confirmation dialog
+
                         bool? confirmed = await showDialog<bool>(
                           context: context,
                           builder: (context) {
@@ -301,21 +307,30 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ],
                             );
-                          },
+                            },
                         );
+                        requestSent = await DatabaseHandler.checkIfFriendRequestSent(friendId);
+
 
                         if (confirmed != null && confirmed) {
                           // Perform the action based on the confirmation result
                           if (isFriend) {
                             // Unfriend
                             DatabaseHandler.removeFriend(friendId);
+                          } else if (requestSent) {
+                            null;
+
                           } else {
                             // Add as friend
                             DatabaseHandler.sendFriendRequest(friendId);
                           }
+                          print(requestSent);
                         }
                       },
-                      child: isFriend ? const Text('Unfriend') : const Text('Send friend request'),
+
+                      child: isFriend ? const Text('Unfriend')
+                          : requestSent ? const Text('Friend request sent')
+                          : const Text('Send friend request'),
                     );
                   } else {
                     return const SizedBox.shrink();
