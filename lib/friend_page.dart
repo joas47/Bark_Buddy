@@ -258,7 +258,7 @@ class _FriendPageState extends State<FriendPage> {
       Timestamp availability = userDoc['availability']['createdOn'];
       DateTime dateTime = availability.toDate();
 
-      print(userDoc.get('name') + " " + dateTime.toString());
+      //print(userDoc.get('name') + " " + dateTime.toString());
 
       // if the availability is from yesterday, it's not valid, return false
       if (DateUtils.isSameDay(dateTime, DateTime.now())) {
