@@ -192,7 +192,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                           'Activity level',
                           style: TextStyle(fontSize: 18),
                         ),
-                        // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+
                         IconButton(
                           icon: const Icon(Icons.help_outline),
                           onPressed: () {
@@ -232,7 +232,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                           'Size',
                           style: TextStyle(fontSize: 18),
                         ),
-                        // TODO: add a tooltip // this is done but i decided to keep the comment anyway
+
                         IconButton(
                           icon: const Icon(Icons.help_outline),
                           onPressed: () {

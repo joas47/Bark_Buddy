@@ -335,6 +335,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
               DatabaseHandler.storeTimeSlot(result.startTime, result.endTime);
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: () async {
+              clearMatchDialogData();
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -788,12 +794,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
             }
           },
         ),
-        IconButton(
-          icon: const Icon(Icons.clear),
-          onPressed: () async {
-            clearMatchDialogData();
-          },
-        ),
+
       ],
     );
   }
