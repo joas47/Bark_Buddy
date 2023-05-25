@@ -46,62 +46,70 @@ class DatabaseHandler {
     }
     return false;
   }
-
-  // Sends like to other person, if they have already liked you, it will create a match
+// Sends like to other person, if they have already liked you, it will create a match
   static Future<bool> sendLike(String friendID) async {
     final firestoreInstance = FirebaseFirestore.instance;
-    final users = FirebaseFirestore.instance.collection('users');
+    final usersCollectionRef = firestoreInstance.collection('users');
     final User? currentUser = FirebaseAuth.instance.currentUser;
-    late final userUid = currentUser?.uid;
-    final ownerSnapshot = await users.doc(userUid).get();
-    final ownerData = ownerSnapshot.data();
+    final String? userUid = currentUser?.uid;
 
-    if (ownerData != null &&
-        ownerData.containsKey('matches') &&
-        ownerData['matches'].contains(friendID)) {
-      return true;
-    } else if (ownerData != null &&
-        ownerData.containsKey('matches') &&
-        ownerData['pendingLikes'].contains(friendID)) {
-      return false;
+    final ownerDocumentRef = usersCollectionRef.doc(userUid);
+    final friendDocumentRef = usersCollectionRef.doc(friendID);
+
+    try {
+      final ownerSnapshot = await ownerDocumentRef.get();
+      final friendSnapshot = await friendDocumentRef.get();
+
+      if (ownerSnapshot.exists && friendSnapshot.exists) {
+        final ownerData = ownerSnapshot.data();
+        final friendData = friendSnapshot.data();
+
+        if (ownerData != null && friendData != null) {
+          if (ownerData.containsKey('matches') &&
+              ownerData['matches'].contains(friendID)) {
+            return true;
+          } else if (ownerData.containsKey('matches') &&
+              ownerData['pendingLikes'].contains(friendID)) {
+            return false;
+          }
+
+          final batch = firestoreInstance.batch();
+
+          if (ownerData.containsKey('receivedLikes') &&
+              ownerData['receivedLikes'].contains(friendID)) {
+            batch.update(ownerDocumentRef, {
+              'matches': FieldValue.arrayUnion([friendID]),
+              'receivedLikes': FieldValue.arrayRemove([friendID]),
+            });
+
+            batch.update(friendDocumentRef, {
+              'matches': FieldValue.arrayUnion([userUid]),
+              'pendingLikes': FieldValue.arrayRemove([userUid]),
+            });
+
+            await batch.commit();
+            return true; // Match has been made, so return true
+          } else {
+            batch.update(ownerDocumentRef, {
+              'pendingLikes': FieldValue.arrayUnion([friendID]),
+            });
+
+            batch.update(friendDocumentRef, {
+              'receivedLikes': FieldValue.arrayUnion([userUid]),
+            });
+
+            await batch.commit();
+            return false; // No match has been made, so return false
+          }
+        }
+      }
+    } catch (error) {
+      print('Error sending like: $error');
     }
 
-    final batch = firestoreInstance.batch();
-    if (ownerData != null &&
-        ownerData.containsKey('receivedLikes') &&
-        ownerData['receivedLikes'].contains(friendID)) {
-      // Add the dog reference to the owner's array of dogs in the 'emails' collection
-      final userDocumentRef = users.doc(userUid);
-      batch.update(userDocumentRef, {
-        'matches': FieldValue.arrayUnion([friendID]),
-        'receivedLikes': FieldValue.arrayRemove([friendID]),
-      });
-
-      final friendDocumentRef = users.doc(friendID);
-      batch.update(friendDocumentRef, {
-        'matches': FieldValue.arrayUnion([userUid]),
-        'pendingLikes': FieldValue.arrayRemove([userUid]),
-      });
-      await batch.commit();
-      return true; //match has been made, so return true
-
-    } else {
-      final userDocumentRef = users.doc(userUid);
-      batch.update(userDocumentRef, {
-        'pendingLikes': FieldValue.arrayUnion([friendID]),
-      });
-
-      final friendDocumentRef = users.doc(friendID);
-      batch.update(friendDocumentRef, {
-        'receivedLikes': FieldValue.arrayUnion([userUid]),
-      });
-      await batch.commit();
-      return false; //no match has been made, so return false
-    }
-    // Commit the batch write operation
-    await batch.commit();
     return false;
   }
+
 
   static Future<void> addFriend(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
@@ -481,23 +489,29 @@ class DatabaseHandler {
   }
 
   //TODO: kontrollera att användaren har hund
-  static Future<List<String>?> getMatches() async {
-    final firestoreInstance = FirebaseFirestore.instance;
-    final usersCollectionRef = firestoreInstance.collection('users');
 
-    final User? currentUser = FirebaseAuth.instance.currentUser;
-    final String? userUid = currentUser?.uid;
+  static Stream<String?> getMatches(String? userId) {
+    final users = FirebaseFirestore.instance.collection('users');
+    final matchesField = users.doc(userId).snapshots().map((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data != null && data.containsKey('matches')) {
+          final matches = data['matches'] as List<dynamic>;
+          if (matches.isNotEmpty && matches[0] is String) {
+            return matches[0] as String;
+          }
+        }
+      }
+      // Handle the case when the 'matches' field doesn't exist or is empty
+      return null;
+    }).handleError((error) {
+      print("Error getting matches: $error");
+      return null;
+    });
 
-    try {
-      final snapshot = await usersCollectionRef.get();
-      List<String> test = snapshot.docs.map((doc) => doc.id).toList();
-      test.remove(userUid);
-      return test;
-    } catch (error) {
-      print('Error getting random friend: $error');
-    }
-    return null;
+    return matchesField;
   }
+
 
   static Future<List<String>> getList() {
     return Future.value(['1', '2']);

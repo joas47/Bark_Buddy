@@ -6,9 +6,12 @@ import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
+import 'package:cross_platform_test/match_chat_page.dart';
+import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class FindMatchPage extends StatefulWidget {
   const FindMatchPage({super.key});
@@ -18,7 +21,162 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-  // showMatchDialog to show a dialog when a match is found
+  StreamSubscription? _matchSubscription;
+  SharedPreferences? sharedPreferences;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    _matchSubscription = DatabaseHandler.getMatches(userUid).listen((friendID) {
+      if (friendID != null) {
+        _checkMatch(friendID as String);
+      }
+    });
+
+    SharedPreferences.getInstance().then((prefs) {
+      sharedPreferences = prefs;
+    });
+  }
+  void _checkMatch(String friendID) async {
+    if (sharedPreferences != null) {
+      bool? isShown = sharedPreferences!.getBool('match_dialog_$friendID');
+      if (isShown == null || !isShown) {
+        final User? currentUser = FirebaseAuth.instance.currentUser;
+
+        // Get friend's document
+        final DocumentSnapshot<Object?> friendSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(friendID).get();
+
+        if (friendSnapshot.exists) {
+          final data = friendSnapshot.data() as Map<String, dynamic>?;
+          if (data != null && data.containsKey('matches')) {
+            final List<String> friendMatches = List<String>.from(data['matches'] ?? []);
+
+            if (friendMatches.contains(currentUser?.uid)) {
+              // Fetch friend's dog id
+              final String friendDogId = data['dogs'] ?? '';
+
+              // Fetch friend's dog picture
+              final DocumentSnapshot<Object?> dogSnapshot = await FirebaseFirestore.instance.collection('Dogs').doc(friendDogId).get();
+
+              if(dogSnapshot.exists){
+                final dogData = dogSnapshot.data() as Map<String, dynamic>?;
+                final List<dynamic>? pictureUrls = dogData?['pictureUrls'] ?? [];
+                final String friendDogPicUrl = (pictureUrls != null && pictureUrls.isNotEmpty)
+                    ? pictureUrls[0].toString()
+                    : '';
+
+                String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUser?.uid).first;
+
+                _showMatchDialog(context, friendSnapshot.id, myDogPicUrl, friendDogPicUrl);
+                sharedPreferences!.setBool('match_dialog_$friendID', true);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _showMatchDialog(BuildContext context, String friendID, String? myDogPicUrl, String? friendDogPicUrl) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey,
+          titlePadding: EdgeInsets.all(0),
+          title: Container(
+            color: Colors.lightGreen,
+            padding: EdgeInsets.all(20),
+            child: Text(
+              'You have a new match!',
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    child: myDogPicUrl == null ? Text('No picture') : null,
+                  ),
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: friendDogPicUrl != null ? NetworkImage(friendDogPicUrl) : null,
+                    child: friendDogPicUrl == null ? Text('No picture') : null,
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Container(
+                      width: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      margin: EdgeInsets.only(bottom: 10.0),
+                      child: TextButton(
+                        onPressed: () {
+                          // Navigate to chat
+                          /*Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MatchChatPage(
+                                friendId: userId,
+                                friendName: userData['name'],
+                              ),
+                            ),
+                          );*/
+                        },
+                        child: const Text('Chat with match'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          // Close the dialog
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Continue finding matches'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /*// showMatchDialog to show a dialog when a match is found
   Future<void> _showMatchDialog(BuildContext context, String friendID,
       String? myDogPicUrl, String? friendDogPicUrl) async {
     await showDialog(
@@ -109,7 +267,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
         );
       },
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -626,13 +784,24 @@ class _FindMatchPageState extends State<FindMatchPage> {
               final User? currentUser = FirebaseAuth.instance.currentUser;
               String? myDogPicUrl =
                   await DatabaseHandler.getDogPic(currentUser?.uid).first;
-              _showMatchDialog(
-                  context, ownerDoc.id, myDogPicUrl, dogDoc['pictureUrls'][0]);
+
             }
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () async {
+            clearMatchDialogData();
           },
         ),
       ],
     );
+  }
+  void clearMatchDialogData() async {
+    sharedPreferences!.getKeys().where((key) => key.startsWith('match_dialog_')).forEach((key) {
+      sharedPreferences!.remove(key);
+      print('data is removed');
+    });
   }
 
   String _selectedCategory = 'Dog';
@@ -683,11 +852,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  @override
+  /*@override
   void initState() {
     super.initState();
     _selectedSubcategory = _subcategories[_selectedCategory]![0];
-  }
+  }*/
 }
 
 class FilterCheckbox extends StatefulWidget {

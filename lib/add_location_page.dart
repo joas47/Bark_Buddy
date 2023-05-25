@@ -5,6 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'database_handler.dart';
 import 'file_selector_handler.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class AddLocationPage extends StatefulWidget {
   const AddLocationPage({Key? key}) : super(key: key);
@@ -69,14 +72,62 @@ class _AddLocationPageState extends State<AddLocationPage> {
     return position;
   }
 
-  void _handleTap(LatLng latLng) async{
-    String storageUrl = "gs://bark-buddy.appspot.com"; // ask about this from morgan. where does the image is stored at? = firebase storage section.
-    // and also is it possible to bring this image to the "parks" collection in firestore? = new collection in firebase, called "user-parks"
-    // is it possible to pull images from that storage? = no need because we are just gonna be suggesting with text, image suggestion is an extra feature.
-    // is it possible to connect a specific userID to those pictures?
-    // is the only connection between images in storage and owners collection regarding pictures, pictures field? = yes.
 
-    await _getAddressFromLatLng(latLng.latitude, latLng.longitude);
+
+  Future<bool> _isLocationWater(double latitude, double longitude) async {
+    final queryParameters = {
+      'lat': latitude.toString(),
+      'lon': longitude.toString(),
+      'format': 'json',
+    };
+
+    final uri = Uri.https('nominatim.openstreetmap.org', '/reverse', queryParameters);
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print('Address data: ${data['address']}'); // print the entire address data
+      var locationType = data['address']?['waterway'];
+      if (locationType != null) {
+        // If the 'waterway' key exists in the address, then it's a water body.
+        return true;
+      }
+    } else {
+      print('Failed to load location data');
+    }
+
+    // If we reach here, then it's not a water body.
+    return false;
+  }
+
+  void _handleTap(LatLng latLng) async{
+    String storageUrl = "gs://bark-buddy.appspot.com";
+
+    bool isWater = await _isLocationWater(latLng.latitude, latLng.longitude);
+    if(isWater){
+      print("Location is on water, not adding");
+      return;
+    }
+    // Catch the PlatformException thrown when no address information is found
+    try {
+      await _getAddressFromLatLng(latLng.latitude, latLng.longitude);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+          Text('No address information found for tapped location, not adding'),
+        ),
+      );
+      print('No address information found for tapped location, not adding');
+      return;
+    }
+
+
+    await _getAddressFromLatLng(latLng.latitude, latLng.longitude).catchError((error) async {
+      // This will catch the error thrown when no address is found for the provided coordinates
+      print('Error occurred while getting address: $error');
+
+    });
 
     setState(() {
       _showThanksDialog = false; // Reset the dialog state
@@ -233,6 +284,11 @@ class _AddLocationPageState extends State<AddLocationPage> {
       String administrativeArea = place.administrativeArea ?? '';
       String country = place.country ?? '';
 
+      // Check if certain fields are empty, throw an exception if they are
+      if(street.isEmpty || administrativeArea.isEmpty || country.isEmpty) {
+        throw Exception('Invalid location');
+      }
+
       setState(() {
         _currentAddress = '${street.isNotEmpty ? street + ', ' : ''}'
             '${postalCode.isNotEmpty ? postalCode + ', ' : ''}'
@@ -242,13 +298,9 @@ class _AddLocationPageState extends State<AddLocationPage> {
       });
     } catch (e) {
       print(e);
+      throw e;  // Re-throw the exception to be handled by the caller
     }
   }
-
-
-
-
-
 
 
   @override
