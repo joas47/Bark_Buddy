@@ -592,6 +592,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     var c = 0.5 -
         cos(p * (lat2 - lat1)) / 2 +
         cos(p * lat1) * cos(p * lat2) * (1 - cos(p * (lon2 - lon1))) / 2;
+    // returns distance in kilometers
     return 12742 * asin(sqrt(c));
   }
 

@@ -5,6 +5,7 @@ import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:time_range_picker/time_range_picker.dart';
 import 'friend_requests_page.dart';
 
 class FriendPage extends StatefulWidget {
@@ -133,6 +134,10 @@ class _FriendPageState extends State<FriendPage> {
                           ConnectionState.waiting) {
                         return const Text("Loading");
                       }
+
+                      DocumentSnapshot<Object?> friendSnapshotData =
+                          friendSnapshot.data!;
+
                       Map<String, dynamic> friendData =
                           friendSnapshot.data!.data() as Map<String, dynamic>;
 
@@ -150,8 +155,8 @@ class _FriendPageState extends State<FriendPage> {
                           }
                           String? dogName = dogNameSnapshot.data;
 
-                          return _buildFriendRow(
-                              context, friendId, friendData, dogName);
+                          return _buildFriendRow(context, friendId, friendData,
+                              dogName, friendSnapshotData);
                         },
                       );
                     },
@@ -169,8 +174,12 @@ class _FriendPageState extends State<FriendPage> {
     );
   }
 
-  ListTile _buildFriendRow(BuildContext context, String friendId,
-      Map<String, dynamic> friendData, String? dogName) {
+  ListTile _buildFriendRow(
+      BuildContext context,
+      String friendId,
+      Map<String, dynamic> friendData,
+      String? dogName,
+      DocumentSnapshot<Object?> friendSnapshotData) {
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(12, 10, 10, 0),
       splashColor: Colors.transparent,
@@ -194,8 +203,9 @@ class _FriendPageState extends State<FriendPage> {
         children: [
           Container(
             // TODO: What happens if the owner/dog has a long name? Then the name will be too close to the text 'available'
-            padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-            child: friendData['availability'] == null
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+            child: /*friendData['availability'] == null*/ !_isAvailabilityValid(
+                    friendSnapshotData)
                 ? const Text('Not available',
                     style: TextStyle(
                       fontSize: 15,
@@ -203,7 +213,7 @@ class _FriendPageState extends State<FriendPage> {
                     ),
                     textAlign: TextAlign.center)
                 : Text(
-                    'Available \n${friendData['availability']['startTime']} - ${friendData['availability']['endTime']}',
+                    "Available\n${_getTimeRangeString(friendData['availability']['startTime'], friendData['availability']['endTime'])}" /*'Available \n${friendData['availability']['startTime']} - ${friendData['availability']['endTime']}'*/,
                     style: const TextStyle(
                       fontSize: 15,
                       color: Colors.green,
@@ -239,6 +249,49 @@ class _FriendPageState extends State<FriendPage> {
         // TODO: make something with this? (low priority)
       },
     );
+  }
+
+  bool _isAvailabilityValid(DocumentSnapshot<Object?> userDoc) {
+    // if the user has not set their availability yet, return false
+    if (userDoc.data().toString().contains('availability') &&
+        userDoc['availability']['createdOn'] != null) {
+      Timestamp availability = userDoc['availability']['createdOn'];
+      DateTime dateTime = availability.toDate();
+
+      print(userDoc.get('name') + " " + dateTime.toString());
+
+      // if the availability is from yesterday, it's not valid, return false
+      if (DateUtils.isSameDay(dateTime, DateTime.now())) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  String _getTimeRangeString(String startTimeString, String endTimeString) {
+    final startTimeParts = startTimeString.split(':');
+    final endTimeParts = endTimeString.split(':');
+
+    final startTime = TimeOfDay(
+      hour: int.parse(startTimeParts[0]),
+      minute: int.parse(startTimeParts[1]),
+    );
+
+    final endTime = TimeOfDay(
+      hour: int.parse(endTimeParts[0]),
+      minute: int.parse(endTimeParts[1]),
+    );
+/*
+    String timeRangeString = startTime.hour.toString();
+    timeRangeString += ":";
+    timeRangeString += startTime.minute.toString();
+    timeRangeString += " - ";
+    timeRangeString += endTime.hour.toString();
+    timeRangeString += ":";
+    timeRangeString += endTime.minute.toString();*/
+    return "${startTime.format(context)} - ${endTime.format(context)}";
   }
 
   void _showActivityLevelInfoSheet(String friendId) {

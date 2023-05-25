@@ -9,11 +9,9 @@ import 'package:flutter/material.dart';
 import 'database_handler.dart';
 
 import 'edit_dog_profile_page.dart';
-
 class ViewDogProfilePage extends StatefulWidget {
   String? userId;
   ViewDogProfilePage({Key? key, this.userId = 'defaultValue'}) : super(key: key);
-
 
   @override
   _ViewDogProfilePageState createState() => _ViewDogProfilePageState(userId);
@@ -39,31 +37,31 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    if(userId == FirebaseAuth.instance.currentUser?.uid){
+    if (userId == FirebaseAuth.instance.currentUser?.uid) {
       currentUser = true;
     }
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Dog Profile'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsPage()),
-                );
-              },
-            ),
-          ],
-        ),
-        body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Dogs')
-              .doc(_dogId ?? 'dummy')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+      appBar: AppBar(
+        title: const Text('Dog Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Dogs')
+            .doc(_dogId ?? 'dummy')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
             return const CircularProgressIndicator();
           }
           if (!snapshot.data!.exists) {
@@ -77,60 +75,155 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
           final breed = dogData.get('Breed') as String?;
           final gender = dogData.get('Gender') as String?;
           final isCastrated = dogData.get('Is castrated') as bool?;
-          final isCastratedText = isCastrated != null
-              ? (isCastrated ? 'Is Castrated' : 'Not Castrated')
-              : '';
+          final isCastratedText = isCastrated != null ? (isCastrated ? 'Is Castrated' : 'Not Castrated') : '';
           final name = dogData.get('Name');
           final size = dogData.get('Size') as String?;
           final List<dynamic>? profilePic = dogData.get('pictureUrls') as List<dynamic>?;
 
-          if(profilePic != null && profilePic.isNotEmpty) {
+          if (profilePic != null && profilePic.isNotEmpty) {
             pictureUrls = List<String>.from(profilePic);
           }
 
           return Stack(
             alignment: Alignment.center,
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0, top: 10.0),
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 120.0), // Adjust the padding value as needed
-                          child: currentUser
-                              ? ElevatedButton.icon(
-                            icon: const Icon(Icons.add_location),
-                            label: const Text('Add location'),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AddLocationPage(),
-                                ),
-                              );
-                            },
-                          )
-                              : null,
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ImageDialog(
+                          pictureUrls: pictureUrls, // pass the actual picture urls or file paths here
+                          initialIndex: 0, // Display the second image first
                         ),
-                      ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 100.0,
+                      backgroundImage: pictureUrls.isNotEmpty
+                          ? NetworkImage(pictureUrls[0])
+                          : const AssetImage(
+                        'assets/images/placeholder-dog-image2.png',
+                      ) as ImageProvider<Object>,
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ViewOwnerProfile(userId: userId)),
-                        );
-                        // something like this is probably needed
-/*                        if (!currentUser) {
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the padding as needed
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name ?? '',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          ', ${age.toString()}',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (gender == 'Male')
+                          const Icon(
+                            Icons.male,
+                            size: 30.0,
+                            color: Colors.black, // Customize the color as needed
+                          )
+                        else if (gender == 'Female')
+                          const Icon(
+                            Icons.female,
+                            size: 30.0,
+                            color: Colors.black, // Customize the color as needed
+                          ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 300.0,
+                    child: Wrap(
+                      spacing: 10.0, // Adjust the spacing between tags as needed
+                      // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                      children: [
+                        if (breed != null)
+                          Chip(
+                            label: Text('• $breed'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                        if (size != null)
+                          Chip(
+                            label: Text('• $size'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                        if (activityLevel != null)
+                          Chip(
+                            label: Text('• $activityLevel activity level'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                        if (isCastrated != null)
+                          Chip(
+                            label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
+                            // Add any additional styling properties for the chip as needed
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  SizedBox(
+                    width: 300.0,
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        TextField(
+                          readOnly: true,
+                          minLines: 5,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText: '• $bio',
+                            border: const OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Positioned(
+                top: 10.0,
+                left: 10.0,
+                child: currentUser
+                    ? ElevatedButton.icon(
+                  icon: const Icon(Icons.add_location),
+                  label: const Text('Add location'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddLocationPage(),
+                      ),
+                    );
+                  },
+                )
+                    : SizedBox(),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ViewOwnerProfile(userId: userId)),
+                    );
+                    // something like this is probably needed
+                    /*                        if (!currentUser) {
                           Navigator.pop(context);
                         } else {
                           Navigator.push(
@@ -138,34 +231,32 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                             MaterialPageRoute(builder: (context) => ViewOwnerProfile(userId: userId)),
                           );
                         }*/
-                      },
-                      child: StreamBuilder<String?>(
-                        stream: DatabaseHandler.getOwnerPicStream(userId!),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          } else if (snapshot.hasData && snapshot.data != null) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: NetworkImage(snapshot.data!),
-                              ),
-                            );
-                          } else {
-                            return const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
+                  },
+                  child: StreamBuilder<String?>(
+                    stream: DatabaseHandler.getOwnerPicStream(userId!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            radius: 50.0,
+                            backgroundImage: NetworkImage(snapshot.data!),
+                          ),
+                        );
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            radius: 50.0,
+                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                          ),
+                        );
+                      }
+                    },
                   ),
-                ],
+                ),
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
