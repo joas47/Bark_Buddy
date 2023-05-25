@@ -25,6 +25,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
   StreamSubscription? _matchSubscription;
   SharedPreferences? sharedPreferences;
 
+  bool _smallSizeDogFilter = false;
+
+  bool _mediumSizeDogFilter = false;
+
+  bool _largeSizeDogFilter = false;
+
+  bool _36OwnerAgeFilter = false;
+
+  bool _2535OwnerAgeFilter = false;
+
+  bool _1824OwnerAgeFilter = false;
+
+  bool _highActivityLevelDogFilter = false;
+
+  bool _mediumActivityLevelDogFilter = false;
+
+  bool _lowActivityLevelDogFilter = false;
+
+  bool _neuteredDogFilter = false;
+
+  bool _femaleGenderDogFilter = false;
+
+  set _maleGenderDogFilter(bool _maleGenderDogFilter) {}
+
   @override
   void initState() {
     super.initState();
@@ -360,7 +384,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           title: const Text('Filter Options'),
                           content: SingleChildScrollView(
                             child: ListBody(
-                              children: const <Widget>[
+                              children: <Widget>[
                                 // Add your filter options here
                                 ExpansionTile(
                                   title: Text('Dogs'),
@@ -368,25 +392,100 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                     ExpansionTile(
                                       title: Text('Size'),
                                       children: <Widget>[
-                                        FilterCheckbox(title: 'Small'),
-                                        FilterCheckbox(title: 'Medium'),
-                                        FilterCheckbox(title: 'Large'),
+                                        FilterCheckbox(
+                                          title: 'Small',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _smallSizeDogFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Medium',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _mediumSizeDogFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Large',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _largeSizeDogFilter = value;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                     ExpansionTile(
                                       title: Text('Gender'),
                                       children: <Widget>[
-                                        FilterCheckbox(title: 'Male'),
-                                        FilterCheckbox(title: 'Female'),
-                                        FilterCheckbox(title: 'Neutered'),
+                                        FilterCheckbox(
+                                          title: 'Male',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _maleGenderDogFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Female',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _femaleGenderDogFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Neutered',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _neuteredDogFilter = value;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                     ExpansionTile(
                                       title: Text('Activity level'),
                                       children: <Widget>[
-                                        FilterCheckbox(title: 'Low'),
-                                        FilterCheckbox(title: 'Medium'),
-                                        FilterCheckbox(title: 'High'),
+                                        FilterCheckbox(
+                                          title: 'Low',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _lowActivityLevelDogFilter =
+                                                  value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Medium',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _mediumActivityLevelDogFilter =
+                                                  value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'High',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _highActivityLevelDogFilter =
+                                                  value;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -397,17 +496,65 @@ class _FindMatchPageState extends State<FindMatchPage> {
                                     ExpansionTile(
                                       title: Text('Age'),
                                       children: <Widget>[
-                                        FilterCheckbox(title: '18 - 24'),
-                                        FilterCheckbox(title: '25 - 35'),
-                                        FilterCheckbox(title: '36+'),
+                                        FilterCheckbox(
+                                          title: '18 - 24',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _1824OwnerAgeFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: '25 - 35',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _2535OwnerAgeFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: '36+',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _36OwnerAgeFilter = value;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                     ExpansionTile(
                                       title: Text('Gender'),
                                       children: <Widget>[
-                                        FilterCheckbox(title: 'Male'),
-                                        FilterCheckbox(title: 'Female'),
-                                        FilterCheckbox(title: 'Other'),
+                                        FilterCheckbox(
+                                          title: 'Male',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _largeSizeDogFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Female',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _largeSizeDogFilter = value;
+                                            });
+                                          },
+                                        ),
+                                        FilterCheckbox(
+                                          title: 'Other',
+                                          initialValue: false,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _largeSizeDogFilter = value;
+                                            });
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -420,7 +567,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                               child: const Text('Apply'),
                               onPressed: () {
                                 Navigator.of(context).pop();
-                                // Implement filter logic here based on selected options
+                                _applyFilter();
                               },
                             ),
                             TextButton(
@@ -899,6 +1046,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return false;
   }
 
+  void _applyFilter() {
+    print(_36OwnerAgeFilter);
+  }
+
   /*@override
   void initState() {
     super.initState();
@@ -908,15 +1059,28 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
 class FilterCheckbox extends StatefulWidget {
   final String title;
+  final bool initialValue;
+  final ValueChanged<bool> onChanged;
 
-  const FilterCheckbox({super.key, required this.title});
+  const FilterCheckbox({
+    Key? key,
+    required this.title,
+    required this.initialValue,
+    required this.onChanged,
+  }) : super(key: key);
 
   @override
   _FilterCheckboxState createState() => _FilterCheckboxState();
 }
 
 class _FilterCheckboxState extends State<FilterCheckbox> {
-  bool isChecked = false;
+  late bool isChecked;
+
+  @override
+  void initState() {
+    super.initState();
+    isChecked = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -927,8 +1091,7 @@ class _FilterCheckboxState extends State<FilterCheckbox> {
         setState(() {
           isChecked = value!;
         });
-        // Handle checkbox state change here
-        print('Checkbox ${widget.title} changed to $value');
+        widget.onChanged(isChecked); // Pass the updated state to the callback
       },
     );
   }
