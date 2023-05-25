@@ -8,7 +8,8 @@ import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
-import 'package:cross_platform_test/match_chat_page.dart';
+import 'package:cross_platform_test/chat_page.dart';
+
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -132,15 +133,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       child: TextButton(
                         onPressed: () {
                           // Navigate to chat
-                          /*Navigator.push(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MatchChatPage(
-                                friendId: userId,
-                                friendName: userData['name'],
-                              ),
+                              builder: (context) => ChatPage(),
                             ),
-                          );*/
+                          );
                         },
                         child: const Text('Chat with match'),
                         style: TextButton.styleFrom(
