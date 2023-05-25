@@ -121,17 +121,18 @@ class DatabaseHandler {
     // Create a batch write operation
     final batch = firestoreInstance.batch();
 
-    // Add the dog reference to the owner's array of dogs in the 'emails' collection
     final userDocumentRef = usersCollectionRef.doc(userUid);
     batch.update(userDocumentRef, {
       'friends': FieldValue.arrayUnion([friendUid]),
-      'friendrequests': FieldValue.arrayRemove([friendUid])
+      'friendrequests': FieldValue.arrayRemove([friendUid]),
+      'matches': FieldValue.arrayRemove([friendUid])
     });
 
     final friendDocumentRef = usersCollectionRef.doc(friendUid);
     batch.update(friendDocumentRef, {
       'friends': FieldValue.arrayUnion([userUid]),
-      'friendrequests': FieldValue.arrayRemove([userUid])
+      'friendrequests': FieldValue.arrayRemove([userUid]),
+      'matches': FieldValue.arrayRemove([userUid])
     });
 
     // Commit the batch write operation
@@ -163,7 +164,7 @@ class DatabaseHandler {
     await batch.commit();
   }
 
-  static Future<void> sendFriendRequest(String friendUid) async {
+  /*static Future<void> sendFriendRequest(String friendUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
 
@@ -180,6 +181,43 @@ class DatabaseHandler {
 
     // Commit the batch write operation
     await batch.commit();
+  }*/
+
+  static Future<void> sendFriendRequest(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String? userUid = currentUser?.uid;
+
+    final ownerDocumentRef = usersCollectionRef.doc(userUid);
+    final friendDocumentRef = usersCollectionRef.doc(friendUid);
+
+    try {
+      final ownerSnapshot = await ownerDocumentRef.get();
+      final friendSnapshot = await friendDocumentRef.get();
+
+      if (ownerSnapshot.exists && friendSnapshot.exists) {
+        final ownerData = ownerSnapshot.data();
+        final friendData = friendSnapshot.data();
+
+        if (ownerData != null && friendData != null) {
+
+          if (ownerData.containsKey('friendrequests') &&
+              ownerData['friendrequests'].contains(friendUid)) {
+            addFriend(friendUid);
+          } else {
+            final batch = firestoreInstance.batch();
+            batch.update(friendDocumentRef, {
+              'friendrequests': FieldValue.arrayUnion([userUid]),
+            });
+
+            await batch.commit();
+          }
+        }
+      }
+    } catch (error) {
+      print('Error sending like: $error');
+    }
   }
 
   static Future<void> unmatch(String matchUid) async {
