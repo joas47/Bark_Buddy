@@ -114,7 +114,7 @@ class _FriendPageState extends State<FriendPage> {
             Map<String, dynamic> data =
                 snapshot.data!.data()! as Map<String, dynamic>;
 
-            if (data['friends'] != null) {
+            if (data['friends'] != null && data['friends'].length != 0) {
               List<dynamic> friends = data['friends'];
               return ListView.builder(
                 itemCount: friends.length,
