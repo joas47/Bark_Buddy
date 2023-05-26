@@ -206,8 +206,7 @@ class _FriendPageState extends State<FriendPage> {
           Container(
             // TODO: What happens if the owner/dog has a long name? Then the name will be too close to the text 'available'
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            child: /*friendData['availability'] == null*/ !_isAvailabilityValid(
-                    friendSnapshotData)
+            child: !_isAvailabilityValid(friendSnapshotData)
                 ? const Text('Not available',
                     style: TextStyle(
                       fontSize: 15,
@@ -215,14 +214,13 @@ class _FriendPageState extends State<FriendPage> {
                     ),
                     textAlign: TextAlign.center)
                 : Text(
-                    "Available\n${_getTimeRangeString(friendData['availability']['startTime'], friendData['availability']['endTime'])}" /*'Available \n${friendData['availability']['startTime']} - ${friendData['availability']['endTime']}'*/,
+                    "Available\n${_getTimeRangeString(friendData['availability']['startTime'], friendData['availability']['endTime'])}",
                     style: const TextStyle(
                       fontSize: 15,
                       color: Colors.green,
                     ),
                     textAlign: TextAlign.center),
           ),
-          // TODO: check if user is available, not just if they have an availability field
 
           IconButton(
             onPressed: () {
@@ -253,7 +251,28 @@ class _FriendPageState extends State<FriendPage> {
     );
   }
 
-  bool _isAvailabilityValid(DocumentSnapshot<Object?> userDoc) {
+  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
+    Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+
+    if (userData != null) {
+      // If the user has not set their availability yet, return false
+      if (userData.containsKey('availability') &&
+          userData['availability'] is Map<String, dynamic> &&
+          userData['availability']!.containsKey('createdOn')) {
+        Timestamp availability = userData['availability']['createdOn'];
+        DateTime dateTime = availability.toDate();
+
+        // If the availability is from yesterday, it's not valid, return false
+        if (DateUtils.isSameDay(dateTime, DateTime.now())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+/*  bool _isAvailabilityValidDld(DocumentSnapshot<Object?> userDoc) {
     // if the user has not set their availability yet, return false
     if (userDoc.data().toString().contains('availability') &&
         userDoc['availability']['createdOn'] != null) {
@@ -270,7 +289,7 @@ class _FriendPageState extends State<FriendPage> {
       }
     }
     return false;
-  }
+  }*/
 
   String _getTimeRangeString(String startTimeString, String endTimeString) {
     final startTimeParts = startTimeString.split(':');
