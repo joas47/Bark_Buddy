@@ -56,8 +56,12 @@ dependencies:
   firebase_messaging: ^14.6.1
   time_range_picker: ^2.2.0
   shared_preferences: ^2.0.8
+  flutter_launcher_icons: ^0.13.1
 
-
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logoWhiteBg.png"
 
 
 dev_dependencies:
