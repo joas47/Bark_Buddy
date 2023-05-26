@@ -13,7 +13,7 @@ class DatabaseReset {
     querySnapshot.docs.forEach((DocumentSnapshot docSnapshot) async {
       // Reset all fields in the document
       // commented out so we don't accidentally break something
-/*      await collectionRef.doc(docSnapshot.id).set({
+      await collectionRef.doc(docSnapshot.id).set({
         //'LastLocation': null, this fucks with too much to reset
         'availability': [],
         'pendingLikes': [],
@@ -21,7 +21,7 @@ class DatabaseReset {
         'friendrequests': [],
         'receivedLikes': [],
         'matches': [],
-      }, SetOptions(merge: true));*/
+      }, SetOptions(merge: true));
     });
   }
 
