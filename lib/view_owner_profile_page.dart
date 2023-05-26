@@ -21,6 +21,8 @@ class ViewOwnerProfile extends StatelessWidget {
       currentUser = true;
     }
 
+    final usersStream =
+        FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner profile'),
@@ -37,10 +39,7 @@ class ViewOwnerProfile extends StatelessWidget {
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .snapshots(),
+        stream: usersStream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();

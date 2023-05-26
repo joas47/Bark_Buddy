@@ -30,6 +30,10 @@ class _FriendPageState extends State<FriendPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Friends'),
@@ -99,10 +103,7 @@ class _FriendPageState extends State<FriendPage> {
       ),
       body: Center(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .snapshots(),
+          stream: userStream,
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -120,11 +121,12 @@ class _FriendPageState extends State<FriendPage> {
                 itemCount: friends.length,
                 itemBuilder: (BuildContext context, int index) {
                   String friendId = friends[index];
+                  final friendStream = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(friendId)
+                      .snapshots();
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(friendId)
-                        .snapshots(),
+                    stream: friendStream,
                     builder: (BuildContext context,
                         AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
                       if (friendSnapshot.hasError) {
@@ -136,10 +138,10 @@ class _FriendPageState extends State<FriendPage> {
                       }
 
                       DocumentSnapshot<Object?> friendSnapshotData =
-                          friendSnapshot.data!;
+                      friendSnapshot.data!;
 
                       Map<String, dynamic> friendData =
-                          friendSnapshot.data!.data() as Map<String, dynamic>;
+                      friendSnapshot.data!.data() as Map<String, dynamic>;
 
                       return StreamBuilder<String?>(
                         stream: DatabaseHandler.getDogNameFromOwnerID(friendId),

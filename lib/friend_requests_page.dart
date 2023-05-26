@@ -16,35 +16,39 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Friend Requests'),
       ),
       body: Center(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          stream: userStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
             }
-            Map<String, dynamic> data = snapshot.data!.data()! as Map<String, dynamic>;
-            if(data['friendrequests'] != null){
+            Map<String, dynamic> data =
+                snapshot.data!.data()! as Map<String, dynamic>;
+            if (data['friendrequests'] != null) {
               List<dynamic> friendRequests = data['friendrequests'];
               return ListView.builder(
                 itemCount: friendRequests.length,
                 itemBuilder: (BuildContext context, int index) {
                   String friendId = friendRequests[index];
+                  final usersStream = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(friendId)
+                      .snapshots();
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(friendId)
-                        .snapshots(),
+                    stream: usersStream,
                     builder: (BuildContext context,
                         AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
                       if (friendSnapshot.hasError) {
@@ -55,7 +59,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                         return const Text("Loading");
                       }
                       Map<String, dynamic> friendData =
-                      friendSnapshot.data!.data() as Map<String, dynamic>;
+                          friendSnapshot.data!.data() as Map<String, dynamic>;
 
                       return StreamBuilder<String?>(
                         stream: DatabaseHandler.getDogNameFromOwnerID(friendId),

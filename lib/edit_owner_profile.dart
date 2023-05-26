@@ -40,16 +40,15 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   Widget build(BuildContext context) {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
 
+    final userStream =
+        FirebaseFirestore.instance.collection('users').doc(userUid).snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit owner profile'),
       ),
       body: SingleChildScrollView(
         child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(userUid)
-              .snapshots(),
+          stream: userStream,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator();

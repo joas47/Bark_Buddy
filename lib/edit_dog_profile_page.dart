@@ -60,16 +60,17 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   Widget build(BuildContext context) {
     //DatabaseHandler.getOwnerProfileData();
 
+    final dummyStream = FirebaseFirestore.instance
+        .collection('Dogs')
+        .doc(_dogId ?? 'dummy')
+        .snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Dog profile'),
       ),
       body: SingleChildScrollView(
         child: StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('Dogs')
-                .doc(_dogId ?? 'dummy')
-                .snapshots(),
+            stream: dummyStream,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const CircularProgressIndicator();
@@ -107,254 +108,254 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               }
 
               final List<dynamic>? profilePicUrlsDynamic =
-                  dogData.get('pictureUrls') as List<dynamic>?;
+              dogData.get('pictureUrls') as List<dynamic>?;
               final List<String>? profilePicUrls =
-                  profilePicUrlsDynamic?.map((item) => item as String).toList();
+              profilePicUrlsDynamic?.map((item) => item as String).toList();
               //_profilePicUrls = profilePicUrls ?? [];
               _profilePicUrls = profilePicUrls!;
 
               return Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 16.0),
-                      Form(
-                        key: _formKey,
-                        autovalidateMode: _autoValidate
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        child: _formUI(name, breed, age, bio),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Row( // Wrap the gender and castrated fields in a Row
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          // Gender column
-                          Column(
-                            children: [
-                              const Text(
-                                'Gender',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: _genderOptions
-                                    .map((option) => Row(
-                                  children: [Transform.scale(
-                                    scale: 1.4,
-                                    child: Radio(
-                                      value: option,
-                                      groupValue: _gender,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _gender = value.toString();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                    Text(option),
-                                    const SizedBox(width: 10.0),
-                                  ],
-                                ))
-                                    .toList(),
-                              ),
-                            ],
-                          ),
-                          // Castrated column
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Castrated?',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              Transform.scale(
-                                scale: 1.3,
-                                child: Checkbox(
-                                  value: _isCastrated,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _isCastrated = value!;
-                                    });
-                                  },
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 16.0),
+                        Form(
+                          key: _formKey,
+                          autovalidateMode: _autoValidate
+                              ? AutovalidateMode.onUserInteraction
+                              : AutovalidateMode.disabled,
+                          child: _formUI(name, breed, age, bio),
+                        ),
+                        const SizedBox(height: 16.0),
+                        Row( // Wrap the gender and castrated fields in a Row
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // Gender column
+                            Column(
+                              children: [
+                                const Text(
+                                  'Gender',
+                                  style: TextStyle(fontSize: 18),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-              Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Activity level',
-                          style: TextStyle(fontSize: 18),
-                        ),
-
-                        IconButton(
-                          icon: const Icon(Icons.help_outline),
-                          onPressed: () {
-                            // Call the callback function to show the info sheet.
-                            _showActivityLevelInfoSheet();
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _activityOptions
-                          .map((option) => Row(
-                                children: [
-                                  Transform.scale(
-                                    scale: 1.4,
-                                    child: Radio(
-                                      value: option,
-                                      groupValue: _activity,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _activity = value.toString();
-                                        });
-                                      },
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: _genderOptions
+                                      .map((option) => Row(
+                                    children: [Transform.scale(
+                                      scale: 1.4,
+                                      child: Radio(
+                                        value: option,
+                                        groupValue: _gender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _gender = value.toString();
+                                          });
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                  Text(option),
-                                  const SizedBox(width: 16.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Size',
-                          style: TextStyle(fontSize: 18),
-                        ),
-
-                        IconButton(
-                          icon: const Icon(Icons.help_outline),
-                          onPressed: () {
-                            // Call the callback function to show the info sheet.
-                            _showSizeInfoSheet();
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _sizeOptions
-                          .map((option) => Row(
-                                children: [Transform.scale(
-                                  scale: 1.4,
-                                  child: Radio(
-                                    value: option,
-                                    groupValue: _size,
+                                      Text(option),
+                                      const SizedBox(width: 10.0),
+                                    ],
+                                  ))
+                                      .toList(),
+                                ),
+                              ],
+                            ),
+                            // Castrated column
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Castrated?',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                Transform.scale(
+                                  scale: 1.3,
+                                  child: Checkbox(
+                                    value: _isCastrated,
                                     onChanged: (value) {
                                       setState(() {
-                                        _size = value.toString();
+                                        _isCastrated = value!;
                                       });
                                     },
                                   ),
                                 ),
-
-                                  Text(option),
-                                  const SizedBox(width: 16.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                    SizedBox(
-                      //height: 500.0,
-                      //width: 300.0,
-                      child: TextField(
-                        controller: TextEditingController(text: _bio),
-                        keyboardType: TextInputType.multiline,
-                        minLines: 4,
-                        maxLines: 5,
-                        decoration: const InputDecoration(
-                          hintText: 'About your dog',
-                          border: OutlineInputBorder(),
+                              ],
+                            ),
+                          ],
                         ),
-                        style: const TextStyle(
-                          fontSize: 18.0,
-                        ),
-                        onChanged: (value) {
-                          _updatedBio = value;
-                        },
-                      ),
-                    ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Activity level',
+                              style: TextStyle(fontSize: 18),
+                            ),
 
-                    _buildImageUploadButton(),
-                    const SizedBox(height: 16.0),
-                      Builder(builder: (BuildContext context) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 20.0), // Adjust the margin as per your requirement
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 40, // Adjust the padding as needed
+                            IconButton(
+                              icon: const Icon(Icons.help_outline),
+                              onPressed: () {
+                                // Call the callback function to show the info sheet.
+                                _showActivityLevelInfoSheet();
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: _activityOptions
+                              .map((option) => Row(
+                            children: [
+                              Transform.scale(
+                                scale: 1.4,
+                                child: Radio(
+                                  value: option,
+                                  groupValue: _activity,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _activity = value.toString();
+                                    });
+                                  },
+                                ),
+                              ),
+                              Text(option),
+                              const SizedBox(width: 16.0),
+                            ],
+                          ))
+                              .toList(),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Size',
+                              style: TextStyle(fontSize: 18),
+                            ),
+
+                            IconButton(
+                              icon: const Icon(Icons.help_outline),
+                              onPressed: () {
+                                // Call the callback function to show the info sheet.
+                                _showSizeInfoSheet();
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: _sizeOptions
+                              .map((option) => Row(
+                            children: [Transform.scale(
+                              scale: 1.4,
+                              child: Radio(
+                                value: option,
+                                groupValue: _size,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _size = value.toString();
+                                  });
+                                },
                               ),
                             ),
-                            onPressed: () {
-                              if (_isImageUploading) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Please wait until the image is uploaded.'),
-                                  ),
-                                );
-                                return;
-                              }
-                              if (_validateInputs() &&
-                                  _gender.isNotEmpty &&
-                                  _profilePicUrls != null) {
-                                if (_updatedBio != null) {
-                                  _bio = _updatedBio!;
-                                }
-                                if (_updatedName != null) {
-                                  _name = _updatedName!;
-                                }
-                                if (_updatedBreed != null) {
-                                  _breed = _updatedBreed!;
-                                }
-                                if (_updatedAge != null) {
-                                  _age = _updatedAge!;
-                                }
-                                if (_updatedProfilePicUrls != null) {
-                                  _profilePicUrls = _updatedProfilePicUrls!;
-                                }
-                                DatabaseHandler.updateDog(
-                                    _name,
-                                    _breed,
-                                    _gender,
-                                    _age,
-                                    _bio,
-                                    _profilePicUrls,
-                                    _size,
-                                    _isCastrated,
-                                    _activity,
-                                    _dogId!);
-                                Navigator.pop(context); //--------------------------
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('You must fill out all the fields before continuing.'),
-                                  ),
-                                );
-                              }
-                            },
-                            child: const Text(
-                              'Save profile',
-                              style: TextStyle(fontSize: 20),
+
+                              Text(option),
+                              const SizedBox(width: 16.0),
+                            ],
+                          ))
+                              .toList(),
+                        ),
+                        SizedBox(
+                          //height: 500.0,
+                          //width: 300.0,
+                          child: TextField(
+                            controller: TextEditingController(text: _bio),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 4,
+                            maxLines: 5,
+                            decoration: const InputDecoration(
+                              hintText: 'About your dog',
+                              border: OutlineInputBorder(),
                             ),
+                            style: const TextStyle(
+                              fontSize: 18.0,
+                            ),
+                            onChanged: (value) {
+                              _updatedBio = value;
+                            },
                           ),
-                        );
-                      }),
-                    ],
-                ),
-              ]);
+                        ),
+
+                        _buildImageUploadButton(),
+                        const SizedBox(height: 16.0),
+                        Builder(builder: (BuildContext context) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 20.0), // Adjust the margin as per your requirement
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 40, // Adjust the padding as needed
+                                ),
+                              ),
+                              onPressed: () {
+                                if (_isImageUploading) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please wait until the image is uploaded.'),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                if (_validateInputs() &&
+                                    _gender.isNotEmpty &&
+                                    _profilePicUrls != null) {
+                                  if (_updatedBio != null) {
+                                    _bio = _updatedBio!;
+                                  }
+                                  if (_updatedName != null) {
+                                    _name = _updatedName!;
+                                  }
+                                  if (_updatedBreed != null) {
+                                    _breed = _updatedBreed!;
+                                  }
+                                  if (_updatedAge != null) {
+                                    _age = _updatedAge!;
+                                  }
+                                  if (_updatedProfilePicUrls != null) {
+                                    _profilePicUrls = _updatedProfilePicUrls!;
+                                  }
+                                  DatabaseHandler.updateDog(
+                                      _name,
+                                      _breed,
+                                      _gender,
+                                      _age,
+                                      _bio,
+                                      _profilePicUrls,
+                                      _size,
+                                      _isCastrated,
+                                      _activity,
+                                      _dogId!);
+                                  Navigator.pop(context); //--------------------------
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('You must fill out all the fields before continuing.'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text(
+                                'Save profile',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ]);
             }),
       ),
     );

@@ -40,6 +40,10 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
     if (userId == FirebaseAuth.instance.currentUser?.uid) {
       currentUser = true;
     }
+    final dummyStream = FirebaseFirestore.instance
+        .collection('Dogs')
+        .doc(_dogId ?? 'dummy')
+        .snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dog Profile'),
@@ -56,10 +60,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('Dogs')
-            .doc(_dogId ?? 'dummy')
-            .snapshots(),
+        stream: dummyStream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();

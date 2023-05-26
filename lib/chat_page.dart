@@ -25,6 +25,10 @@ class _ChatPageState extends State<ChatPage> {
   bool requestSent = false;
   @override
   Widget build(BuildContext context) {
+    final usersStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match-chat'),
@@ -37,10 +41,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Center(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .snapshots(),
+          stream: usersStream,
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -66,11 +67,12 @@ class _ChatPageState extends State<ChatPage> {
                 itemCount: allUsers.length,
                 itemBuilder: (BuildContext context, int index) {
                   String userId = allUsers[index];
+                  final usersStream = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userId)
+                      .snapshots();
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(userId)
-                        .snapshots(),
+                    stream: usersStream,
                     builder: (BuildContext context,
                         AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                       if (userSnapshot.hasError) {
@@ -89,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
 
                       return StreamBuilder<String?>(
                         stream:
-                            _MatchChatPageState.getDogNameFromOwnerID(userId),
+                        _MatchChatPageState.getDogNameFromOwnerID(userId),
                         builder: (BuildContext context,
                             AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
@@ -123,7 +125,7 @@ class _ChatPageState extends State<ChatPage> {
                             subtitle: Text("(${dogName!})"),
                             leading: CircleAvatar(
                                 backgroundImage:
-                                    NetworkImage(userData['picture'] ?? ''),
+                                NetworkImage(userData['picture'] ?? ''),
                                 radius: 30.0,
                                 child: GestureDetector(
                                   onTap: () {
@@ -189,18 +191,20 @@ class _ChatPageState extends State<ChatPage> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
+        final userStream = FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .snapshots();
         return SizedBox(
           height: 400,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .snapshots(),
+                stream: userStream,
                 builder: (BuildContext context,
-                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
+                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                        snapshot) {
                   if (snapshot.hasError) {
                     return const Text('Something went wrong');
                   }
@@ -210,7 +214,6 @@ class _ChatPageState extends State<ChatPage> {
 
                   Map<String, dynamic>? data = snapshot.data?.data();
                   if (data != null && data['matches'] != null && data['matches'].contains(friendId)) {
-
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         fixedSize: const Size(120, 30),
@@ -257,12 +260,10 @@ class _ChatPageState extends State<ChatPage> {
               ),
 
               StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .snapshots(),
+                stream: userStream,
                 builder: (BuildContext context,
-                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
+                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                        snapshot) {
                   if (snapshot.hasError) {
                     return const Text('Something went wrong');
                   }
@@ -277,9 +278,7 @@ class _ChatPageState extends State<ChatPage> {
 
                     return ElevatedButton(
                       onPressed: () async {
-
                         Navigator.pop(context); // Close the bottom sheet
-
 
 
                         // Show confirmation dialog
@@ -307,7 +306,7 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ],
                             );
-                            },
+                          },
                         );
                         requestSent = await DatabaseHandler.checkIfFriendRequestSent(friendId);
 
@@ -319,7 +318,6 @@ class _ChatPageState extends State<ChatPage> {
                             DatabaseHandler.removeFriend(friendId);
                           } else if (requestSent) {
                             null;
-
                           } else {
                             // Add as friend
                             DatabaseHandler.sendFriendRequest(friendId);
