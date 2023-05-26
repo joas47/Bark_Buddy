@@ -148,7 +148,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       // remove from pendingLikes
       final batch = FirebaseFirestore.instance.batch();
       batch.update(currentUserDoc, {
-        'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
+        'pendingMatches': FieldValue.arrayRemove([matchOwnerID])
       });
 /*      .update({userDoc.reference
         'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
