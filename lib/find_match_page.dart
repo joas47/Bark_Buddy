@@ -618,8 +618,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   _currentUserDocCopy = currentUserDoc;
                   // remove the current user from the list of potential matches (shouldn't match with yourself)
                   userDocs.remove(currentUserDoc);
+                  Map<String, dynamic>? ownerData =
+                      currentUserDoc.data() as Map<String, dynamic>?;
                   // until the user has set their availability, they shouldn't be able to see any matches
                   if (_isAvailabilityValid(currentUserDoc)) {
+                    if (!ownerData!.containsKey(
+                        'LastLocation') /* || ownerData['LastLocation'] == null || ownerData['LastLocation'].isEmpty*/) {
+                      return const Text(
+                          "Please enable location permissions to find matches");
+                    }
                     // filter out users that shouldn't be shown
                     _refineMatches(userDocs, currentUserDoc);
                   } else {
@@ -722,7 +729,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     Set<DocumentSnapshot> removeSomeMore =
         _filterOutBasedOnAvailability(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => removeSomeMore.contains(element));
-
     // sort userDocs by distance from current user
     _sortByDistance(userDocs, currentUserDoc);
   }
