@@ -347,7 +347,7 @@ class _FriendPageState extends State<FriendPage> {
                               actions: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    // TODO: this crashes the app, sometimes...
+                                    // TODO: this crashes the app, sometimes... fixed right?
                                     // Should be two pop calls, one for the dialog and one for the bottom sheet
                                     // the bottom sheet is not relevant after the friend is removed
                                     Navigator.pop(context);
