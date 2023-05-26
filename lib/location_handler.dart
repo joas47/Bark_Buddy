@@ -22,9 +22,9 @@ class LocationHandler {
     final obfuscatedPosition = obfuscateLocation(position);
 
     // Save obfuscated location to Firestore
-    usersCollectionRef.doc(userUid).update({
+/*    usersCollectionRef.doc(userUid).update({
       'LastLocation': GeoPoint(obfuscatedPosition.latitude, obfuscatedPosition.longitude),
-    });
+    });*/
   }
 
   static Position obfuscateLocation(Position originalPosition) {
