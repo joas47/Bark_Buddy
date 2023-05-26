@@ -321,6 +321,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
             onPressed: () async {
               TimeRange result = await showTimeRangePicker(
                 context: context,
+                // TODO: first time you choose a time, it fills the the whole clock
                 start: _getUserStartTime(),
                 end: _getUserEndTime(),
                 use24HourFormat: true,
@@ -714,13 +715,13 @@ class _FindMatchPageState extends State<FindMatchPage> {
   void _refineMatches(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot currentUserDoc) {
+    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
+    userDocs.removeWhere((element) => toRemove.contains(element));
+
     // filter out users based on their availability
     Set<DocumentSnapshot> removeSomeMore =
         _filterOutBasedOnAvailability(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => removeSomeMore.contains(element));
-
-    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
-    userDocs.removeWhere((element) => toRemove.contains(element));
 
     // sort userDocs by distance from current user
     _sortByDistance(userDocs, currentUserDoc);
@@ -877,6 +878,21 @@ class _FindMatchPageState extends State<FindMatchPage> {
       if (!userData.containsKey('dogs') ||
           userData['dogs'] == null ||
           userData['dogs'].isEmpty) {
+        toRemove.add(doc);
+        continue;
+      }
+
+      // removes users that are friends
+      if (userData.containsKey('friends') &&
+          userData['friends'] != null &&
+          userData['friends'].contains(currentUserDoc.id)) {
+        toRemove.add(doc);
+        continue;
+      }
+
+      // removes users with no LastLocation
+      if (!userData.containsKey('LastLocation') ||
+          userData['LastLocation'] == null) {
         toRemove.add(doc);
         continue;
       }
