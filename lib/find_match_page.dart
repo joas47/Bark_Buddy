@@ -24,6 +24,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
   StreamSubscription? _matchSubscription;
   SharedPreferences? sharedPreferences;
 
+  late DocumentSnapshot _currentUserDocCopy;
+
   bool _smallSizeDogFilter = false;
 
   bool _mediumSizeDogFilter = false;
@@ -319,9 +321,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
             onPressed: () async {
               TimeRange result = await showTimeRangePicker(
                 context: context,
-                // TODO: if the user has already set their availability, show that instead of the default
-                start: const TimeOfDay(hour: 9, minute: 0),
-                end: const TimeOfDay(hour: 17, minute: 0),
+                start: _getUserStartTime(),
+                end: _getUserEndTime(),
                 use24HourFormat: true,
                 hideButtons: true,
                 labelOffset: -25,
@@ -614,6 +615,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   DocumentSnapshot currentUserDoc = userDocs.firstWhere(
                       (element) =>
                           element.id == FirebaseAuth.instance.currentUser!.uid);
+                  _currentUserDocCopy = currentUserDoc;
                   // remove the current user from the list of potential matches (shouldn't match with yourself)
                   userDocs.remove(currentUserDoc);
                   // until the user has set their availability, they shouldn't be able to see any matches
@@ -1142,6 +1144,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   void _applyFilter() {
     print(_36OwnerAgeFilter);
+  }
+
+  TimeOfDay _getUserStartTime() {
+    if (_isAvailabilityValid(_currentUserDocCopy)) {
+      String startTimeString = _currentUserDocCopy['availability']['startTime'];
+      String endTimeString = _currentUserDocCopy['availability']['endTime'];
+      TimeRange timeRange = _convertToTimeRange(startTimeString, endTimeString);
+
+      return timeRange.startTime;
+    } else {
+      return const TimeOfDay(hour: 8, minute: 0);
+    }
+  }
+
+  TimeOfDay _getUserEndTime() {
+    if (_isAvailabilityValid(_currentUserDocCopy)) {
+      String startTimeString = _currentUserDocCopy['availability']['startTime'];
+      String endTimeString = _currentUserDocCopy['availability']['endTime'];
+      TimeRange timeRange = _convertToTimeRange(startTimeString, endTimeString);
+
+      return timeRange.endTime;
+    } else {
+      return const TimeOfDay(hour: 8, minute: 0);
+    }
   }
 
 /*@override
