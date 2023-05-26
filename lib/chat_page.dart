@@ -22,6 +22,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  Map<String, bool> requestStatus = {};
   bool requestSent = false;
   @override
   Widget build(BuildContext context) {
@@ -264,10 +265,10 @@ class _ChatPageState extends State<ChatPage> {
                       onPressed: () async {
                         Navigator.pop(context); // Close the bottom sheet
 
-
+                        bool? confirmed;
                         // Show confirmation dialog
 
-                        bool? confirmed = await showDialog<bool>(
+                        confirmed = await showDialog<bool>(
                           context: context,
                           builder: (context) {
                             return AlertDialog(
@@ -301,20 +302,26 @@ class _ChatPageState extends State<ChatPage> {
                           if (isFriend) {
                             // Unfriend
                             DatabaseHandler.removeFriend(friendId);
-                          } else if (requestSent) {
+                          } else if (requestStatus[friendId] = true) {
                             null;
                           } else {
                             // Add as friend
                             DatabaseHandler.sendFriendRequest(friendId);
                             setState(() {
                               requestSent = true;
+                              requestStatus[friendId] = true;
+                              print(requestStatus);
                             });
                           }
                         }
                       },
 
+
+
+
+
                       child: isFriend ? const Text('Unfriend')
-                          : requestSent ? const Text('Friend request sent')
+                          : requestStatus[friendId] == true ? const Text('Friend request sent')
                           : const Text('Send friend request'),
                     );
                   } else {
