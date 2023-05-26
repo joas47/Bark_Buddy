@@ -56,12 +56,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     final User? currentUser = FirebaseAuth.instance.currentUser;
     final String? userUid = currentUser?.uid;
-
+/*
     _matchSubscription = DatabaseHandler.getMatches(userUid).listen((friendID) {
       if (friendID != null) {
         _checkMatch(friendID as String);
       }
-    });
+    });*/
 
     SharedPreferences.getInstance().then((prefs) {
       sharedPreferences = prefs;
@@ -1082,6 +1082,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
               final User? currentUser = FirebaseAuth.instance.currentUser;
               String? myDogPicUrl =
                   await DatabaseHandler.getDogPic(currentUser?.uid).first;
+              _showMatchDialog(
+                  context, ownerDoc.id, myDogPicUrl, dogDoc['pictureUrls'][0]);
             }
           },
         ),
