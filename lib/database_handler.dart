@@ -417,7 +417,7 @@ class DatabaseHandler {
     final batch = firestoreInstance.batch();
 
     final dogDocumentRef = dogsCollectionRef.doc(dogRef);
-    batch.set(dogDocumentRef, {
+    batch.update(dogDocumentRef, {
       'Name': name,
       'Breed': breed,
       'Age': age,
@@ -427,7 +427,7 @@ class DatabaseHandler {
       'Size': size,
       'Biography': bio,
       'owner': userUid.toString(),
-      'pictureUrls': pictureUrls,
+      'pictureUrls': FieldValue.arrayUnion(pictureUrls!),
       //'picture': profilePic
     });
 
