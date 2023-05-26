@@ -805,7 +805,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       );
                     },
                     // TODO: this should take into account the size of the screen and try to fill as much as possible
-                    options: CarouselOptions(height: 500),
+                    options: CarouselOptions(height: 600),
                   );
                 } else {
                   return const Text("No data");
