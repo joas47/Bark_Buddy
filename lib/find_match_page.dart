@@ -722,7 +722,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   if (userDocs.isEmpty) {
                     return Container(
                         alignment: Alignment.center,
-                        margin: const EdgeInsets.symmetric(vertical: 185),
+                        margin: const EdgeInsets.symmetric(vertical: 0),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
@@ -1120,16 +1120,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
             ]),
           ),
         ]),
+        const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              dogDoc['Name'] + ", " + dogDoc['Age'].toString(),
-              style: const TextStyle(
-                fontSize: 22.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             Icon(
               dogDoc['Gender'].toString() == 'Female'
                   ? Icons.female
@@ -1137,25 +1131,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
               size: 30,
               color: Colors.black,
             ),
-          ],
-        ),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            shape: const CircleBorder(),
-            minimumSize: const Size(45, 45),
-            side: const BorderSide(width: 2, color: Colors.redAccent),
-          ),
-          child: const Icon(
-            size: 30,
-            Icons.favorite,
-            color: Colors.redAccent,
-          ),
-          onPressed: () async {
-            //clearMatchDialogData();
-            // TODO: give feedback when liking a dog, right now it just disappears
-            // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
-            bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
-            if (isMatch) {
+            Text(
+              dogDoc['Name'] + ", " + dogDoc['Age'].toString(),
+              style: const TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                shape: const CircleBorder(),
+                minimumSize: const Size(45, 45),
+                side: const BorderSide(width: 2, color: Colors.redAccent),
+              ),
+              child: const Icon(
+                size: 30,
+                Icons.favorite,
+                color: Colors.redAccent,
+              ),
+              onPressed: () async {
+                //clearMatchDialogData();
+                // TODO: give feedback when liking a dog, right now it just disappears
+                // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
+                bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
+                if (isMatch) {
 /*              final User? currentUser = FirebaseAuth.instance.currentUser;
               String? myDogPicUrl =
                   await DatabaseHandler.getDogPic(currentUser?.uid).first;*/
@@ -1168,10 +1167,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   }
                 });
               });*/
-              //_showMatchDialog(context, ownerDoc.id);
-            }
-          },
+                  //_showMatchDialog(context, ownerDoc.id);
+                }
+              },
+            ),
+
+          ],
         ),
+
       ],
     );
   }
