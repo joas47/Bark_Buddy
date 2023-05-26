@@ -48,7 +48,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   bool _femaleGenderDogFilter = false;
 
-  Set<String> _pendingMatchesField = {};
+  List<dynamic> _pendingMatchesField = [];
 
   set _maleGenderDogFilter(bool _maleGenderDogFilter) {}
 
@@ -126,26 +126,37 @@ class _FindMatchPageState extends State<FindMatchPage> {
   Future<void> _showMatchDialog(BuildContext context) async {
     String matchOwnerID = _pendingMatchesField.first;
 
-    String friendName = '';
-    String friendDogPicUrl = '';
-
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+
     String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUserUid).first;
+    String? matchDogPicURL = '';
+    String matchOwnerName = '';
+    final currentUserDoc =
+        FirebaseFirestore.instance.collection('users').doc(currentUserUid);
 
     // Fetch user data from Firestore
-    final userDoc = await FirebaseFirestore.instance
+    final matchOwnerDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(matchOwnerID)
         .get();
-    if (userDoc.exists) {
-      friendName = userDoc.data()?['name'] ?? '';
-      friendDogPicUrl = userDoc.data()?['pictureUrl'] ?? '';
+    if (matchOwnerDoc.exists) {
+      print("if user doc exists...");
+      matchOwnerName = matchOwnerDoc.data()?['name'] ?? '';
+      matchDogPicURL =
+          await DatabaseHandler.getDogPic(matchOwnerID).first ?? '';
+      print(matchOwnerName + " " + matchDogPicURL);
       // remove from pendingLikes
-      userDoc.reference.update({
-        'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
+      final batch = FirebaseFirestore.instance.batch();
+      batch.update(currentUserDoc, {
+        'pendingMatches': FieldValue.arrayRemove([matchOwnerID])
       });
+/*      .update({userDoc.reference
+        'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
+      });*/
+      await batch.commit();
       _pendingMatchesField.remove(matchOwnerID);
     }
+    print(_pendingMatchesField.toString());
 
     await showDialog(
       context: context,
@@ -176,10 +187,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   ),
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: friendDogPicUrl != null
-                        ? NetworkImage(friendDogPicUrl)
+                    backgroundImage: matchDogPicURL != null
+                        ? NetworkImage(matchDogPicURL)
                         : null,
-                    child: friendDogPicUrl == null ? Text('No picture') : null,
+                    child: matchDogPicURL == null ? Text('No picture') : null,
                   ),
                 ],
               ),
@@ -204,7 +215,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                             MaterialPageRoute(
                               builder: (context) => MatchChatPage(
                                 friendId: matchOwnerID,
-                                friendName: friendName,
+                                friendName: matchOwnerName,
                               ),
                             ),
                           );
@@ -351,9 +362,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
         FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
     reference.snapshots().listen((querySnapshot) {
       setState(() {
-        _pendingMatchesField = querySnapshot.get("pendingMatches");
-        if (_pendingMatchesField.isNotEmpty) {
-          _showMatchDialog(context);
+        Map<String, dynamic> currentUserData =
+            querySnapshot.data() as Map<String, dynamic>;
+        if (currentUserData.containsKey("pendingMatches")) {
+          _pendingMatchesField = querySnapshot.get("pendingMatches");
+          if (_pendingMatchesField.isNotEmpty) {
+            _showMatchDialog(context);
+          }
+          print("Lyssnar: " + _pendingMatchesField.toString());
         }
       });
     });
@@ -681,30 +697,49 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // filter out users that shouldn't be shown
                     _refineMatches(userDocs, currentUserDoc);
                   } else {
-                    // TODO: make this message prettier
                     return Container(
-                      alignment: Alignment.center,
-                      child: const Padding(padding : EdgeInsets.fromLTRB(60,150,60,10),
-                        child: Text(
-                        'Click the clock icon to set your availability for today!',
-                        style: TextStyle(fontSize: 22.0,),
-                      ),
-                      )
-                    );
-
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.symmetric(vertical: 60),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset('assets/images/BarkBuddyChatBubble.png',
+                                scale: 1.2),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                              child: Text(
+                                'Tell us when you are \n available for a walk today \n by pressing the clock icon!',
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ));
                   }
-                  // TODO: make this message prettier
                   // if there's no users left that match the criteria, displays a message.
                   if (userDocs.isEmpty) {
                     return Container(
                         alignment: Alignment.center,
-                        child: const Padding(padding : EdgeInsets.fromLTRB(60,150,60,10),
-                          child: Text(
-                            'No matches found!\n Try again later!',
-                            style: TextStyle(fontSize: 22.0,),
-                          ),
-                        )
-                    );
+                        margin: const EdgeInsets.symmetric(vertical: 185),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset('assets/images/BarkBuddyChatBubble.png',
+                                scale: 1.2),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                              child: Text(
+                                'No dogs found! \nSet another availability \n or try again later.',
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ));
                   }
                   /*// TODO: Special case: what to do if there's only one potential match to show?
               if (userDocs.length == 1) {
@@ -720,7 +755,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // loops through the list of potential matches one by one
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
                       DocumentSnapshot ownerDoc = userDocs[itemIndex];
-                      Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? ownerData =
+                          ownerDoc.data() as Map<String, dynamic>?;
                       if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
                       }
@@ -747,7 +783,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           // Should never happen, but just in case.
                           // You should never be able to create a dog without a picture.
                           Map<String, dynamic>? dogData =
-                          dogDoc.data() as Map<String, dynamic>?;
+                              dogDoc.data() as Map<String, dynamic>?;
                           if (!dogData!.containsKey('pictureUrls') ||
                               dogData['pictureUrls'] == null ||
                               dogData['pictureUrls'].isEmpty) {
@@ -1264,7 +1300,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
       return const TimeOfDay(hour: 8, minute: 0);
     }
   }
-
 }
 
 class FilterCheckbox extends StatefulWidget {

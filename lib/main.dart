@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/database_reset.dart';
 import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';

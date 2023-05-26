@@ -166,9 +166,26 @@ class _FriendPageState extends State<FriendPage> {
                 },
               );
             } else {
-              return const ListTile(
-                title: Text('no friends'),
-              );
+              return Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(vertical: 60),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.asset('assets/images/BarkBuddyChatBubble.png',
+                          scale: 1.2),
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                        child: Text(
+                          'No friends found. \n Try matching with other \n users to find new friends!',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ));
             }
           },
         ),
