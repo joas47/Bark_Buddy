@@ -683,28 +683,40 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   } else {
                     // TODO: make this message prettier
                     return Container(
-                      alignment: Alignment.center,
-                      child: const Padding(padding : EdgeInsets.fromLTRB(60,150,60,10),
-                        child: Text(
-                        'Click the clock icon to set your availability for today!',
-                        style: TextStyle(fontSize: 22.0,),
-                      ),
-                      )
-                    );
-
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.symmetric(vertical: 60),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset('assets/images/BarkBuddyChatBubble.png',
+                                scale: 1.2),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                              child: Text(
+                                'Tell us when you are \n available for a walk today \n by pressing the clock icon!',
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ));
                   }
                   // TODO: make this message prettier
                   // if there's no users left that match the criteria, displays a message.
                   if (userDocs.isEmpty) {
                     return Container(
                         alignment: Alignment.center,
-                        child: const Padding(padding : EdgeInsets.fromLTRB(60,150,60,10),
+                        child: const Padding(
+                          padding: EdgeInsets.fromLTRB(60, 150, 60, 10),
                           child: Text(
                             'No matches found!\n Try again later!',
-                            style: TextStyle(fontSize: 22.0,),
+                            style: TextStyle(
+                              fontSize: 22.0,
+                            ),
                           ),
-                        )
-                    );
+                        ));
                   }
                   /*// TODO: Special case: what to do if there's only one potential match to show?
               if (userDocs.length == 1) {
@@ -720,7 +732,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // loops through the list of potential matches one by one
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
                       DocumentSnapshot ownerDoc = userDocs[itemIndex];
-                      Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? ownerData =
+                          ownerDoc.data() as Map<String, dynamic>?;
                       if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
                       }
@@ -747,7 +760,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           // Should never happen, but just in case.
                           // You should never be able to create a dog without a picture.
                           Map<String, dynamic>? dogData =
-                          dogDoc.data() as Map<String, dynamic>?;
+                              dogDoc.data() as Map<String, dynamic>?;
                           if (!dogData!.containsKey('pictureUrls') ||
                               dogData['pictureUrls'] == null ||
                               dogData['pictureUrls'].isEmpty) {
@@ -1264,7 +1277,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
       return const TimeOfDay(hour: 8, minute: 0);
     }
   }
-
 }
 
 class FilterCheckbox extends StatefulWidget {
