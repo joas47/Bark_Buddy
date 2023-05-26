@@ -718,7 +718,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   if (userDocs.isEmpty) {
                     return Container(
                         alignment: Alignment.center,
-                        margin: const EdgeInsets.symmetric(vertical: 60),
+                        margin: const EdgeInsets.symmetric(vertical: 185),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
