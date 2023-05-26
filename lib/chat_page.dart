@@ -295,6 +295,7 @@ class _ChatPageState extends State<ChatPage> {
                         requestSent = await DatabaseHandler.checkIfFriendRequestSent(friendId);
 
 
+
                         if (confirmed != null && confirmed) {
                           // Perform the action based on the confirmation result
                           if (isFriend) {
@@ -305,8 +306,10 @@ class _ChatPageState extends State<ChatPage> {
                           } else {
                             // Add as friend
                             DatabaseHandler.sendFriendRequest(friendId);
+                            setState(() {
+                              requestSent = true;
+                            });
                           }
-                          print(requestSent);
                         }
                       },
 
