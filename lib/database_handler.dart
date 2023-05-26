@@ -80,11 +80,13 @@ class DatabaseHandler {
             batch.update(ownerDocumentRef, {
               'matches': FieldValue.arrayUnion([friendID]),
               'receivedLikes': FieldValue.arrayRemove([friendID]),
+              'pendingMatches': FieldValue.arrayUnion([friendID]),
             });
 
             batch.update(friendDocumentRef, {
               'matches': FieldValue.arrayUnion([userUid]),
               'pendingLikes': FieldValue.arrayRemove([userUid]),
+              'pendingMatches': FieldValue.arrayUnion([userUid]),
             });
 
             await batch.commit();

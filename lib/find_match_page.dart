@@ -21,8 +21,8 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-  StreamSubscription? _matchSubscription;
-  SharedPreferences? sharedPreferences;
+/*  StreamSubscription? _matchSubscription;
+  SharedPreferences? sharedPreferences;*/
 
   late DocumentSnapshot _currentUserDocCopy;
 
@@ -48,15 +48,17 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   bool _femaleGenderDogFilter = false;
 
+  Set<String> _pendingMatchesField = {};
+
   set _maleGenderDogFilter(bool _maleGenderDogFilter) {}
 
+  /*
   @override
   void initState() {
     super.initState();
 
     final User? currentUser = FirebaseAuth.instance.currentUser;
     final String? userUid = currentUser?.uid;
-
     _matchSubscription = DatabaseHandler.getMatches(userUid).listen((friendID) {
       if (friendID != null) {
         _checkMatch(friendID as String);
@@ -119,10 +121,32 @@ class _FindMatchPageState extends State<FindMatchPage> {
         }
       }
     }
-  }
+  }*/
 
-  Future<void> _showMatchDialog(BuildContext context, String friendID,
-      String? myDogPicUrl, String? friendDogPicUrl) async {
+  Future<void> _showMatchDialog(BuildContext context) async {
+    String matchOwnerID = _pendingMatchesField.first;
+
+    String friendName = '';
+    String friendDogPicUrl = '';
+
+    String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUserUid).first;
+
+    // Fetch user data from Firestore
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(matchOwnerID)
+        .get();
+    if (userDoc.exists) {
+      friendName = userDoc.data()?['name'] ?? '';
+      friendDogPicUrl = userDoc.data()?['pictureUrl'] ?? '';
+      // remove from pendingLikes
+      userDoc.reference.update({
+        'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
+      });
+      _pendingMatchesField.remove(matchOwnerID);
+    }
+
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -174,11 +198,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       margin: EdgeInsets.only(bottom: 10.0),
                       child: TextButton(
                         onPressed: () {
-                          // Navigate to chat
-                          Navigator.push(
+                          // Take to chat page
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChatPage(),
+                              builder: (context) => MatchChatPage(
+                                friendId: matchOwnerID,
+                                friendName: friendName,
+                              ),
                             ),
                           );
                         },
@@ -308,6 +335,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }*/
 
+/*
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }*/
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUserDoc = FirebaseAuth.instance.currentUser?.uid;
+    DocumentReference reference =
+        FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
+    reference.snapshots().listen((querySnapshot) {
+      setState(() {
+        _pendingMatchesField = querySnapshot.get("pendingMatches");
+        if (_pendingMatchesField.isNotEmpty) {
+          _showMatchDialog(context);
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final usersStream =
@@ -321,6 +372,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
             onPressed: () async {
               TimeRange result = await showTimeRangePicker(
                 context: context,
+                // TODO: first time you choose a time, it fills the the whole clock
                 start: _getUserStartTime(),
                 end: _getUserEndTime(),
                 use24HourFormat: true,
@@ -374,12 +426,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
               DatabaseHandler.storeTimeSlot(result.startTime, result.endTime);
             },
           ),
-          IconButton(
+/*          IconButton(
             icon: const Icon(Icons.clear),
             onPressed: () async {
               clearMatchDialogData();
             },
-          ),
+          ),*/
         ],
       ),
       body: SingleChildScrollView(
@@ -617,8 +669,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   _currentUserDocCopy = currentUserDoc;
                   // remove the current user from the list of potential matches (shouldn't match with yourself)
                   userDocs.remove(currentUserDoc);
+                  Map<String, dynamic>? ownerData =
+                      currentUserDoc.data() as Map<String, dynamic>?;
                   // until the user has set their availability, they shouldn't be able to see any matches
                   if (_isAvailabilityValid(currentUserDoc)) {
+                    if (!ownerData!.containsKey(
+                        'LastLocation') /* || ownerData['LastLocation'] == null || ownerData['LastLocation'].isEmpty*/) {
+                      return const Text(
+                          "Please enable location permissions to find matches");
+                    }
                     // filter out users that shouldn't be shown
                     _refineMatches(userDocs, currentUserDoc);
                   } else {
@@ -661,10 +720,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // loops through the list of potential matches one by one
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
                       DocumentSnapshot ownerDoc = userDocs[itemIndex];
-                      /*Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
                       if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
-                      }*/
+                      }
                       final dogsStream = FirebaseFirestore.instance
                           .collection('Dogs')
                           .doc(ownerDoc['dogs'])
@@ -726,14 +785,13 @@ class _FindMatchPageState extends State<FindMatchPage> {
   void _refineMatches(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot currentUserDoc) {
+    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
+    userDocs.removeWhere((element) => toRemove.contains(element));
+
     // filter out users based on their availability
     Set<DocumentSnapshot> removeSomeMore =
         _filterOutBasedOnAvailability(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => removeSomeMore.contains(element));
-
-    Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
-    userDocs.removeWhere((element) => toRemove.contains(element));
-
     // sort userDocs by distance from current user
     _sortByDistance(userDocs, currentUserDoc);
   }
@@ -893,6 +951,21 @@ class _FindMatchPageState extends State<FindMatchPage> {
         continue;
       }
 
+      // removes users that are friends
+      if (userData.containsKey('friends') &&
+          userData['friends'] != null &&
+          userData['friends'].contains(currentUserDoc.id)) {
+        toRemove.add(doc);
+        continue;
+      }
+
+      // removes users with no LastLocation
+      if (!userData.containsKey('LastLocation') ||
+          userData['LastLocation'] == null) {
+        toRemove.add(doc);
+        continue;
+      }
+
       // removes users that haven't set their availability
       if (!userData.containsKey('availability')) {
         toRemove.add(doc);
@@ -1042,13 +1115,24 @@ class _FindMatchPageState extends State<FindMatchPage> {
             color: Colors.redAccent,
           ),
           onPressed: () async {
+            //clearMatchDialogData();
             // TODO: give feedback when liking a dog, right now it just disappears
             // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
             bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
             if (isMatch) {
-              final User? currentUser = FirebaseAuth.instance.currentUser;
+/*              final User? currentUser = FirebaseAuth.instance.currentUser;
               String? myDogPicUrl =
-                  await DatabaseHandler.getDogPic(currentUser?.uid).first;
+                  await DatabaseHandler.getDogPic(currentUser?.uid).first;*/
+/*              DocumentReference reference = FirebaseFirestore.instance.collection('users').doc(currentUserDoc.id);
+              reference.snapshots().listen((querySnapshot) {
+                setState(() {
+                  _pendingMatchesField =querySnapshot.get("pendingMatches");
+                  if (_pendingMatchesField.isNotEmpty) {
+                    _showMatchDialog(context, ownerDoc.id);
+                  }
+                });
+              });*/
+              //_showMatchDialog(context, ownerDoc.id);
             }
           },
         ),
@@ -1056,7 +1140,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  void clearMatchDialogData() async {
+/*  void clearMatchDialogData() async {
     sharedPreferences!
         .getKeys()
         .where((key) => key.startsWith('match_dialog_'))
@@ -1064,7 +1148,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       sharedPreferences!.remove(key);
       print('data is removed');
     });
-  }
+  }*/
 
   String _selectedCategory = 'Dog';
   String _selectedSubcategory = 'Size';
@@ -1114,7 +1198,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-/*  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
+  /*bool _isAvailabilityValid(DocumentSnapshot userDoc) {
     // if the user has not set their availability yet, return false
     if (userDoc.data().toString().contains('availability') &&
         userDoc['availability'] != null &&
@@ -1181,11 +1265,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     }
   }
 
-/*@override
-  void initState() {
-    super.initState();
-    _selectedSubcategory = _subcategories[_selectedCategory]![0];
-  }*/
 }
 
 class FilterCheckbox extends StatefulWidget {

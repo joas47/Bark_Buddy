@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationHandler {
@@ -9,8 +10,15 @@ class LocationHandler {
     final fireStoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = fireStoreInstance.collection('users');
 
-    // Wait for GPS accuracy
-    await Future.delayed(Duration(seconds: 3));
+    final friendSnapshot = await usersCollectionRef.doc(userUid).get();
+    final friendData = friendSnapshot.data();
+
+    if (friendData != null && friendData.containsKey('LastLocation')) {
+      await Future.delayed(const Duration(minutes: 5));
+    } else {
+      // Wait for GPS accuracy
+      await Future.delayed(const Duration(seconds: 3));
+    }
 
     // Get user's location coordinates
     // TODO: Handle location permission denied, right now it gives error when trying to access the LastLocation field
@@ -23,7 +31,8 @@ class LocationHandler {
 
     // Save obfuscated location to Firestore
     usersCollectionRef.doc(userUid).update({
-      'LastLocation': GeoPoint(obfuscatedPosition.latitude, obfuscatedPosition.longitude),
+      'LastLocation':
+          GeoPoint(obfuscatedPosition.latitude, obfuscatedPosition.longitude),
     });
   }
 
