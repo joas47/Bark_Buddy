@@ -48,7 +48,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   bool _femaleGenderDogFilter = false;
 
-  Set<String> _pendingMatchesField = {};
+  List<dynamic> _pendingMatchesField = [];
 
   set _maleGenderDogFilter(bool _maleGenderDogFilter) {}
 
@@ -126,26 +126,37 @@ class _FindMatchPageState extends State<FindMatchPage> {
   Future<void> _showMatchDialog(BuildContext context) async {
     String matchOwnerID = _pendingMatchesField.first;
 
-    String friendName = '';
-    String friendDogPicUrl = '';
-
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+
     String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUserUid).first;
+    String? matchDogPicURL = '';
+    String matchOwnerName = '';
+    final currentUserDoc =
+        FirebaseFirestore.instance.collection('users').doc(currentUserUid);
 
     // Fetch user data from Firestore
-    final userDoc = await FirebaseFirestore.instance
+    final matchOwnerDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(matchOwnerID)
         .get();
-    if (userDoc.exists) {
-      friendName = userDoc.data()?['name'] ?? '';
-      friendDogPicUrl = userDoc.data()?['pictureUrl'] ?? '';
+    if (matchOwnerDoc.exists) {
+      print("if user doc exists...");
+      matchOwnerName = matchOwnerDoc.data()?['name'] ?? '';
+      matchDogPicURL =
+          await DatabaseHandler.getDogPic(matchOwnerID).first ?? '';
+      print(matchOwnerName + " " + matchDogPicURL);
       // remove from pendingLikes
-      userDoc.reference.update({
+      final batch = FirebaseFirestore.instance.batch();
+      batch.update(currentUserDoc, {
         'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
       });
+/*      .update({userDoc.reference
+        'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
+      });*/
+      await batch.commit();
       _pendingMatchesField.remove(matchOwnerID);
     }
+    print(_pendingMatchesField.toString());
 
     await showDialog(
       context: context,
@@ -176,10 +187,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   ),
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: friendDogPicUrl != null
-                        ? NetworkImage(friendDogPicUrl)
+                    backgroundImage: matchDogPicURL != null
+                        ? NetworkImage(matchDogPicURL)
                         : null,
-                    child: friendDogPicUrl == null ? Text('No picture') : null,
+                    child: matchDogPicURL == null ? Text('No picture') : null,
                   ),
                 ],
               ),
@@ -204,7 +215,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                             MaterialPageRoute(
                               builder: (context) => MatchChatPage(
                                 friendId: matchOwnerID,
-                                friendName: friendName,
+                                friendName: matchOwnerName,
                               ),
                             ),
                           );
@@ -355,6 +366,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
         if (_pendingMatchesField.isNotEmpty) {
           _showMatchDialog(context);
         }
+        print("Lyssnar: " + _pendingMatchesField.toString());
       });
     });
   }
