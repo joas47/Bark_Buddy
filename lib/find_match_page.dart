@@ -123,6 +123,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   Future<void> _showMatchDialog(BuildContext context, String friendID,
       String? myDogPicUrl, String? friendDogPicUrl) async {
+    String friendName = '';
+
+    // Fetch user data from Firestore
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(friendID).get();
+    if(userDoc.exists){
+      friendName = userDoc.data()?['name'] ?? '';
+    }
+
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -174,11 +182,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       margin: EdgeInsets.only(bottom: 10.0),
                       child: TextButton(
                         onPressed: () {
-                          // Navigate to chat
-                          Navigator.push(
+                          // Take to chat page
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChatPage(),
+                              builder: (context) => MatchChatPage(
+                                friendId: friendID,
+                                friendName: friendName,
+                              ),
                             ),
                           );
                         },
@@ -669,10 +680,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // loops through the list of potential matches one by one
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
                       DocumentSnapshot ownerDoc = userDocs[itemIndex];
-                      /*Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? ownerData = ownerDoc.data() as Map<String, dynamic>?;
                       if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
-                      }*/
+                      }
                       final dogsStream = FirebaseFirestore.instance
                           .collection('Dogs')
                           .doc(ownerDoc['dogs'])
@@ -1136,7 +1147,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-/*  bool _isAvailabilityValid(DocumentSnapshot userDoc) {
+  /*bool _isAvailabilityValid(DocumentSnapshot userDoc) {
     // if the user has not set their availability yet, return false
     if (userDoc.data().toString().contains('availability') &&
         userDoc['availability'] != null &&
@@ -1203,11 +1214,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     }
   }
 
-/*@override
-  void initState() {
-    super.initState();
-    _selectedSubcategory = _subcategories[_selectedCategory]![0];
-  }*/
 }
 
 class FilterCheckbox extends StatefulWidget {
