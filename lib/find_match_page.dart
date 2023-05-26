@@ -21,8 +21,8 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-  StreamSubscription? _matchSubscription;
-  SharedPreferences? sharedPreferences;
+/*  StreamSubscription? _matchSubscription;
+  SharedPreferences? sharedPreferences;*/
 
   late DocumentSnapshot _currentUserDocCopy;
 
@@ -48,8 +48,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   bool _femaleGenderDogFilter = false;
 
+  Set<String> _pendingMatchesField = {};
+
   set _maleGenderDogFilter(bool _maleGenderDogFilter) {}
 
+  /*
   @override
   void initState() {
     super.initState();
@@ -118,16 +121,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
         }
       }
     }
-  }
+  }*/
 
-  Future<void> _showMatchDialog(BuildContext context, String friendID,
-      String? myDogPicUrl, String? friendDogPicUrl) async {
+  Future<void> _showMatchDialog(BuildContext context) async {
+    String matchOwnerID = _pendingMatchesField.first;
+
     String friendName = '';
+    String friendDogPicUrl = '';
+
+    String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUserUid).first;
 
     // Fetch user data from Firestore
-    final userDoc = await FirebaseFirestore.instance.collection('users').doc(friendID).get();
-    if(userDoc.exists){
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(matchOwnerID)
+        .get();
+    if (userDoc.exists) {
       friendName = userDoc.data()?['name'] ?? '';
+      friendDogPicUrl = userDoc.data()?['pictureUrl'] ?? '';
+      // remove from pendingLikes
+      userDoc.reference.update({
+        'pendingLikes': FieldValue.arrayRemove([matchOwnerID])
+      });
+      _pendingMatchesField.remove(matchOwnerID);
     }
 
     await showDialog(
@@ -186,7 +203,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => MatchChatPage(
-                                friendId: friendID,
+                                friendId: matchOwnerID,
                                 friendName: friendName,
                               ),
                             ),
@@ -318,6 +335,30 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }*/
 
+/*
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }*/
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUserDoc = FirebaseAuth.instance.currentUser?.uid;
+    DocumentReference reference =
+        FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
+    reference.snapshots().listen((querySnapshot) {
+      setState(() {
+        _pendingMatchesField = querySnapshot.get("pendingMatches");
+        if (_pendingMatchesField.isNotEmpty) {
+          _showMatchDialog(context);
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final usersStream =
@@ -385,12 +426,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
               DatabaseHandler.storeTimeSlot(result.startTime, result.endTime);
             },
           ),
-          IconButton(
+/*          IconButton(
             icon: const Icon(Icons.clear),
             onPressed: () async {
               clearMatchDialogData();
             },
-          ),
+          ),*/
         ],
       ),
       body: SingleChildScrollView(
@@ -1074,16 +1115,24 @@ class _FindMatchPageState extends State<FindMatchPage> {
             color: Colors.redAccent,
           ),
           onPressed: () async {
-            clearMatchDialogData();
+            //clearMatchDialogData();
             // TODO: give feedback when liking a dog, right now it just disappears
             // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
             bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
             if (isMatch) {
-              final User? currentUser = FirebaseAuth.instance.currentUser;
+/*              final User? currentUser = FirebaseAuth.instance.currentUser;
               String? myDogPicUrl =
-                  await DatabaseHandler.getDogPic(currentUser?.uid).first;
-              _showMatchDialog(
-                  context, ownerDoc.id, myDogPicUrl, dogDoc['pictureUrls'][0]);
+                  await DatabaseHandler.getDogPic(currentUser?.uid).first;*/
+/*              DocumentReference reference = FirebaseFirestore.instance.collection('users').doc(currentUserDoc.id);
+              reference.snapshots().listen((querySnapshot) {
+                setState(() {
+                  _pendingMatchesField =querySnapshot.get("pendingMatches");
+                  if (_pendingMatchesField.isNotEmpty) {
+                    _showMatchDialog(context, ownerDoc.id);
+                  }
+                });
+              });*/
+              //_showMatchDialog(context, ownerDoc.id);
             }
           },
         ),
@@ -1091,7 +1140,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  void clearMatchDialogData() async {
+/*  void clearMatchDialogData() async {
     sharedPreferences!
         .getKeys()
         .where((key) => key.startsWith('match_dialog_'))
@@ -1099,7 +1148,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       sharedPreferences!.remove(key);
       print('data is removed');
     });
-  }
+  }*/
 
   String _selectedCategory = 'Dog';
   String _selectedSubcategory = 'Size';
