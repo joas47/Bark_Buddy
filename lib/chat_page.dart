@@ -320,6 +320,7 @@ class _ChatPageState extends State<ChatPage> {
                           if (isFriend) {
                             // Unfriend
                             DatabaseHandler.removeFriend(friendId);
+                            requestStatus[friendId] = false;
                           } else if (requestStatus[friendId] == true) {
                             null;
                           } else {
