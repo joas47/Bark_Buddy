@@ -31,7 +31,7 @@ class _ChatPageState extends State<ChatPage> {
         .snapshots();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Match-chat'),
+        title: const Text('Chat'),
         actions: [
           TextButton(
             onPressed: () {},
@@ -58,9 +58,26 @@ class _ChatPageState extends State<ChatPage> {
               List<dynamic> allUsers = [...friends, ...matches];
 
               if (allUsers.isEmpty) {
-                return ListTile(
-                  title: Text('No friends or matches'),
-                );
+                return Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(vertical: 60),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset('assets/images/BarkBuddyChatBubble.png',
+                            scale: 1.2),
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                          child: Text(
+                            'This chat is empty. \n Go find a match!',
+                            style: TextStyle(
+                              fontSize: 20.0,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ));
               }
 
               return ListView.builder(
