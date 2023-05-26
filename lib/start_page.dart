@@ -1,7 +1,4 @@
-import 'package:cross_platform_test/find_match_page.dart';
 import 'package:flutter/material.dart';
-
-import 'add_location_page.dart';
 
 class StartPage extends StatelessWidget {
   final VoidCallback onStart;
@@ -47,9 +44,9 @@ class StartPage extends StatelessWidget {
                   const EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
                   child: RichText(
                     textAlign: TextAlign.center,
-                    text: TextSpan(
+                    text: const TextSpan(
                       children: [
-                        const TextSpan(
+                        TextSpan(
                           text: 'Press the ',
                           style: TextStyle(
                               fontSize: 18.0,
@@ -57,21 +54,14 @@ class StartPage extends StatelessWidget {
                               color: Colors.black),
                         ),
                         WidgetSpan(
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints.tight(const Size.square(25)),
-                              icon: const Icon(Icons.pets),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const FindMatchPage(),
-                                  ),
-                                );
-                              },
-                            )),
-                        const TextSpan(
-                          text: ' icon \n to start finding \n other dogs!',
+                          child: Icon(
+                            Icons.pets,
+                            size: 25,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' icon in the bottom navigation bar to start finding \n other dogs!',
                           style: TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.w600,
@@ -93,29 +83,22 @@ class StartPage extends StatelessWidget {
                   margin: const EdgeInsets.fromLTRB(60, 5, 60, 10),
                   child: RichText(
                     textAlign: TextAlign.center,
-                    text: TextSpan(
+                    text: const TextSpan(
                       children: [
-                        const TextSpan(
+                        TextSpan(
                           text: 'Press on ',
                           style: TextStyle(fontSize: 16.0, color: Colors.black),
                         ),
                         WidgetSpan(
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints.tight(const Size.square(25)),
-                              icon: const Icon(Icons.add_location),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AddLocationPage(),
-                                  ),
-                                );
-                              },
-                            )),
-                        const TextSpan(
+                          child: Icon(
+                            Icons.add_location,
+                            size: 25,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
                           text:
-                          ' through your profile to add your spot \n for others to enjoy!',
+                          ' Add location \n through your profile to add your spot for others \n to enjoy!',
                           style: TextStyle(fontSize: 16.0, color: Colors.black),
                         )
                       ],
