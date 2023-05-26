@@ -56,12 +56,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     final User? currentUser = FirebaseAuth.instance.currentUser;
     final String? userUid = currentUser?.uid;
-/*
     _matchSubscription = DatabaseHandler.getMatches(userUid).listen((friendID) {
       if (friendID != null) {
         _checkMatch(friendID as String);
       }
-    });*/
+    });
 
     SharedPreferences.getInstance().then((prefs) {
       sharedPreferences = prefs;
@@ -1075,6 +1074,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
             color: Colors.redAccent,
           ),
           onPressed: () async {
+            clearMatchDialogData();
             // TODO: give feedback when liking a dog, right now it just disappears
             // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
             bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
