@@ -362,11 +362,15 @@ class _FindMatchPageState extends State<FindMatchPage> {
         FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
     reference.snapshots().listen((querySnapshot) {
       setState(() {
-        _pendingMatchesField = querySnapshot.get("pendingMatches");
-        if (_pendingMatchesField.isNotEmpty) {
-          _showMatchDialog(context);
+        Map<String, dynamic> currentUserData =
+            querySnapshot.data() as Map<String, dynamic>;
+        if (currentUserData.containsKey("pendingMatches")) {
+          _pendingMatchesField = querySnapshot.get("pendingMatches");
+          if (_pendingMatchesField.isNotEmpty) {
+            _showMatchDialog(context);
+          }
+          print("Lyssnar: " + _pendingMatchesField.toString());
         }
-        print("Lyssnar: " + _pendingMatchesField.toString());
       });
     });
   }
