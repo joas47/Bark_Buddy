@@ -140,22 +140,6 @@ class _ChatPageState extends State<ChatPage> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // TODO: do wo need to keep this icon?
-                                IconButton(
-                                  onPressed: () {
-                                    // Take to chat page
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MatchChatPage(
-                                          friendId: userId,
-                                          friendName: userData['name'],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.chat),
-                                ),
                                 IconButton(
                                   onPressed: () {
                                     _showActivityLevelInfoSheet(userId);
