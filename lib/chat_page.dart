@@ -296,7 +296,8 @@ class _ChatPageState extends State<ChatPage> {
                               actions: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pop(context, true); // Return true to confirm
+                                    Navigator.pop(context, true);
+                                    // Return true to confirm
                                   },
                                   child: const Text('Confirm'),
                                 ),
@@ -319,7 +320,7 @@ class _ChatPageState extends State<ChatPage> {
                           if (isFriend) {
                             // Unfriend
                             DatabaseHandler.removeFriend(friendId);
-                          } else if (requestStatus[friendId] = true) {
+                          } else if (requestStatus[friendId] == true) {
                             null;
                           } else {
                             // Add as friend
