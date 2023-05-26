@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     // TODO: THIS IS THE CAUSE OF THE CONSTANT FLICKERING!!!
-    LocationHandler.grabAndSaveLocation();
+    //LocationHandler.grabAndSaveLocation();
   }
 
   @override
