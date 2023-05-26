@@ -681,10 +681,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     // filter out users that shouldn't be shown
                     _refineMatches(userDocs, currentUserDoc);
                   } else {
-                    // TODO: make this message prettier
                     return Container(
                         alignment: Alignment.center,
-                        margin: EdgeInsets.symmetric(vertical: 60),
+                        margin: const EdgeInsets.symmetric(vertical: 60),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
@@ -703,19 +702,27 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           ],
                         ));
                   }
-                  // TODO: make this message prettier
                   // if there's no users left that match the criteria, displays a message.
                   if (userDocs.isEmpty) {
                     return Container(
                         alignment: Alignment.center,
-                        child: const Padding(
-                          padding: EdgeInsets.fromLTRB(60, 150, 60, 10),
-                          child: Text(
-                            'No matches found!\n Try again later!',
-                            style: TextStyle(
-                              fontSize: 22.0,
+                        margin: const EdgeInsets.symmetric(vertical: 60),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset('assets/images/BarkBuddyChatBubble.png',
+                                scale: 1.2),
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                              child: Text(
+                                'No dogs found! \nSet another availability \n or try again later.',
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
+                          ],
                         ));
                   }
                   /*// TODO: Special case: what to do if there's only one potential match to show?
