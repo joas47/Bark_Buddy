@@ -631,16 +631,28 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     _refineMatches(userDocs, currentUserDoc);
                   } else {
                     // TODO: make this message prettier
-                    return const Center(
-                      child: Text(
-                          'Click the clock icon to set your availability for today!'),
+                    return Container(
+                      alignment: Alignment.center,
+                      child: const Padding(padding : EdgeInsets.fromLTRB(60,150,60,10),
+                        child: Text(
+                        'Click the clock icon to set your availability for today!',
+                        style: TextStyle(fontSize: 22.0,),
+                      ),
+                      )
                     );
+
                   }
                   // TODO: make this message prettier
                   // if there's no users left that match the criteria, displays a message.
                   if (userDocs.isEmpty) {
-                    return const Center(
-                      child: Text('No matches found'),
+                    return Container(
+                        alignment: Alignment.center,
+                        child: const Padding(padding : EdgeInsets.fromLTRB(60,150,60,10),
+                          child: Text(
+                            'No matches found!\n Try again later!',
+                            style: TextStyle(fontSize: 22.0,),
+                          ),
+                        )
                     );
                   }
                   /*// TODO: Special case: what to do if there's only one potential match to show?
