@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
       _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
     }
 
+    // TODO: THIS IS THE CAUSE OF THE CONSTANT FLICKERING!!!
     LocationHandler.grabAndSaveLocation();
   }
 
