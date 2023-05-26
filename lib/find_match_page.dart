@@ -335,7 +335,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 strokeColor: Colors.lightGreen,
                 selectedColor: Colors.lightGreen,
                 rotateLabels: false,
-                // TODO: implement max and min duration you can be available? Min 1 hour, max 12-16 hours?
                 maxDuration: const Duration(hours: 12),
                 minDuration: const Duration(hours: 1),
                 labels: [
