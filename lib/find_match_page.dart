@@ -308,6 +308,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final usersStream =
+        FirebaseFirestore.instance.collection('users').snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Match'),
@@ -603,8 +605,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
               ],
             ),
             StreamBuilder(
-              stream:
-                  FirebaseFirestore.instance.collection('users').snapshots(),
+              stream: usersStream,
               builder: (context, userSnapshot) {
                 if (userSnapshot.hasData) {
                   // all documents in the users collection
@@ -651,11 +652,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
                       }*/
+                      final dogsStream = FirebaseFirestore.instance
+                          .collection('Dogs')
+                          .doc(ownerDoc['dogs'])
+                          .snapshots();
                       return StreamBuilder<DocumentSnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('Dogs')
-                            .doc(ownerDoc['dogs'])
-                            .snapshots(),
+                        stream: dogsStream,
                         builder: (context, dogSnapshot) {
                           if (dogSnapshot.hasError) {
                             return const Text(
@@ -673,7 +675,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           // Should never happen, but just in case.
                           // You should never be able to create a dog without a picture.
                           Map<String, dynamic>? dogData =
-                              dogDoc.data() as Map<String, dynamic>?;
+                          dogDoc.data() as Map<String, dynamic>?;
                           if (!dogData!.containsKey('pictureUrls') ||
                               dogData['pictureUrls'] == null ||
                               dogData['pictureUrls'].isEmpty) {
