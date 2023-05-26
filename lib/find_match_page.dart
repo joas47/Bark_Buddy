@@ -450,7 +450,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
           ),*/
         ],
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           children: [
             //const SizedBox(height: 10),
