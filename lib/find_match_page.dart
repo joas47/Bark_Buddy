@@ -794,6 +794,20 @@ class _FindMatchPageState extends State<FindMatchPage> {
     for (var doc in userDocs) {
       Map<String, dynamic> userData = doc.data();
 
+      if (userData.containsKey('blockedBy') &&
+          userData['blockedBy'] != null &&
+          userData['blockedBy'].contains(currentUserDoc.id)) {
+        toRemove.add(doc);
+        continue;
+      }
+
+      if (userData.containsKey('blockedUsers') &&
+          userData['blockedUsers'] != null &&
+          userData['blockedUsers'].contains(currentUserDoc.id)) {
+        toRemove.add(doc);
+        continue;
+      }
+
       // removes users that don't have a dog
       if (!userData.containsKey('dogs') ||
           userData['dogs'] == null ||
