@@ -256,6 +256,7 @@ class DatabaseHandler {
     batch.update(userDocumentRef, {
       'blockedUsers': FieldValue.arrayUnion([friendUid]),
       'friendrequests': FieldValue.arrayRemove([friendUid]),
+      'friends': FieldValue.arrayRemove([friendUid]),
       'matches': FieldValue.arrayRemove([friendUid])
     });
 
@@ -263,6 +264,7 @@ class DatabaseHandler {
     batch.update(friendDocumentRef, {
       'blockedBy': FieldValue.arrayUnion([userUid]),
       'friendrequests': FieldValue.arrayRemove([userUid]),
+      'friends': FieldValue.arrayRemove([userUid]),
       'matches': FieldValue.arrayRemove([userUid])
     });
 
