@@ -138,13 +138,17 @@ class _ChatPageState extends State<ChatPage> {
                               }
                               List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = chatSnapshot.data!.docs.cast<QueryDocumentSnapshot<Map<String, dynamic>>>();
 
+                              Timestamp basictimestamp = Timestamp.fromMicrosecondsSinceEpoch(1000);
+
                               String latestMessage = messages.isNotEmpty ? messages.first['message'] ?? '' : '';
-                              Timestamp latestMessageTimeStamp = messages.isNotEmpty ? messages.first['timestamp'] ?? '' : '';
+                              Timestamp latestMessageTimeStamp = messages.isNotEmpty ? messages.first['timestamp'] ?? '' : basictimestamp;
                               String timestampConverted;
-                              if (latestMessageTimeStamp !=''){
+                              if (latestMessageTimeStamp !='' && latestMessageTimeStamp != basictimestamp){
                                 DateTime dateTime = latestMessageTimeStamp.toDate();
 
                                 timestampConverted = DateFormat.Hm().format(dateTime);
+                              } else if (latestMessageTimeStamp == basictimestamp){
+                                timestampConverted = '';
                               } else {
                                 timestampConverted = 'error';
                               }
