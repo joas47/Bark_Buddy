@@ -76,11 +76,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
         .doc(matchOwnerID)
         .get();
     if (matchOwnerDoc.exists) {
-      print("if user doc exists...");
+      //print("if user doc exists...");
       matchOwnerName = matchOwnerDoc.data()?['name'] ?? '';
       matchDogPicURL =
           await DatabaseHandler.getDogPic(matchOwnerID).first ?? '';
-      print(matchOwnerName + " " + matchDogPicURL);
+      //print(matchOwnerName + " " + matchDogPicURL);
       // remove from pendingLikes
       final batch = FirebaseFirestore.instance.batch();
       batch.update(currentUserDoc, {
@@ -92,7 +92,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       await batch.commit();
       _pendingMatchesField.remove(matchOwnerID);
     }
-    print(_pendingMatchesField.toString());
+    //print(_pendingMatchesField.toString());
 
     await showDialog(
       context: context,
@@ -204,7 +204,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
           if (_pendingMatchesField.isNotEmpty) {
             _showMatchDialog(context);
           }
-          print("Lyssnar: " + _pendingMatchesField.toString());
+          //print("Lyssnar: " + _pendingMatchesField.toString());
         }
       });
     });
@@ -223,7 +223,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
             onPressed: () async {
               TimeRange result = await showTimeRangePicker(
                 context: context,
-                // TODO: first time you choose a time, it fills the the whole clock
                 start: _getUserStartTime(),
                 end: _getUserEndTime(),
                 use24HourFormat: true,
