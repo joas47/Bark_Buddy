@@ -161,11 +161,10 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   );
                                 },
-                                title: Text(userData['name'].toString() ?? ''),
+                                title: Text("${userData['name']} ($dogName)" ?? ''),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("($dogName)"),
                                     Text(
                                       latestMessage,
                                       style: latestMessageStyle,
