@@ -258,7 +258,7 @@ class _ChatPageState extends State<ChatPage> {
         return Align(
           alignment: Alignment.center,
           child: Container(
-            width: 207,
+            width: 220,
             color: Colors.white,
             child: Material(
               type: MaterialType.transparency,
@@ -286,7 +286,7 @@ class _ChatPageState extends State<ChatPage> {
                             data['matches'].contains(friendId)) {
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              fixedSize: Size(180, 30),
+                              fixedSize: Size(200, 30),
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
