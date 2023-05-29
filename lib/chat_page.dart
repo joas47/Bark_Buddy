@@ -361,10 +361,11 @@ class _ChatPageState extends State<ChatPage> {
                         fixedSize: Size(160, 30),
                       ),
                       onPressed: () {
+                        DatabaseHandler.block(friendId);
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Not implemented yet'),
+                            content: Text('User blocked'),
                           ),
                         );
                       },
