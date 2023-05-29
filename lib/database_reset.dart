@@ -21,6 +21,7 @@ class DatabaseReset {
         'friendrequests': [],
         'receivedLikes': [],
         'matches': [],
+        'pendingMatches': [],
       }, SetOptions(merge: true));
     });
   }
