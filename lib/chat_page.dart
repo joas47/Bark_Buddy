@@ -24,6 +24,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   Map<String, bool> requestStatus = {};
   bool requestSent = false;
+
   @override
   Widget build(BuildContext context) {
     final usersStream = FirebaseFirestore.instance
@@ -52,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
               return const Text("Loading");
             }
             Map<String, dynamic>? data =
-                snapshot.data?.data() as Map<String, dynamic>?;
+            snapshot.data?.data() as Map<String, dynamic>?;
             if (data != null) {
               List<dynamic> friends = data['friends'] ?? [];
               List<dynamic> matches = data['matches'] ?? [];
@@ -60,114 +61,137 @@ class _ChatPageState extends State<ChatPage> {
 
               if (allUsers.isEmpty) {
                 return Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(vertical: 60),
+                  child: Stack(
                     alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(vertical: 60),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.asset('assets/images/BarkBuddyChatBubble.png',
-                            scale: 1.2),
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
-                          child: Text(
-                            'This chat is empty. \n Go find a match!',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                            ),
-                            textAlign: TextAlign.center,
+                    children: [
+                      Image.asset('assets/images/BarkBuddyChatBubble.png',
+                          scale: 1.2),
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                        child: Text(
+                          'This chat is empty. \n Go find a match!',
+                          style: TextStyle(
+                            fontSize: 20.0,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                      ],
-                    ));
+                      ),
+                    ],
+                  ),
+                );
               }
 
               return ListView.builder(
                 itemCount: allUsers.length,
                 itemBuilder: (BuildContext context, int index) {
-                  String userId = allUsers[index];
+                  String usersFriendId = allUsers[index];
                   final usersStream = FirebaseFirestore.instance
                       .collection('users')
-                      .doc(userId)
+                      .doc(usersFriendId)
+                      .snapshots();
+                  final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+                  String firstCheck = allUsers[index] + currentUserUid;
+                  String secondCheck = currentUserUid + allUsers[index];
+
+                  final _chatStream = FirebaseFirestore.instance
+                      .collection('chatMessages')
+                      .where('messageId', whereIn: [firstCheck, secondCheck])
+                      .orderBy('timestamp', descending: true)
                       .snapshots();
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                     stream: usersStream,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                       if (userSnapshot.hasError) {
                         return const Text('Something went wrong');
                       }
-                      if (userSnapshot.connectionState ==
-                          ConnectionState.waiting) {
+                      if (userSnapshot.connectionState == ConnectionState.waiting) {
                         return const Text("Loading");
                       }
-                      Map<String, dynamic>? userData =
-                          userSnapshot.data?.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
                       if (userData == null) {
                         return const Text('User not found');
                       }
 
                       return StreamBuilder<String?>(
-                        stream:
-                        _MatchChatPageState.getDogNameFromOwnerID(userId),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String?> dogNameSnapshot) {
+                        stream: _MatchChatPageState.getDogNameFromOwnerID(usersFriendId),
+                        builder: (BuildContext context, AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
-                            return const Text(
-                                'Something went wrong: user has no dog');
+                            return const Text('Something went wrong: user has no dog');
                           }
-                          if (dogNameSnapshot.connectionState ==
-                              ConnectionState.waiting) {
+                          if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
                             return const Text("Loading");
                           }
                           String? dogName = dogNameSnapshot.data;
 
-                          return ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MatchChatPage(
-                                    friendId: userId,
-                                    friendName: userData['name'],
-                                  ),
+                          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                            stream: _chatStream,
+                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> chatSnapshot) {
+                              if (chatSnapshot.hasError) {
+                                return const Text('Something went wrong');
+                              }
+                              if (chatSnapshot.connectionState == ConnectionState.waiting) {
+                                return const Text("Loading");
+                              }
+                              List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = chatSnapshot.data!.docs.cast<QueryDocumentSnapshot<Map<String, dynamic>>>();
+
+                              String latestMessage = messages.isNotEmpty ? messages.first['message'] ?? '' : '';
+                              if (latestMessage.length > 30) {
+                                latestMessage = '${latestMessage.substring(0, 30)}...';
+                              }
+
+
+                              return ListTile(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MatchChatPage(
+                                        friendId: usersFriendId,
+                                        friendName: userData['name'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                title: Text(userData['name'].toString() ?? ''),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("($dogName)"),
+                                    Text(latestMessage),
+                                  ],
                                 ),
-                                // MaterialPageRoute(
-                                //   builder: (context) => ViewDogProfilePage(
-                                //     userId: userId,
-                                //   ),
-                                // ),
-                              );
-                            },
-                            title: Text(userData['name'].toString() ?? ''),
-                            subtitle: Text("(${dogName!})"),
-                            leading: CircleAvatar(
-                                backgroundImage:
-                                NetworkImage(userData['picture'] ?? ''),
-                                radius: 30.0,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(userData['picture'] ?? ''),
+                                  radius: 30.0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ViewDogProfilePage(
-                                                    userId: userId)));
-                                  },
-                                )),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    _showActivityLevelInfoSheet(userId);
-                                  },
-                                  icon: const Icon(Icons.menu),
+                                          builder: (context) => ViewDogProfilePage(userId: usersFriendId),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ],
-                            ),
-                            onLongPress: () {
-                              // TODO: make something with this? (low priority)
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        _showActivityLevelInfoSheet(usersFriendId);
+                                      },
+                                      icon: const Icon(Icons.menu),
+                                    ),
+                                  ],
+                                ),
+                                onLongPress: () {
+                                  // TODO: make something with this? (low priority)
+                                },
+                              );
                             },
                           );
                         },
@@ -206,7 +230,7 @@ class _ChatPageState extends State<ChatPage> {
                 stream: userStream,
                 builder: (BuildContext context,
                     AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
-                        snapshot) {
+                    snapshot) {
                   if (snapshot.hasError) {
                     return const Text('Something went wrong');
                   }
@@ -265,7 +289,7 @@ class _ChatPageState extends State<ChatPage> {
                 stream: userStream,
                 builder: (BuildContext context,
                     AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
-                        snapshot) {
+                    snapshot) {
                   if (snapshot.hasError) {
                     return const Text('Something went wrong');
                   }
@@ -313,8 +337,6 @@ class _ChatPageState extends State<ChatPage> {
                         );
                         requestSent = await DatabaseHandler.checkIfFriendRequestSent(friendId);
 
-
-
                         if (confirmed != null && confirmed) {
                           // Perform the action based on the confirmation result
                           if (isFriend) {
@@ -334,11 +356,6 @@ class _ChatPageState extends State<ChatPage> {
                           }
                         }
                       },
-
-
-
-
-
                       child: isFriend ? const Text('Unfriend')
                           : requestStatus[friendId] == true ? const Text('Friend request sent')
                           : const Text('Send friend request'),
@@ -408,13 +425,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('messageId', whereIn: [firstCheck, secondCheck])
         .orderBy('timestamp', descending: true)
         .snapshots();
-
-    // Check if the chat is empty and call _recommendLocation()
-    _chatStream.listen((snapshot) {
-      if (snapshot.docs.isEmpty) {
-        _recommendLocation();
-      }
-    });
   }
 
   @override
