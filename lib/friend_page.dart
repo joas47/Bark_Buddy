@@ -221,7 +221,6 @@ class _FriendPageState extends State<FriendPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            // TODO: What happens if the owner/dog has a long name? Then the name will be too close to the text 'available'
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             child: !_isAvailabilityValid(friendSnapshotData)
                 ? const Text('Not available',
@@ -262,9 +261,6 @@ class _FriendPageState extends State<FriendPage> {
           ),
         ],
       ),
-      onLongPress: () {
-        // TODO: make something with this? (low priority)
-      },
     );
   }
 
@@ -391,7 +387,6 @@ class _FriendPageState extends State<FriendPage> {
                         fixedSize: Size(120, 30),
                       ),
                       onPressed: () {
-                        // TODO: block
                         Navigator.pop(context);
                         DatabaseHandler.block(friendId);
                         // "not implemented" snack bar

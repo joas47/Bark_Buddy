@@ -435,7 +435,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         },
                       );
                     },
-                    // TODO: this should take into account the size of the screen and try to fill as much as possible
                     options: CarouselOptions(height: 600),
                   );
                 } else {
@@ -894,13 +893,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
             child: InkWell(
               borderRadius: BorderRadius.circular(45),
               onTap: () {
-                // TODO: when pressing the owner profile from here, and in the view owner profile page pressing the dog profile it goes back to the find match page. (pops the navigation stack)
-/*                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ViewOwnerProfile(userId: ownerDoc.id)),
-                );*/
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -987,7 +979,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
               onPressed: () async {
                 //clearMatchDialogData();
                 // TODO: give feedback when liking a dog, right now it just disappears
-                // TODO: if the last dog in the carousel is liked, the match dialog will not show if there's a match
                 bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
                 if (isMatch) {
 /*              final User? currentUser = FirebaseAuth.instance.currentUser;
