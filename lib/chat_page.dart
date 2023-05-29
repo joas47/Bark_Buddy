@@ -286,7 +286,7 @@ class _ChatPageState extends State<ChatPage> {
                             data['matches'].contains(friendId)) {
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              fixedSize: Size(160, 30),
+                              fixedSize: Size(180, 30),
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
@@ -348,7 +348,7 @@ class _ChatPageState extends State<ChatPage> {
 
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              fixedSize: Size(160, 30),
+                              fixedSize: Size(180, 30),
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
@@ -412,7 +412,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(160, 30),
+                        fixedSize: Size(180, 30),
                       ),
                       onPressed: () {
                         DatabaseHandler.block(friendId);
@@ -427,7 +427,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(160, 30),
+                        fixedSize: Size(180, 30),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
