@@ -49,7 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10,
-                        horizontal: 40), // Adjust the padding as needed
+                        horizontal: 40),
                   ),
                   onPressed: () async {
                     if (_validateInputs()) {

@@ -6,9 +6,7 @@ import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'database_handler.dart';
 
-import 'edit_dog_profile_page.dart';
 class ViewDogProfilePage extends StatefulWidget {
   String? userId;
   ViewDogProfilePage({Key? key, this.userId = 'defaultValue'}) : super(key: key);
@@ -23,12 +21,12 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   bool currentUser = false;
   _ViewDogProfilePageState(this.userId);
 
-  List<String> pictureUrls = []; // replace this with the actual picture urls or file paths fetched from firebase
+  List<String> pictureUrls = [];
 
   @override
   void initState() {
     super.initState();
-    DatabaseHandler.getDogId3(userId).listen((dogId) {
+    DatabaseHandler.getDogId(userId).listen((dogId) {
       setState(() {
         _dogId = dogId;
       });
@@ -96,8 +94,8 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       showDialog(
                         context: context,
                         builder: (context) => ImageDialog(
-                          pictureUrls: pictureUrls, // pass the actual picture urls or file paths here
-                          initialIndex: 0, // Display the second image first
+                          pictureUrls: pictureUrls,
+                          initialIndex: 0,
                         ),
                       );
                     },
@@ -111,7 +109,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the padding as needed
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -133,13 +131,13 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                           const Icon(
                             Icons.male,
                             size: 30.0,
-                            color: Colors.black, // Customize the color as needed
+                            color: Colors.black,
                           )
                         else if (gender == 'Female')
                           const Icon(
                             Icons.female,
                             size: 30.0,
-                            color: Colors.black, // Customize the color as needed
+                            color: Colors.black,
                           ),
                       ],
                     ),
@@ -147,28 +145,23 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                   SizedBox(
                     width: 300.0,
                     child: Wrap(
-                      spacing: 10.0, // Adjust the spacing between tags as needed
-                      // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                      spacing: 10.0,
                       children: [
                         if (breed != null)
                           Chip(
                             label: Text('• $breed'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                         if (size != null)
                           Chip(
                             label: Text('• $size'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                         if (activityLevel != null)
                           Chip(
                             label: Text('• $activityLevel activity level'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                         if (isCastrated != null)
                           Chip(
                             label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                       ],
                     ),
@@ -223,15 +216,6 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       MaterialPageRoute(
                           builder: (context) => ViewOwnerProfile(userId: userId)),
                     );
-                    // something like this is probably needed
-                    /*                        if (!currentUser) {
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ViewOwnerProfile(userId: userId)),
-                          );
-                        }*/
                   },
                   child: StreamBuilder<String?>(
                     stream: DatabaseHandler.getOwnerPicStream(userId!),
@@ -268,8 +252,8 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       showDialog(
                         context: context,
                         builder: (context) => ImageDialog(
-                          pictureUrls: pictureUrls, // pass the actual picture urls or file paths here
-                          initialIndex: 0, // Display the second image first
+                          pictureUrls: pictureUrls,
+                          initialIndex: 0,
                         ),
                       );
                     },
@@ -283,7 +267,7 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust the padding as needed
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -305,13 +289,13 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                           const Icon(
                             Icons.male,
                             size: 30.0,
-                            color: Colors.black, // Customize the color as needed
+                            color: Colors.black,
                           )
                         else if (gender == 'Female')
                           const Icon(
                             Icons.female,
                             size: 30.0,
-                            color: Colors.black, // Customize the color as needed
+                            color: Colors.black,
                           ),
                       ],
                     ),
@@ -319,28 +303,23 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                   SizedBox(
                     width: 300.0,
                     child: Wrap(
-                      spacing: 10.0, // Adjust the spacing between tags as needed
-                     // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                      spacing: 10.0,
                       children: [
                         if (breed != null)
                           Chip(
                             label: Text('• $breed'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                         if (size != null)
                           Chip(
                             label: Text('• $size'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                         if (activityLevel != null)
                           Chip(
                             label: Text('• $activityLevel activity level'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                         if (isCastrated != null)
                           Chip(
                             label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                       ],
                     ),

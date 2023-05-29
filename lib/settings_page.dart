@@ -19,7 +19,7 @@ class SettingsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Padding(
-                padding: EdgeInsets.only(top: 25.0), // Adjust the bottom padding as needed
+                padding: EdgeInsets.only(top: 25.0),
                 child: Text(
                   'Settings',
                   style: TextStyle(
@@ -60,12 +60,6 @@ class SettingsPage extends StatelessWidget {
             );
           },
           child: const Text('Log out'),
-                // Textbutton(
-                //     icon: const Icon(Icons.edit),
-                //     onPressed: () {
-                //       Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
-                //     },
-                //   ),
           ),
             ],
           ),

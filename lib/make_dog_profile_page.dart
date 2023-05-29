@@ -26,10 +26,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
   // the save button before the image is uploaded and resized
   bool _isImageUploading = false;
 
-  //String? _profilePic = '';
   List<String> _pictureUrls = [];
-
-  //String? _profilePic = '';
 
   final List<String> _genderOptions = ['Female', 'Male'];
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
@@ -165,7 +162,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     IconButton(
                       icon: const Icon(Icons.help_outline),
                       onPressed: () {
-                        // Call the callback function to show the info sheet.
                         _showActivityLevelInfoSheet();
                       },
                     ),
@@ -207,7 +203,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                     IconButton(
                       icon: const Icon(Icons.help_outline),
                       onPressed: () {
-                        // Call the callback function to show the info sheet.
                         _showSizeInfoSheet();
                       },
                     ),
@@ -244,8 +239,6 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
             ),
 
             SizedBox(
-              //height: 500.0,
-              //width: 300.0,
               child: TextField(
                 controller: _bioController,
                 keyboardType: TextInputType.multiline,
@@ -269,7 +262,7 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
                     vertical: 10,
-                    horizontal: 40), // Adjust the padding as needed
+                    horizontal: 40),
               ),
               onPressed: () {
                 if (_isImageUploading) {
@@ -440,33 +433,8 @@ class _RegisterDogPageState extends State<RegisterDogPage> {
                           ? const CircularProgressIndicator()
                           : const Icon(Icons.check, color: Colors.white),
                     ),
-/*          icon: _pictureUrls.isEmpty
-              ? const Icon(Icons.add_a_photo)
-              : CircleAvatar(
-            backgroundImage: _pictureUrls[0].startsWith('http')
-                ? NetworkImage(_pictureUrls[0])
-                : FileImage(File(_pictureUrls[0])) as ImageProvider<Object>?,
-            radius: 30,
-            child: _isImageUploading
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),*/
-/*          icon: _pictureUrls.isEmpty
-              ?const Icon(Icons.add_a_photo)
-              : CircleAvatar(
-            backgroundImage: _pictureUrls[0].startsWith('http')
-                ? NetworkImage(_pictureUrls[0])
-                : FileImage(File(_pictureUrls[0])) as ImageProvider<Object>?,
-            radius: 30,
-            child: _pictureUrls.isEmpty
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),*/
         )
       ],
     );
   }
-  //String? getProfilePic() {
-  //  return _profilePic;
-  //}
 }

@@ -121,8 +121,6 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                                                 actions: [
                                                   ElevatedButton(
                                                     onPressed: () {
-                                                      // Should be two pop calls, one for the dialog and one for the bottom sheet
-                                                      // the bottom sheet is not relevant after the friend is removed
                                                       Navigator.pop(context);
                                                       DatabaseHandler.removeFriendrequest(friendId);
                                                     },

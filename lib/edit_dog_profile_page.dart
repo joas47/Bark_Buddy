@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,7 +48,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   @override
   void initState() {
     super.initState();
-    DatabaseHandler.getDogId3(FirebaseAuth.instance.currentUser?.uid).listen((dogId) {
+    DatabaseHandler.getDogId(FirebaseAuth.instance.currentUser?.uid).listen((dogId) {
       setState(() {
         _dogId = dogId;
       });
@@ -111,7 +110,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               dogData.get('pictureUrls') as List<dynamic>?;
               final List<String>? profilePicUrls =
               profilePicUrlsDynamic?.map((item) => item as String).toList();
-              //_profilePicUrls = profilePicUrls ?? [];
               _profilePicUrls = profilePicUrls!;
 
               return Stack(
@@ -129,10 +127,9 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                           child: _formUI(name, breed, age, bio),
                         ),
                         const SizedBox(height: 16.0),
-                        Row( // Wrap the gender and castrated fields in a Row
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            // Gender column
                             Column(
                               children: [
                                 const Text(
@@ -163,7 +160,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                                 ),
                               ],
                             ),
-                            // Castrated column
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -197,7 +193,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                             IconButton(
                               icon: const Icon(Icons.help_outline),
                               onPressed: () {
-                                // Call the callback function to show the info sheet.
                                 _showActivityLevelInfoSheet();
                               },
                             ),
@@ -237,7 +232,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                             IconButton(
                               icon: const Icon(Icons.help_outline),
                               onPressed: () {
-                                // Call the callback function to show the info sheet.
                                 _showSizeInfoSheet();
                               },
                             ),
@@ -267,8 +261,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                               .toList(),
                         ),
                         SizedBox(
-                          //height: 500.0,
-                          //width: 300.0,
                           child: TextField(
                             controller: TextEditingController(text: _bio),
                             keyboardType: TextInputType.multiline,
@@ -291,12 +283,12 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                         const SizedBox(height: 16.0),
                         Builder(builder: (BuildContext context) {
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 20.0), // Adjust the margin as per your requirement
+                            margin: const EdgeInsets.only(bottom: 20.0),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 10,
-                                  horizontal: 40, // Adjust the padding as needed
+                                  horizontal: 40,
                                 ),
                               ),
                               onPressed: () {
@@ -337,7 +329,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                                       _isCastrated,
                                       _activity,
                                       _dogId!);
-                                  Navigator.pop(context); //--------------------------
+                                  Navigator.pop(context);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

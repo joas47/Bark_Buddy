@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'database_handler.dart';
-//import 'file_selector_handler.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -20,7 +19,6 @@ class AddLocationPage extends StatefulWidget {
 class _AddLocationPageState extends State<AddLocationPage> {
   late GoogleMapController mapController;
   bool _showThanksDialog = false;
-  //bool _showError = false;
   bool _showBioError = false;
   bool _showImageError = false;
 
@@ -87,14 +85,14 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
-      print('Address data: ${data['address']}'); // print the entire address data
+      //print('Address data: ${data['address']}'); // print the entire address data
       var locationType = data['address']?['waterway'];
       if (locationType != null) {
         // If the 'waterway' key exists in the address, then it's a water body.
         return true;
       }
     } else {
-      print('Failed to load location data');
+      //print('Failed to load location data');
     }
 
     // If we reach here, then it's not a water body.
@@ -106,7 +104,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
     bool isWater = await _isLocationWater(latLng.latitude, latLng.longitude);
     if(isWater){
-      print("Location is on water, not adding");
+      //print("Location is on water, not adding");
       return;
     }
     // Catch the PlatformException thrown when no address information is found
@@ -119,7 +117,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
           Text('No address information found for tapped location, not adding'),
         ),
       );
-      print('No address information found for tapped location, not adding');
+      //print('No address information found for tapped location, not adding');
       return;
     }
 
@@ -162,7 +160,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
                       "Thank you for your recommendation! It will be reviewed before it goes into the location bank."),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog when 'OK' is pressed
+                      Navigator.of(context).pop();
                     },
                     child: Text('OK'),
                   ),
@@ -172,11 +170,11 @@ class _AddLocationPageState extends State<AddLocationPage> {
           } else {
             return Dialog(
               child: Container(
-                height: 700, // Change as per your requirement
-                width: 500, // Change as per your requirement
+                height: 700,
+                width: 500,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: SingleChildScrollView( // this is the new line
+                  child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,13 +202,13 @@ class _AddLocationPageState extends State<AddLocationPage> {
                         TextField(
                           minLines: 1,
                           maxLines: 6,
-                          controller: _bioController, // use _bioController here
+                          controller: _bioController,
                           decoration: InputDecoration(
                             hintText: 'Describe the dog-friendly location',
                           ),
                           onChanged: (value) {
                             _bio = value;
-                            _showBioError = false; // Reset the error state
+                            _showBioError = false;
                           },
                         ),
                         // show bio error message
@@ -221,18 +219,15 @@ class _AddLocationPageState extends State<AddLocationPage> {
                             style: TextStyle(color: Colors.red),
                           ),
                         ],
-
-                        // ElevatedButton for uploading image
                         ElevatedButton.icon(
                           icon: Icon(Icons.camera),
                           label: Text('Upload image'),
-                          onPressed: _uploading? null : () async { //disable the button if uploading is true
-
+                          onPressed: _uploading? null : () async {
                             final selectedImages = await ImageUtils.showImageSourceDialog(context);
 
                             if (selectedImages != null  && selectedImages.isNotEmpty) {
                               setState((){
-                                _uploading = true; //set the uploading state to true
+                                _uploading = true;
                               });
                               final imageUrl = await ImageUtils.uploadImageToFirebase(
                                 selectedImages[0],
@@ -240,8 +235,8 @@ class _AddLocationPageState extends State<AddLocationPage> {
                                 ImageType.location);
                               setState(() {
                                 _locationPic = imageUrl;
-                                _showImageError = false; // Reset the error state
-                                _uploading = false; //set the uploading state to false
+                                _showImageError = false;
+                                _uploading = false;
                               });
                             } else {
                               setState(() {
@@ -250,7 +245,6 @@ class _AddLocationPageState extends State<AddLocationPage> {
                             }
                           },
                         ),
-                        // Show image error message
                         if (_showImageError) ...[
                           SizedBox(height: 10),
                           Text(
@@ -258,10 +252,8 @@ class _AddLocationPageState extends State<AddLocationPage> {
                             style: TextStyle(color: Colors.red),
                           ),
                         ],
-
-                        // ElevatedButton for adding location
                         ElevatedButton(
-                          onPressed: _uploading ? null : () { //disable the button if uploading is true
+                          onPressed: _uploading ? null : () {
                             if (_bio.isEmpty || _locationPic == null || _locationPic!.isEmpty) {
                               setState(() {
                                 _showBioError = _bio.isEmpty;
@@ -288,7 +280,6 @@ class _AddLocationPageState extends State<AddLocationPage> {
     );
   }
 
-  // creating an address from LAT and LONG
   Future<void> _getAddressFromLatLng(double lat, double long) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);

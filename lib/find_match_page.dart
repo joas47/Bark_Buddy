@@ -4,14 +4,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
-import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 import 'package:cross_platform_test/chat_page.dart';
 
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FindMatchPage extends StatefulWidget {
   const FindMatchPage({super.key});
@@ -272,7 +270,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   );
                 }).toList(),
               );
-              //DatabaseHandler.setAvailability(result.startTime, result.endTime);
               DatabaseHandler.storeTimeSlot(result.startTime, result.endTime);
             },
           ),
@@ -420,16 +417,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
                               dogData['pictureUrls'].isEmpty) {
                             return const Text('Error: dog has no picture(s)');
                           }
-/*                          if (!dogDoc
-                              .data()
-                              .toString()
-                              .contains('pictureUrls')) {
-                            return const Text('Error: dog has no picture');
-                          }
-                          List<dynamic>? dogPicURLs = dogDoc['pictureUrls'];
-                          if (dogPicURLs != null && dogPicURLs.isEmpty) {
-                            return const Text('Error: dog has no picture');
-                          }*/
                           return _buildPotentialMatch(
                               context, ownerDoc, dogDoc, currentUserDoc);
                         },
@@ -454,7 +441,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
       content: SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
-            // Add your filter options here
             ExpansionTile(
               maintainState: true,
               title: const Text('Dogs'),
@@ -976,25 +962,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 Icons.favorite,
                 color: Colors.redAccent,
               ),
-              onPressed: () async {
-                //clearMatchDialogData();
+              onPressed: () {
                 // TODO: give feedback when liking a dog, right now it just disappears
-                bool isMatch = await DatabaseHandler.sendLike(ownerDoc.id);
-                if (isMatch) {
-/*              final User? currentUser = FirebaseAuth.instance.currentUser;
-              String? myDogPicUrl =
-                  await DatabaseHandler.getDogPic(currentUser?.uid).first;*/
-/*              DocumentReference reference = FirebaseFirestore.instance.collection('users').doc(currentUserDoc.id);
-              reference.snapshots().listen((querySnapshot) {
-                setState(() {
-                  _pendingMatchesField =querySnapshot.get("pendingMatches");
-                  if (_pendingMatchesField.isNotEmpty) {
-                    _showMatchDialog(context, ownerDoc.id);
-                  }
-                });
-              });*/
-                  //_showMatchDialog(context, ownerDoc.id);
-                }
+                DatabaseHandler.sendLike(ownerDoc.id);
               },
             ),
 

@@ -1,11 +1,8 @@
 import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'file_selector_handler.dart';
 import 'database_handler.dart';
 import 'image_handler.dart';
-import 'dart:io';
 
 class MakeOwnerProfilePage extends StatefulWidget {
   const MakeOwnerProfilePage({super.key});
@@ -267,17 +264,6 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
               : _profilePic != null && _profilePic!.isNotEmpty
                   ? const Icon(Icons.check_circle, color: Colors.green)
                   : const Icon(Icons.add_a_photo),
-/*          icon: _profilePic == null || _profilePic!.isEmpty
-              ? const Icon(Icons.add_a_photo)
-              : CircleAvatar(
-                  backgroundImage: _profilePic!.startsWith('http')
-                      ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                      : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-                  radius: 30,
-                  child: _profilePic!.isEmpty || _profilePic == null
-                      ? const CircularProgressIndicator()
-                      : const Icon(Icons.check, color: Colors.white),
-                ),*/
         )
       ],
     );

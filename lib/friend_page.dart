@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/chat_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
-import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:time_range_picker/time_range_picker.dart';
 import 'friend_requests_page.dart';
 
 class FriendPage extends StatefulWidget {
@@ -21,7 +19,6 @@ class _FriendPageState extends State<FriendPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize the stream in the initState
     _friendRequestStream = FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -299,25 +296,6 @@ class _FriendPageState extends State<FriendPage> {
     return false;
   }
 
-/*  bool _isAvailabilityValidDld(DocumentSnapshot<Object?> userDoc) {
-    // if the user has not set their availability yet, return false
-    if (userDoc.data().toString().contains('availability') &&
-        userDoc['availability']['createdOn'] != null) {
-      Timestamp availability = userDoc['availability']['createdOn'];
-      DateTime dateTime = availability.toDate();
-
-      //print(userDoc.get('name') + " " + dateTime.toString());
-
-      // if the availability is from yesterday, it's not valid, return false
-      if (DateUtils.isSameDay(dateTime, DateTime.now())) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    return false;
-  }*/
-
   String _getTimeRangeString(String startTimeString, String endTimeString) {
     final startTimeParts = startTimeString.split(':');
     final endTimeParts = endTimeString.split(':');
@@ -331,14 +309,7 @@ class _FriendPageState extends State<FriendPage> {
       hour: int.parse(endTimeParts[0]),
       minute: int.parse(endTimeParts[1]),
     );
-/*
-    String timeRangeString = startTime.hour.toString();
-    timeRangeString += ":";
-    timeRangeString += startTime.minute.toString();
-    timeRangeString += " - ";
-    timeRangeString += endTime.hour.toString();
-    timeRangeString += ":";
-    timeRangeString += endTime.minute.toString();*/
+
     return "${startTime.format(context)} - ${endTime.format(context)}";
   }
 
@@ -402,7 +373,6 @@ class _FriendPageState extends State<FriendPage> {
                       onPressed: () {
                         Navigator.pop(context);
                         DatabaseHandler.block(friendId);
-                        // "not implemented" snack bar
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Blocked'),

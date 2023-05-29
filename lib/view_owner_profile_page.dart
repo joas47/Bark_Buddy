@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/add_location_page.dart';
-import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'database_handler.dart';
-import 'edit_owner_profile.dart';
 import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {

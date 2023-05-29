@@ -72,18 +72,17 @@ class _HomePageState extends State<HomePage> {
                     _showStartPage = false;
                   });
                 },
-                onStart: () {  // <-- Add this
+                onStart: () {
                   setState(() {
-                    _selectedIndex = 1;  // you might want to change this to the index of the desired page
+                    _selectedIndex = 1;
                     _showStartPage = false;
                   });
                 },
               ),
             ),
-            // the rest of your pages
             ...List<Widget>.generate(_navigatorKeys.length, (index) {
               return Offstage(
-                offstage: _selectedIndex != index || _showStartPage, // updated line
+                offstage: _selectedIndex != index || _showStartPage,
                 child: Navigator(
                   key: _navigatorKeys[index],
                   initialRoute: '/',
@@ -105,13 +104,10 @@ class _HomePageState extends State<HomePage> {
           selectedItemColor: _buttonDisabled == true ? Colors.grey[600] :
           Theme.of(context).colorScheme.background,
           selectedFontSize: _buttonDisabled == true ? 12.0 : 16.0,
-          // onTap: _onItemTapped,
-          // selectedItemColor: Theme.of(context).colorScheme.background,
           // ignoreItems: _showStartPage,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),
-              // activeIcon: Icon(Icons.ice_skating, color: Colors.cyan,),
               label: 'Chat',
             ),
             BottomNavigationBarItem(
