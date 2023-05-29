@@ -408,6 +408,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('messageId', whereIn: [firstCheck, secondCheck])
         .orderBy('timestamp', descending: true)
         .snapshots();
+
+    // Check if the chat is empty and call _recommendLocation()
+    _chatStream.listen((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _recommendLocation();
+      }
+    });
   }
 
   @override
