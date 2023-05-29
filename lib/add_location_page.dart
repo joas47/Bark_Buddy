@@ -16,6 +16,7 @@ class AddLocationPage extends StatefulWidget {
   _AddLocationPageState createState() => _AddLocationPageState();
 }
 
+// TODO: remove all print statements before we're done
 class _AddLocationPageState extends State<AddLocationPage> {
   late GoogleMapController mapController;
   bool _showThanksDialog = false;
@@ -230,7 +231,6 @@ class _AddLocationPageState extends State<AddLocationPage> {
                             final selectedImages = await ImageUtils.showImageSourceDialog(context);
 
                             if (selectedImages != null  && selectedImages.isNotEmpty) {
-                              // TODO: make user wait for image to be uploaded and resized before continuing
                               setState((){
                                 _uploading = true; //set the uploading state to true
                               });
