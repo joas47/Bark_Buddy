@@ -943,7 +943,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
 
     final message =
-        'Hey, I recommend visiting $closestLocationName $googleMapsLinkTrimmed';
+        'Hey, I recommend visiting $closestLocationName  $googleMapsLinkTrimmed';
     _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png',
         Colors.red, googleMapsLinkTrimmed);
   }
