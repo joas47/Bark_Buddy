@@ -93,8 +93,21 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                                 String? dogName = dogNameSnapshot.data;
 
                                 return ListTile(
-                                  title: Text(friendData['name'].toString()),
-                                  subtitle: Text(dogName ?? ''),
+                                  title: RichText(
+                                    text: TextSpan(
+                                      text: "${friendData['name']} ",
+                                      style: DefaultTextStyle.of(context).style,
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: "($dogName)",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: DefaultTextStyle.of(context).style.fontSize!,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   leading: CircleAvatar(
                                     backgroundImage: NetworkImage(friendData['picture']),
                                     radius: 30.0,
