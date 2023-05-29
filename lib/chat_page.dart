@@ -441,6 +441,8 @@ class _ChatPageState extends State<ChatPage> {
           ),
         );
       },
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     );
   }
 }
