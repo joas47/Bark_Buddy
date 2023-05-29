@@ -664,6 +664,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       'senderName': senderName,
       'profilePicture': profilePicture,
       'link': link,
+      'read' : false,
       'color': '#${color.value.toRadixString(16)}',
     });
   }
@@ -683,6 +684,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
           'That is all the recommendations for today, check back tomorrow!',
       'timestamp': FieldValue.serverTimestamp(),
       'senderName': 'Bark-buddy',
+      'read' : false,
       'profilePicture': 'assets/images/logoWhiteBg.png',
       'color': colorHex,
     });
