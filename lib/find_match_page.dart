@@ -882,12 +882,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
               borderRadius: BorderRadius.circular(45),
               onTap: () {
                 // TODO: when pressing the owner profile from here, and in the view owner profile page pressing the dog profile it goes back to the find match page. (pops the navigation stack)
-                Navigator.push(
+/*                Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          ViewOwnerProfile(userId: ownerDoc.id)),
-                );
+                    builder: (context) =>
+                        ViewOwnerProfile(userId: ownerDoc.id)),
+                );*/
               },
               child: CircleAvatar(
                 backgroundColor: Colors.grey,
