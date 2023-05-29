@@ -286,6 +286,7 @@ class DatabaseHandler {
     final User? currentUser = FirebaseAuth.instance.currentUser;
     late final userUid = currentUser?.uid;
     CollectionReference userparks = FirebaseFirestore.instance.collection('user-parks');
+    CollectionReference realParkList = FirebaseFirestore.instance.collection('parks');
 
     await userparks.add({
       'uid': userUid,
@@ -295,6 +296,17 @@ class DatabaseHandler {
       'about': bio,
       'picture': locationPic
     });
+
+    await realParkList.add({
+      'uid': userUid,
+      'mid_point': '$lat, $long',
+      'address': currentAddress,
+      'about': bio,
+      'od_gis_id' : null,
+      'picture': locationPic
+    });
+
+
   }
 
   static Future<void> updateUser(String fName, String lName, String gender,
