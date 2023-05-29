@@ -21,107 +21,43 @@ class FindMatchPage extends StatefulWidget {
 }
 
 class _FindMatchPageState extends State<FindMatchPage> {
-/*  StreamSubscription? _matchSubscription;
-  SharedPreferences? sharedPreferences;*/
 
   late DocumentSnapshot _currentUserDocCopy;
 
-  bool _smallSizeDogFilter = false;
+  bool _userFilterAplied = false;
+  bool _showSmallDogs = false;
+  bool _showMediumDogs = false;
+  bool _showLargeDogs = false;
+  bool _showOwnersAgeAbove35 = false;
+  bool _showOwnersAge25to35 = false;
+  bool _showOwnersAge18to24 = false;
+  bool _showHighActDogs = false;
+  bool _showMediumActDogs = false;
+  bool _showLowActDogs = false;
+  bool _showNeuteredDogs = false;
+  bool _showFemaleDogs = false;
+  bool _showMaleDogs = false;
+  bool _showOwnerGenderOther = false;
+  bool _showOwnerGenderMale = false;
+  bool _showOwnerGenderFemale = false;
 
-  bool _mediumSizeDogFilter = false;
-
-  bool _largeSizeDogFilter = false;
-
-  bool _36OwnerAgeFilter = false;
-
-  bool _2535OwnerAgeFilter = false;
-
-  bool _1824OwnerAgeFilter = false;
-
-  bool _highActivityLevelDogFilter = false;
-
-  bool _mediumActivityLevelDogFilter = false;
-
-  bool _lowActivityLevelDogFilter = false;
-
-  bool _neuteredDogFilter = false;
-
-  bool _femaleGenderDogFilter = false;
+  bool _updatedShowSmallDogs = false;
+  bool _updatedShowMediumDogs = false;
+  bool _updatedShowLargeDogs = false;
+  bool _updatedShowOwnersAgeAbove35 = false;
+  bool _updatedShowOwnersAge25to35 = false;
+  bool _updatedShowOwnersAge18to24 = false;
+  bool _updatedShowHighActDogs = false;
+  bool _updatedShowMediumActDogs = false;
+  bool _updatedShowLowActDogs = false;
+  bool _updatedShowNeuteredDogs = false;
+  bool _updatedShowFemaleDogs = false;
+  bool _updatedShowMaleDogs = false;
+  bool _updatedShowOwnerGenderOther = false;
+  bool _updatedShowOwnerGenderMale = false;
+  bool _updatedShowOwnerGenderFemale = false;
 
   List<dynamic> _pendingMatchesField = [];
-
-  set _maleGenderDogFilter(bool _maleGenderDogFilter) {}
-
-  /*
-  @override
-  void initState() {
-    super.initState();
-
-    final User? currentUser = FirebaseAuth.instance.currentUser;
-    final String? userUid = currentUser?.uid;
-    _matchSubscription = DatabaseHandler.getMatches(userUid).listen((friendID) {
-      if (friendID != null) {
-        _checkMatch(friendID as String);
-      }
-    });
-
-    SharedPreferences.getInstance().then((prefs) {
-      sharedPreferences = prefs;
-    });
-  }
-
-  void _checkMatch(String friendID) async {
-    if (sharedPreferences != null) {
-      bool? isShown = sharedPreferences!.getBool('match_dialog_$friendID');
-      if (isShown == null || !isShown) {
-        final User? currentUser = FirebaseAuth.instance.currentUser;
-
-        // Get friend's document
-        final DocumentSnapshot<Object?> friendSnapshot = await FirebaseFirestore
-            .instance
-            .collection('users')
-            .doc(friendID)
-            .get();
-
-        if (friendSnapshot.exists) {
-          final data = friendSnapshot.data() as Map<String, dynamic>?;
-          if (data != null && data.containsKey('matches')) {
-            final List<String> friendMatches =
-                List<String>.from(data['matches'] ?? []);
-
-            if (friendMatches.contains(currentUser?.uid)) {
-              // Fetch friend's dog id
-              final String friendDogId = data['dogs'] ?? '';
-
-              // Fetch friend's dog picture
-              final DocumentSnapshot<Object?> dogSnapshot =
-                  await FirebaseFirestore.instance
-                      .collection('Dogs')
-                      .doc(friendDogId)
-                      .get();
-
-              if (dogSnapshot.exists) {
-                final dogData = dogSnapshot.data() as Map<String, dynamic>?;
-                final List<dynamic>? pictureUrls =
-                    dogData?['pictureUrls'] ?? [];
-                final String friendDogPicUrl =
-                    (pictureUrls != null && pictureUrls.isNotEmpty)
-                        ? pictureUrls[0].toString()
-                        : '';
-
-                String? myDogPicUrl =
-                    await DatabaseHandler.getDogPic(currentUser?.uid).first;
-
-                _showMatchDialog(
-                    context, friendSnapshot.id, myDogPicUrl, friendDogPicUrl);
-                sharedPreferences!.setBool('match_dialog_$friendID', true);
-              }
-            }
-          }
-        }
-      }
-    }
-  }*/
 
   Future<void> _showMatchDialog(BuildContext context) async {
     String matchOwnerID = _pendingMatchesField.first;
@@ -253,107 +189,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  /*// showMatchDialog to show a dialog when a match is found
-  Future<void> _showMatchDialog(BuildContext context, String friendID,
-      String? myDogPicUrl, String? friendDogPicUrl) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey,
-          titlePadding: EdgeInsets.all(0),
-          title: Container(
-            color: Colors.lightGreen,
-            padding: EdgeInsets.all(20),
-            child: Text(
-              'You have a new match!',
-              style: TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  CircleAvatar(
-                    radius: 50, // Increased the radius of the CircleAvatar
-                    backgroundImage:
-                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
-                    child: myDogPicUrl == null ? Text('No picture') : null,
-                  ),
-                  CircleAvatar(
-                    radius: 50, // Increased the radius of the CircleAvatar
-                    backgroundImage: friendDogPicUrl != null
-                        ? NetworkImage(friendDogPicUrl)
-                        : null,
-                    child: friendDogPicUrl == null ? Text('No picture') : null,
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Container(
-                      width: 250,
-                      // Adjust the width of the buttons
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      margin: EdgeInsets.only(bottom: 10.0),
-                      // Space between the buttons
-                      child: TextButton(
-                        onPressed: () {
-                          // navigate to chat
-                        },
-                        child: const Text('Chat with match'),
-                        style: TextButton.styleFrom(
-                          foregroundColor:
-                              Colors.white, // This is the text color
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 250, // Adjust the width of the buttons
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: TextButton(
-                        onPressed: () {
-                          // close the dialog
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Continue finding matches'),
-                        style: TextButton.styleFrom(
-                          foregroundColor:
-                              Colors.white, // This is the text color
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }*/
-
-/*
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }*/
-
   @override
   void initState() {
     super.initState();
@@ -442,12 +277,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
               DatabaseHandler.storeTimeSlot(result.startTime, result.endTime);
             },
           ),
-/*          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () async {
-              clearMatchDialogData();
-            },
-          ),*/
         ],
       ),
       body: SingleChildScrollView(
@@ -465,204 +294,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Filter Options'),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: <Widget>[
-                                // Add your filter options here
-                                ExpansionTile(
-                                  title: Text('Dogs'),
-                                  children: <Widget>[
-                                    ExpansionTile(
-                                      title: Text('Size'),
-                                      children: <Widget>[
-                                        FilterCheckbox(
-                                          title: 'Small',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _smallSizeDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Medium',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _mediumSizeDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Large',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _largeSizeDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    ExpansionTile(
-                                      title: Text('Gender'),
-                                      children: <Widget>[
-                                        FilterCheckbox(
-                                          title: 'Male',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _maleGenderDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Female',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _femaleGenderDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Neutered',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _neuteredDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    ExpansionTile(
-                                      title: Text('Activity level'),
-                                      children: <Widget>[
-                                        FilterCheckbox(
-                                          title: 'Low',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _lowActivityLevelDogFilter =
-                                                  value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Medium',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _mediumActivityLevelDogFilter =
-                                                  value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'High',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _highActivityLevelDogFilter =
-                                                  value;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                ExpansionTile(
-                                  title: Text('Owners'),
-                                  children: <Widget>[
-                                    ExpansionTile(
-                                      title: Text('Age'),
-                                      children: <Widget>[
-                                        FilterCheckbox(
-                                          title: '18 - 24',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _1824OwnerAgeFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: '25 - 35',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _2535OwnerAgeFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: '36+',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _36OwnerAgeFilter = value;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    ExpansionTile(
-                                      title: Text('Gender'),
-                                      children: <Widget>[
-                                        FilterCheckbox(
-                                          title: 'Male',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _largeSizeDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Female',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _largeSizeDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                        FilterCheckbox(
-                                          title: 'Other',
-                                          initialValue: false,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              _largeSizeDogFilter = value;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Apply'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                _applyFilter();
-                              },
-                            ),
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
+                        return _filterDialog(context);
                       },
                     );
                   },
@@ -818,16 +450,235 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
+  AlertDialog _filterDialog(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Filter Options'),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            // Add your filter options here
+            ExpansionTile(
+              maintainState: true,
+              title: const Text('Dogs'),
+              children: <Widget>[
+                ExpansionTile(
+                  maintainState: true,
+                  title: const Text('Size'),
+                  children: <Widget>[
+                    FilterCheckbox(
+                      title: 'Small',
+                      initialValue: _showSmallDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowSmallDogs = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Medium',
+                      initialValue: _showMediumDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowMediumDogs = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Large',
+                      initialValue: _showLargeDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowLargeDogs = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                ExpansionTile(
+                  maintainState: true,
+                  title: const Text('Gender'),
+                  children: <Widget>[
+                    FilterCheckbox(
+                      title: 'Male',
+                      initialValue: _showMaleDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowMaleDogs = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Female',
+                      initialValue: _showFemaleDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowFemaleDogs = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Neutered',
+                      initialValue: _showNeuteredDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowNeuteredDogs = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                ExpansionTile(
+                  maintainState: true,
+                  title: const Text('Activity level'),
+                  children: <Widget>[
+                    FilterCheckbox(
+                      title: 'Low',
+                      initialValue: _showLowActDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowLowActDogs = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Medium',
+                      initialValue: _showMediumActDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowMediumActDogs = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'High',
+                      initialValue: _showHighActDogs,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowHighActDogs = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            ExpansionTile(
+              maintainState: true,
+              title: const Text('Owners'),
+              children: <Widget>[
+                ExpansionTile(
+                  maintainState: true,
+                  title: const Text('Age'),
+                  children: <Widget>[
+                    FilterCheckbox(
+                      title: '18 - 24',
+                      initialValue: _showOwnersAge18to24,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowOwnersAge18to24 = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: '25 - 35',
+                      initialValue: _showOwnersAge25to35,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowOwnersAge25to35 = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: '36+',
+                      initialValue: _showOwnersAgeAbove35,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowOwnersAgeAbove35 = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                ExpansionTile(
+                  maintainState: true,
+                  title: const Text('Gender'),
+                  children: <Widget>[
+                    FilterCheckbox(
+                      title: 'Male',
+                      initialValue: _showOwnerGenderMale,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowOwnerGenderMale = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Female',
+                      initialValue: _showOwnerGenderFemale,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowOwnerGenderFemale = value;
+                        });
+                      },
+                    ),
+                    FilterCheckbox(
+                      title: 'Other',
+                      initialValue: _showOwnerGenderOther,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _updatedShowOwnerGenderOther = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Apply'),
+          onPressed: () {
+            Navigator.of(context).pop();
+            _applyFilter();
+          },
+        ),
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
+            _loadSavedFilter();
+          },
+        ),
+        TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _resetFilter();
+            },
+            child: const Text('Reset')),
+      ],
+    );
+  }
+
   void _refineMatches(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot currentUserDoc) {
     Set<DocumentSnapshot> toRemove = _filterOutUsers(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => toRemove.contains(element));
 
+    // This is difficult
+    // if (_userFilterAplied) {
+    //   Set<DocumentSnapshot> removeFiltered = _filterOutBasedOnFilter(userDocs);
+    //   userDocs.removeWhere((element) => removeFiltered.contains(element));
+    // }
+
     // filter out users based on their availability
     Set<DocumentSnapshot> removeSomeMore =
         _filterOutBasedOnAvailability(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => removeSomeMore.contains(element));
+
     // sort userDocs by distance from current user
     _sortByDistance(userDocs, currentUserDoc);
   }
@@ -936,41 +787,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     return timeRange;
   }
 
-/*  Set<DocumentSnapshot> _filterOutUsers(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
-      DocumentSnapshot<Object?> currentUserDoc) {
-    Set<DocumentSnapshot> toRemove = {};
-
-    for (var doc in userDocs) {
-      // removes users that don't have a dog
-      if (!doc.data().toString().contains('dogs')) {
-        toRemove.add(doc);
-        continue;
-      }
-      // removes users that hasn't set their availability
-      if (!doc.data().toString().contains('availability')) {
-        toRemove.add(doc);
-        continue;
-      }
-      // removes users that are already matched with the current user
-      if (currentUserDoc.data().toString().contains('matches') &&
-          currentUserDoc['matches'] != null) {
-        if (currentUserDoc['matches'].contains(doc.id)) {
-          toRemove.add(doc);
-          continue;
-        }
-      }
-      // removes users that the current user has already liked
-      if (currentUserDoc.data().toString().contains('pendingLikes') &&
-          currentUserDoc['pendingLikes'] != null) {
-        if (currentUserDoc['pendingLikes'].contains(doc.id)) {
-          toRemove.add(doc);
-        }
-      }
-    }
-    return toRemove;
-  }*/
-
   Set<DocumentSnapshot> _filterOutUsers(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot currentUserDoc) {
@@ -1066,11 +882,17 @@ class _FindMatchPageState extends State<FindMatchPage> {
               borderRadius: BorderRadius.circular(45),
               onTap: () {
                 // TODO: when pressing the owner profile from here, and in the view owner profile page pressing the dog profile it goes back to the find match page. (pops the navigation stack)
+/*                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ViewOwnerProfile(userId: ownerDoc.id)),
+                );*/
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          ViewOwnerProfile(userId: ownerDoc.id)),
+                          ViewDogProfilePage(userId: ownerDoc.id)),
                 );
               },
               child: CircleAvatar(
@@ -1179,82 +1001,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-/*  void clearMatchDialogData() async {
-    sharedPreferences!
-        .getKeys()
-        .where((key) => key.startsWith('match_dialog_'))
-        .forEach((key) {
-      sharedPreferences!.remove(key);
-      print('data is removed');
-    });
-  }*/
-
-  String _selectedCategory = 'Dog';
-  String _selectedSubcategory = 'Size';
-
-  List<String> _categories = ['Dog', 'Owner'];
-  Map<String, List<String>> _subcategories = {
-    'Dog': ['Size', 'Gender', 'Activity Level'],
-    'Owner': ['Age', 'Location', 'Experience'],
-    'Size': ['Small', 'Medium', 'Large'],
-    'Gender': ['Male', 'Female'],
-    'Activity Level': ['High', 'Medium', 'Low'],
-    'Age': ['Young', 'Adult', 'Senior']
-  };
-
-  Widget _filterDropdown() {
-    return DropdownButton<String>(
-      value: _selectedCategory,
-      onChanged: (String? newValue) {
-        setState(() {
-          _selectedCategory = newValue!;
-          _selectedSubcategory = _subcategories[newValue]![0];
-        });
-      },
-      items: _categories.map((String category) {
-        return DropdownMenuItem<String>(
-          value: category,
-          child: Text(category),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildSubcategoryDropdown() {
-    return DropdownButton<String>(
-      value: _selectedSubcategory,
-      onChanged: (String? newValue) {
-        setState(() {
-          _selectedSubcategory = newValue!;
-        });
-      },
-      items: _subcategories[_selectedCategory]!.map((String subcategory) {
-        return DropdownMenuItem<String>(
-          value: subcategory,
-          child: Text(subcategory),
-        );
-      }).toList(),
-    );
-  }
-
-  /*bool _isAvailabilityValid(DocumentSnapshot userDoc) {
-    // if the user has not set their availability yet, return false
-    if (userDoc.data().toString().contains('availability') &&
-        userDoc['availability'] != null &&
-        userDoc.data().toString().contains('createdOn')) {
-      Timestamp availability = userDoc['availability']['createdOn'];
-      DateTime dateTime = availability.toDate();
-
-      // if the availability is from yesterday, it's not valid, return false
-      if (DateUtils.isSameDay(dateTime, DateTime.now())) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    return false;
-  }*/
-
   bool _isAvailabilityValid(DocumentSnapshot userDoc) {
     Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
 
@@ -1274,10 +1020,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     }
 
     return false;
-  }
-
-  void _applyFilter() {
-    print(_36OwnerAgeFilter);
   }
 
   TimeOfDay _getUserStartTime() {
@@ -1300,46 +1042,128 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
       return timeRange.endTime;
     } else {
-      return const TimeOfDay(hour: 8, minute: 0);
+      return const TimeOfDay(hour: 16, minute: 0);
     }
   }
+
+  void _resetFilter() {
+    setState(() {
+      _userFilterAplied = false;
+      _showSmallDogs = false;
+      _showMediumDogs = false;
+      _showLargeDogs = false;
+      _showFemaleDogs = false;
+      _showMaleDogs = false;
+      _showHighActDogs = false;
+      _showMediumActDogs = false;
+      _showLowActDogs = false;
+      _showNeuteredDogs = false;
+      _showOwnersAge18to24 = false;
+      _showOwnersAge25to35 = false;
+      _showOwnersAgeAbove35 = false;
+      _showOwnerGenderMale = false;
+      _showOwnerGenderFemale = false;
+      _showOwnerGenderOther = false;
+    });
+  }
+
+  void _applyFilter() {
+    setState(() {
+      _userFilterAplied = true;
+      _showSmallDogs = _updatedShowSmallDogs;
+      _showMediumDogs = _updatedShowMediumDogs;
+      _showLargeDogs = _updatedShowLargeDogs;
+      _showOwnersAgeAbove35 = _updatedShowOwnersAgeAbove35;
+      _showOwnersAge25to35 = _updatedShowOwnersAge25to35;
+      _showOwnersAge18to24 = _updatedShowOwnersAge18to24;
+      _showHighActDogs = _updatedShowHighActDogs;
+      _showMediumActDogs = _updatedShowMediumActDogs;
+      _showLowActDogs = _updatedShowLowActDogs;
+      _showNeuteredDogs = _updatedShowNeuteredDogs;
+      _showFemaleDogs = _updatedShowFemaleDogs;
+      _showMaleDogs = _updatedShowMaleDogs;
+      _showOwnerGenderOther = _updatedShowOwnerGenderOther;
+      _showOwnerGenderMale = _updatedShowOwnerGenderMale;
+      _showOwnerGenderFemale = _updatedShowOwnerGenderFemale;
+    });
+  }
+
+  void _loadSavedFilter() {
+    setState(() {
+      _updatedShowSmallDogs = _showSmallDogs;
+      _updatedShowMediumDogs = _showMediumDogs;
+      _updatedShowLargeDogs = _showLargeDogs;
+      _updatedShowOwnersAgeAbove35 = _showOwnersAgeAbove35;
+      _updatedShowOwnersAge25to35 = _showOwnersAge25to35;
+      _updatedShowOwnersAge18to24 = _showOwnersAge18to24;
+      _updatedShowHighActDogs = _showHighActDogs;
+      _updatedShowMediumActDogs = _showMediumActDogs;
+      _updatedShowLowActDogs = _showLowActDogs;
+      _updatedShowNeuteredDogs = _showNeuteredDogs;
+      _updatedShowFemaleDogs = _showFemaleDogs;
+      _updatedShowMaleDogs = _showMaleDogs;
+      _updatedShowOwnerGenderOther = _showOwnerGenderOther;
+      _updatedShowOwnerGenderMale = _showOwnerGenderMale;
+      _updatedShowOwnerGenderFemale = _showOwnerGenderFemale;
+    });
+  }
+
+// WIP filter (HARD)
+// Set<DocumentSnapshot<Object?>> _filterOutBasedOnFilter(
+//     List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs) {
+//   Set<DocumentSnapshot<Object?>> filteredUserDocs = {};
+//
+//   Query query = FirebaseFirestore.instance.collection('Dogs').where('Size', isNotEqualTo: 'Medium');
+//
+//   query.get().then((querySnapshot) {
+//     for (var doc in querySnapshot.docs) {
+//       filteredUserDocs.add(doc);
+//     }
+//     print("filteredUserDocs length: ${filteredUserDocs.length}");
+//   }).catchError((error) {
+//     // Handle any errors
+//     print("Error occurred during Firestore query: $error");
+//   });
+//
+//   return filteredUserDocs;
+// }
 }
 
 class FilterCheckbox extends StatefulWidget {
   final String title;
   final bool initialValue;
-  final ValueChanged<bool> onChanged;
+  final Function(bool) onChanged;
 
   const FilterCheckbox({
-    Key? key,
+    super.key,
     required this.title,
     required this.initialValue,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   _FilterCheckboxState createState() => _FilterCheckboxState();
 }
 
 class _FilterCheckboxState extends State<FilterCheckbox> {
-  late bool isChecked;
+  late bool _value;
 
   @override
   void initState() {
     super.initState();
-    isChecked = widget.initialValue;
+    _value = widget.initialValue;
   }
 
   @override
   Widget build(BuildContext context) {
     return CheckboxListTile(
       title: Text(widget.title),
-      value: isChecked,
-      onChanged: (bool? value) {
+      value: _value,
+      onChanged: (newValue) {
         setState(() {
-          isChecked = value!;
+          _value = newValue!;
         });
-        widget.onChanged(isChecked); // Pass the updated state to the callback
+        widget.onChanged(newValue!);
       },
     );
   }
