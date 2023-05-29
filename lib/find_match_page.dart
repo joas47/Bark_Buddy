@@ -888,6 +888,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     builder: (context) =>
                         ViewOwnerProfile(userId: ownerDoc.id)),
                 );*/
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ViewDogProfilePage(userId: ownerDoc.id)),
+                );
               },
               child: CircleAvatar(
                 backgroundColor: Colors.grey,
