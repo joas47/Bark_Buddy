@@ -258,7 +258,7 @@ class _ChatPageState extends State<ChatPage> {
         return Align(
           alignment: Alignment.center,
           child: Container(
-            width: 198,
+            width: 207,
             color: Colors.white,
             child: Material(
               type: MaterialType.transparency,
@@ -348,7 +348,7 @@ class _ChatPageState extends State<ChatPage> {
 
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              fixedSize: Size(180, 30),
+                              fixedSize: Size(200, 30),
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
@@ -412,7 +412,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(180, 30),
+                        fixedSize: Size(200, 30),
                       ),
                       onPressed: () {
                         DatabaseHandler.block(friendId);
@@ -427,7 +427,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(180, 30),
+                        fixedSize: Size(200, 30),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
