@@ -113,7 +113,33 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                                       ),
                                       IconButton(
                                         onPressed: () {
-                                          DatabaseHandler.removeFriendrequest(friendId);
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                title: const Text('Confirmation'),
+                                                content: const Text(
+                                                    'Are you sure you want to deny?'),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      // Should be two pop calls, one for the dialog and one for the bottom sheet
+                                                      // the bottom sheet is not relevant after the friend is removed
+                                                      Navigator.pop(context);
+                                                      DatabaseHandler.removeFriendrequest(friendId);
+                                                    },
+                                                    child: const Text('Confirm'),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
                                         icon: const Icon(Icons.close),
                                       ),
