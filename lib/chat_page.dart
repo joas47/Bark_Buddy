@@ -493,6 +493,11 @@ class _MatchChatPageState extends State<MatchChatPage> {
         }
       }
     });
+    _chatStream.listen((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _recommendLocation();
+      }
+    });
   }
 
   @override
