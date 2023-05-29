@@ -378,12 +378,11 @@ class _ChatPageState extends State<ChatPage> {
 
               ElevatedButton(
                 onPressed: () {
-                  // TODO: block
+                  DatabaseHandler.block(friendId);
                   Navigator.pop(context);
-                  // "not implemented" snack bar
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Not implemented yet'),
+                      content: Text('User blocked'),
                     ),
                   );
                 },

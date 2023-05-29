@@ -22,6 +22,8 @@ class DatabaseReset {
         'receivedLikes': [],
         'matches': [],
         'pendingMatches': [],
+        'blockedUsers': [],
+        'blockedBy': [],
       }, SetOptions(merge: true));
     });
   }
