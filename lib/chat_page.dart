@@ -423,6 +423,7 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class MatchChatPage extends StatefulWidget {
+
   final String friendId;
   final String friendName;
 
@@ -439,10 +440,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _chatStream;
   final TextEditingController _messageController = TextEditingController();
   int buttonClicks = 0;
+  bool isChatWindowActive = false;
 
   @override
   void initState() {
     super.initState();
+    isChatWindowActive = true;
     setCurrentFriend(widget.friendId);
     final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
     String firstCheck = widget.friendId + currentUserUid;
@@ -455,9 +458,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .snapshots();
 
     _chatStream.listen((QuerySnapshot<Map<String, dynamic>> snapshot) {
-      for (QueryDocumentSnapshot<Map<String, dynamic>> messageSnapshot
-      in snapshot.docs) {
-        if (messageSnapshot['messageId'] == firstCheck) {
+      for (QueryDocumentSnapshot<Map<String, dynamic>> messageSnapshot in snapshot.docs) {
+        if (isChatWindowActive && messageSnapshot['messageId'] == firstCheck) {
           messageSnapshot.reference.update({'read': true});
         }
       }
@@ -633,6 +635,11 @@ class _MatchChatPageState extends State<MatchChatPage> {
         ],
       ),
     );
+  }
+  @override
+  void dispose() {
+    isChatWindowActive = false;
+    super.dispose();
   }
 
   String getLastTwoWords(String text) {
