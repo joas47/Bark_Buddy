@@ -142,6 +142,12 @@ class _ChatPageState extends State<ChatPage> {
                                 latestMessage = '${latestMessage.substring(0, 30)}...';
                               }
 
+                              bool isRead = messages.isNotEmpty ? messages.first['read'] ?? false : false;
+                              bool isBold = messages.isNotEmpty && messages.first['messageId'] == firstCheck;
+
+                              TextStyle latestMessageStyle = TextStyle(
+                                fontWeight: isRead && isBold ? FontWeight.bold : FontWeight.normal,
+                              );
 
                               return ListTile(
                                 onTap: () {
@@ -160,7 +166,10 @@ class _ChatPageState extends State<ChatPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text("($dogName)"),
-                                    Text(latestMessage),
+                                    Text(
+                                      latestMessage,
+                                      style: latestMessageStyle,
+                                    ),
                                   ],
                                 ),
                                 leading: CircleAvatar(
@@ -425,6 +434,15 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('messageId', whereIn: [firstCheck, secondCheck])
         .orderBy('timestamp', descending: true)
         .snapshots();
+
+    _chatStream.listen((QuerySnapshot<Map<String, dynamic>> snapshot) {
+      for (QueryDocumentSnapshot<Map<String, dynamic>> messageSnapshot
+      in snapshot.docs) {
+        if (messageSnapshot['messageId'] == firstCheck) {
+          messageSnapshot.reference.update({'read': true});
+        }
+      }
+    });
   }
 
   @override
@@ -627,6 +645,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       'receiverId': widget.friendId,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
+      'read' : false,
     });
   }
 
