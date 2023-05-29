@@ -42,6 +42,8 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
       body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: usersStream,
           builder:
@@ -138,8 +140,17 @@ class _ChatPageState extends State<ChatPage> {
                               List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = chatSnapshot.data!.docs.cast<QueryDocumentSnapshot<Map<String, dynamic>>>();
 
                               String latestMessage = messages.isNotEmpty ? messages.first['message'] ?? '' : '';
-                              if (latestMessage.length > 30) {
-                                latestMessage = '${latestMessage.substring(0, 30)}...';
+                              Timestamp latestMessageTimeStamp = messages.isNotEmpty ? messages.first['timestamp'] ?? '' : '';
+                              String timestampConverted;
+                              if (latestMessageTimeStamp !=''){
+                                DateTime dateTime = latestMessageTimeStamp.toDate();
+
+                                timestampConverted = DateFormat.Hm().format(dateTime);
+                              } else {
+                                timestampConverted = 'error';
+                              }
+                              if (latestMessage.length > 20) {
+                                latestMessage = '${latestMessage.substring(0, 20)}...';
                               }
 
                               bool isRead = messages.isNotEmpty ? messages.first['read'] ?? false : false;
@@ -161,12 +172,26 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   );
                                 },
-                                title: Text("${userData['name']} ($dogName)" ?? ''),
+                                title: RichText(
+                                  text: TextSpan(
+                                    text: "${userData['name']} ",
+                                    style: DefaultTextStyle.of(context).style,
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: "($dogName)",
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: DefaultTextStyle.of(context).style.fontSize!,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      latestMessage,
+                                      '$latestMessage $timestampConverted',
                                       style: latestMessageStyle,
                                     ),
                                   ],
@@ -216,7 +241,7 @@ class _ChatPageState extends State<ChatPage> {
           },
         ),
       ),
-    );
+    ),);
   }
 
   void _showActivityLevelInfoSheet(String friendId) async {
