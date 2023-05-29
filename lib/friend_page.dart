@@ -393,10 +393,11 @@ class _FriendPageState extends State<FriendPage> {
                       onPressed: () {
                         // TODO: block
                         Navigator.pop(context);
+                        DatabaseHandler.block(friendId);
                         // "not implemented" snack bar
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Not implemented yet'),
+                            content: Text('Blocked'),
                           ),
                         );
                       },

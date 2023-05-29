@@ -242,6 +242,36 @@ class DatabaseHandler {
     }
   }
 
+  static Future<void> block(String friendUid) async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    final usersCollectionRef = firestoreInstance.collection('users');
+
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    late final userUid = currentUser?.uid;
+
+    // Create a batch write operation
+    final batch = firestoreInstance.batch();
+
+    final userDocumentRef = usersCollectionRef.doc(userUid);
+    batch.update(userDocumentRef, {
+      'blockedUsers': FieldValue.arrayUnion([friendUid]),
+      'friendrequests': FieldValue.arrayRemove([friendUid]),
+      'friends': FieldValue.arrayRemove([friendUid]),
+      'matches': FieldValue.arrayRemove([friendUid])
+    });
+
+    final friendDocumentRef = usersCollectionRef.doc(friendUid);
+    batch.update(friendDocumentRef, {
+      'blockedBy': FieldValue.arrayUnion([userUid]),
+      'friendrequests': FieldValue.arrayRemove([userUid]),
+      'friends': FieldValue.arrayRemove([userUid]),
+      'matches': FieldValue.arrayRemove([userUid])
+    });
+
+    // Commit the batch write operation
+    await batch.commit();
+  }
+
   static Future<void> unmatch(String matchUid) async {
     final firestoreInstance = FirebaseFirestore.instance;
     final usersCollectionRef = firestoreInstance.collection('users');
@@ -543,7 +573,7 @@ class DatabaseHandler {
     }
   }
 
-  static Future<bool> checkIfFriendRequestSent(String friendID) async {
+  static Future<bool> checkIfFriendRequestSent(String friendID)  async {
     final users = FirebaseFirestore.instance.collection('users');
     final userUid = FirebaseAuth.instance.currentUser?.uid;
     final friendSnapshot = await users.doc(friendID).get();
@@ -555,6 +585,7 @@ class DatabaseHandler {
       return false;
     }
   }
+
 
   static void addRandomFriend() {
     final firestoreInstance = FirebaseFirestore.instance;

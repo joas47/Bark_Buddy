@@ -26,6 +26,8 @@ class DatabaseReset {
     });
   }
 
+  // log out every user
+
   Future<void> resetEssentialFieldsInUserDocument(String documentID) async {
     // Get a reference to the document
     DocumentReference documentRef =
