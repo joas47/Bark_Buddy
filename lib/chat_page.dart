@@ -61,115 +61,137 @@ class _ChatPageState extends State<ChatPage> {
 
               if (allUsers.isEmpty) {
                 return Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(vertical: 60),
+                  child: Stack(
                     alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(vertical: 60),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.asset('assets/images/BarkBuddyChatBubble.png',
-                            scale: 1.2),
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
-                          child: Text(
-                            'This chat is empty. \n Go find a match!',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                            ),
-                            textAlign: TextAlign.center,
+                    children: [
+                      Image.asset('assets/images/BarkBuddyChatBubble.png',
+                          scale: 1.2),
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                        child: Text(
+                          'This chat is empty. \n Go find a match!',
+                          style: TextStyle(
+                            fontSize: 20.0,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                      ],
-                    ));
+                      ),
+                    ],
+                  ),
+                );
               }
 
               return ListView.builder(
                 itemCount: allUsers.length,
                 itemBuilder: (BuildContext context, int index) {
-                  String userId = allUsers[index];
+                  String usersFriendId = allUsers[index];
                   final usersStream = FirebaseFirestore.instance
                       .collection('users')
-                      .doc(userId)
+                      .doc(usersFriendId)
+                      .snapshots();
+                  final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+                  String firstCheck = allUsers[index] + currentUserUid;
+                  String secondCheck = currentUserUid + allUsers[index];
+
+                  final _chatStream = FirebaseFirestore.instance
+                      .collection('chatMessages')
+                      .where('messageId', whereIn: [firstCheck, secondCheck])
+                      .orderBy('timestamp', descending: true)
                       .snapshots();
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                     stream: usersStream,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                       if (userSnapshot.hasError) {
                         return const Text('Something went wrong');
                       }
-                      if (userSnapshot.connectionState ==
-                          ConnectionState.waiting) {
+                      if (userSnapshot.connectionState == ConnectionState.waiting) {
                         return const Text("Loading");
                       }
-                      Map<String, dynamic>? userData =
-                      userSnapshot.data?.data() as Map<String, dynamic>?;
+                      Map<String, dynamic>? userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
                       if (userData == null) {
                         return const Text('User not found');
                       }
 
                       return StreamBuilder<String?>(
-                        stream:
-                        _MatchChatPageState.getDogNameFromOwnerID(userId),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String?> dogNameSnapshot) {
+                        stream: _MatchChatPageState.getDogNameFromOwnerID(usersFriendId),
+                        builder: (BuildContext context, AsyncSnapshot<String?> dogNameSnapshot) {
                           if (dogNameSnapshot.hasError) {
-                            return const Text(
-                                'Something went wrong: user has no dog');
+                            return const Text('Something went wrong: user has no dog');
                           }
-                          if (dogNameSnapshot.connectionState ==
-                              ConnectionState.waiting) {
+                          if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
                             return const Text("Loading");
                           }
                           String? dogName = dogNameSnapshot.data;
 
-                          return ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      MatchChatPage(
-                                        friendId: userId,
+                          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                            stream: _chatStream,
+                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> chatSnapshot) {
+                              if (chatSnapshot.hasError) {
+                                return const Text('Something went wrong');
+                              }
+                              if (chatSnapshot.connectionState == ConnectionState.waiting) {
+                                return const Text("Loading");
+                              }
+                              List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = chatSnapshot.data!.docs.cast<QueryDocumentSnapshot<Map<String, dynamic>>>();
+
+                              String latestMessage = messages.isNotEmpty ? messages.first['message'] ?? '' : '';
+                              if (latestMessage.length > 30) {
+                                latestMessage = '${latestMessage.substring(0, 30)}...';
+                              }
+
+
+                              return ListTile(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MatchChatPage(
+                                        friendId: usersFriendId,
                                         friendName: userData['name'],
                                       ),
+                                    ),
+                                  );
+                                },
+                                title: Text(userData['name'].toString() ?? ''),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("($dogName)"),
+                                    Text(latestMessage),
+                                  ],
                                 ),
-                                // MaterialPageRoute(
-                                //   builder: (context) => ViewDogProfilePage(
-                                //     userId: userId,
-                                //   ),
-                                // ),
-                              );
-                            },
-                            title: Text(userData['name'].toString() ?? ''),
-                            subtitle: Text("(${dogName!})"),
-                            leading: CircleAvatar(
-                                backgroundImage:
-                                NetworkImage(userData['picture'] ?? ''),
-                                radius: 30.0,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(userData['picture'] ?? ''),
+                                  radius: 30.0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ViewDogProfilePage(
-                                                    userId: userId)));
-                                  },
-                                )),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    _showActivityLevelInfoSheet(userId);
-                                  },
-                                  icon: const Icon(Icons.menu),
+                                          builder: (context) => ViewDogProfilePage(userId: usersFriendId),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ],
-                            ),
-                            onLongPress: () {
-                              // TODO: make something with this? (low priority)
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        _showActivityLevelInfoSheet(usersFriendId);
+                                      },
+                                      icon: const Icon(Icons.menu),
+                                    ),
+                                  ],
+                                ),
+                                onLongPress: () {
+                                  // TODO: make something with this? (low priority)
+                                },
+                              );
                             },
                           );
                         },
@@ -192,210 +214,187 @@ class _ChatPageState extends State<ChatPage> {
   void _showActivityLevelInfoSheet(String friendId) async {
     bool isFriend = false;
 
-    final userStream = FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .snapshots();
-
-    showGeneralDialog(
+    showModalBottomSheet(
       context: context,
-      pageBuilder: (BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation) {
-        return Align(
-          alignment: Alignment.center,
-          child: Container(
-            width: 198,
-            color: Colors.white,
-            child: Material(
-              type: MaterialType.transparency,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                      stream: userStream,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
-                          snapshot) {
-                        if (snapshot.hasError) {
-                          return const Text('Something went wrong');
-                        }
+      builder: (context) {
+        final userStream = FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .snapshots();
+        return SizedBox(
+          height: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: userStream,
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                    snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Something went wrong');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
 
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        }
-
-                        Map<String, dynamic>? data = snapshot.data?.data();
-                        if (data != null && data['matches'] != null &&
-                            data['matches'].contains(friendId)) {
-                          return ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              fixedSize: Size(160, 30),
-                            ),
-                            onPressed: () async {
-                              Navigator.pop(context);
-
-                              bool? confirmed = await showDialog<bool>(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Confirmation'),
-                                    content: const Text(
-                                        'Are you sure you want to unmatch?'),
-                                    actions: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, true);
-                                        },
-                                        child: const Text('Confirm'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, false);
-                                        },
-                                        child: const Text('Cancel'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              if (confirmed != null && confirmed) {
-                                DatabaseHandler.unmatch(friendId);
-                              }
-                            },
-                            child: const Text('Unmatch'),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                    StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                      stream: userStream,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
-                          snapshot) {
-                        if (snapshot.hasError) {
-                          return const Text('Something went wrong');
-                        }
-
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        }
-
-                        Map<String, dynamic>? data = snapshot.data?.data();
-                        if (data != null && data['friends'] != null) {
-                          List<dynamic> friends = data['friends'];
-                          isFriend = friends.contains(friendId);
-
-                          return ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              fixedSize: Size(160, 30),
-                            ),
-                            onPressed: () async {
-                              Navigator.pop(context);
-
-                              bool? confirmed = await showDialog<bool>(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Confirmation'),
-                                    content: isFriend
-                                        ? const Text(
-                                        'Are you sure you want to unfriend?')
-                                        : const Text(
-                                        'Are you sure you want to add as a friend?'),
-                                    actions: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, true);
-                                        },
-                                        child: const Text('Confirm'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, false);
-                                        },
-                                        child: const Text('Cancel'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              bool requestSent = await DatabaseHandler
-                                  .checkIfFriendRequestSent(friendId);
-
-                              if (confirmed != null && confirmed) {
-                                if (isFriend) {
-                                  DatabaseHandler.removeFriend(friendId);
-                                  setState(() {
-                                    requestStatus[friendId] = false;
-                                  });
-                                } else if (!requestSent) {
-                                  DatabaseHandler.sendFriendRequest(friendId);
-                                  setState(() {
-                                    requestSent = true;
-                                    requestStatus[friendId] = true;
-                                  });
-                                }
-                              }
-                            },
-                            child: isFriend
-                                ? const Text('Unfriend')
-                                : (requestStatus[friendId] == true)
-                                ? const Text('Friend request sent')
-                                : const Text('Send friend request'),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                    ElevatedButton(
+                  Map<String, dynamic>? data = snapshot.data?.data();
+                  if (data != null && data['matches'] != null && data['matches'].contains(friendId)) {
+                    return ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(160, 30),
+                        fixedSize: const Size(120, 30),
                       ),
-                      onPressed: () {
-                        DatabaseHandler.block(friendId);
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('User blocked'),
-                          ),
+                      onPressed: () async {
+                        Navigator.pop(context); // Close the bottom sheet
+
+                        // Show confirmation dialog
+                        bool? confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Confirmation'),
+                              content: const Text('Are you sure you want to unmatch?'),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, true); // Return true to confirm
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, false); // Return false to cancel
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            );
+                          },
                         );
+
+                        if (confirmed != null && confirmed) {
+                          // Perform the action based on the confirmation result
+                          DatabaseHandler.unmatch(friendId);
+                        }
                       },
-                      child: const Text('Block'),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: Size(160, 30),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                ),
+                      child: const Text('Unmatch'),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
-            ),
+
+              StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: userStream,
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                    snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Something went wrong');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  Map<String, dynamic>? data = snapshot.data?.data();
+                  if (data != null && data['friends'] != null) {
+                    List<dynamic> friends = data['friends'];
+                    isFriend = friends.contains(friendId);
+
+                    return ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context); // Close the bottom sheet
+
+                        bool? confirmed;
+                        // Show confirmation dialog
+
+                        confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Confirmation'),
+                              content: isFriend
+                                  ? const Text('Are you sure you want to unfriend?')
+                                  : const Text('Are you sure you want to add as a friend?'),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, true);
+                                    // Return true to confirm
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, false); // Return false to cancel
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        requestSent = await DatabaseHandler.checkIfFriendRequestSent(friendId);
+
+                        if (confirmed != null && confirmed) {
+                          // Perform the action based on the confirmation result
+                          if (isFriend) {
+                            // Unfriend
+                            DatabaseHandler.removeFriend(friendId);
+                            requestStatus[friendId] = false;
+                          } else if (requestStatus[friendId] == true) {
+                            null;
+                          } else {
+                            // Add as friend
+                            DatabaseHandler.sendFriendRequest(friendId);
+                            setState(() {
+                              requestSent = true;
+                              requestStatus[friendId] = true;
+                              print(requestStatus);
+                            });
+                          }
+                        }
+                      },
+                      child: isFriend ? const Text('Unfriend')
+                          : requestStatus[friendId] == true ? const Text('Friend request sent')
+                          : const Text('Send friend request'),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+
+
+              ElevatedButton(
+                onPressed: () {
+                  // TODO: block
+                  Navigator.pop(context);
+                  // "not implemented" snack bar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Not implemented yet'),
+                    ),
+                  );
+                },
+                child: const Text('Block'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
           ),
         );
       },
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations
-          .of(context)
-          .modalBarrierDismissLabel,
     );
   }
 }
 
-  class MatchChatPage extends StatefulWidget {
+class MatchChatPage extends StatefulWidget {
   final String friendId;
   final String friendName;
 
@@ -426,13 +425,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('messageId', whereIn: [firstCheck, secondCheck])
         .orderBy('timestamp', descending: true)
         .snapshots();
-
-    // Check if the chat is empty and call _recommendLocation()
-    _chatStream.listen((snapshot) {
-      if (snapshot.docs.isEmpty) {
-        _recommendLocation();
-      }
-    });
   }
 
   @override
