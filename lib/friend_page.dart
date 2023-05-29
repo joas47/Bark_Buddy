@@ -202,8 +202,21 @@ class _FriendPageState extends State<FriendPage> {
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(12, 10, 10, 0),
       splashColor: Colors.transparent,
-      title: Text(friendData['name'].toString()),
-      subtitle: Text("(${dogName!})"),
+      title: RichText(
+        text: TextSpan(
+          text: "${friendData['name']} ",
+          style: DefaultTextStyle.of(context).style,
+          children: <TextSpan>[
+            TextSpan(
+              text: "($dogName)",
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: DefaultTextStyle.of(context).style.fontSize!,
+              ),
+            ),
+          ],
+        ),
+      ),
       leading: CircleAvatar(
           backgroundImage: NetworkImage(friendData['picture']),
           radius: 30.0,
@@ -225,14 +238,15 @@ class _FriendPageState extends State<FriendPage> {
             child: !_isAvailabilityValid(friendSnapshotData)
                 ? const Text('Not available',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 12
+                      ,
                       color: Colors.red,
                     ),
                     textAlign: TextAlign.center)
                 : Text(
                     "Available\n${_getTimeRangeString(friendData['availability']['startTime'], friendData['availability']['endTime'])}",
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 12,
                       color: Colors.green,
                     ),
                     textAlign: TextAlign.center),
