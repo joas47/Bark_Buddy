@@ -120,7 +120,7 @@ class ImageUtils {
 
   static Future<String?> uploadImageToFirebase(
       File imageFile, String storageUrl, ImageType imageType) async {
-    // TODO: Note: this is intentionally overriding the storageUrl parameter to use the Storage Bucket that resizes the image instead
+    // Note: this is intentionally overriding the storageUrl parameter to use the Storage Bucket that resizes the image instead
     String storageUrl = "gs://bark-buddy";
     try {
       // Create a StorageReference to the specified URL

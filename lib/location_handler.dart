@@ -21,7 +21,7 @@ class LocationHandler {
     }
 
     // Get user's location coordinates
-    // TODO: Handle location permission denied, right now it gives error when trying to access the LastLocation field
+    // Handle location permission denied, right now it gives error when trying to access the LastLocation field
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
