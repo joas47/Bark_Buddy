@@ -146,7 +146,7 @@ class _ChatPageState extends State<ChatPage> {
                               bool isBold = messages.isNotEmpty && messages.first['messageId'] == firstCheck;
 
                               TextStyle latestMessageStyle = TextStyle(
-                                fontWeight: isRead && isBold ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: !isRead && isBold ? FontWeight.bold : FontWeight.normal,
                               );
 
                               return ListTile(
