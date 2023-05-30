@@ -54,6 +54,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
   bool _updatedShowOwnerGenderOther = false;
   bool _updatedShowOwnerGenderMale = false;
   bool _updatedShowOwnerGenderFemale = false;
+  bool disableSwipe = false; // Flag variable to control swipe behavior
 
   List<dynamic> _pendingMatchesField = [];
 
@@ -359,18 +360,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           ],
                         ));
                   }
-                  /*// TODO: Special case: what to do if there's only one potential match to show?
-                  // we can just add one empty slide stating that there is only one match.
-              if (userDocs.length == 1) {
-                DocumentSnapshot ownerDoc = userDocs.first;
-                final dogDoc = FirebaseFirestore.instance
-                    .collection('Dogs')
-                    .doc(ownerDoc['dogs']);
-                return _buildPotentialMatch(context, userDocs.first, dogDoc);
-              }*/
+
                   // begins the process of displaying the matches
                 return Padding(
                 padding: const EdgeInsets.only(top: 20),
+
                   child: CarouselSlider.builder(
                     itemCount: userDocs.length,
                     // loops through the list of potential matches one by one
@@ -415,7 +409,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         },
                       );
                     },
-                    options: CarouselOptions(height: 600),
+                    options: CarouselOptions(height: 600,
+                      enableInfiniteScroll: userDocs.length > 1,
+                      disableCenter: disableSwipe,
+                    ),
                   ),
                   );
                 } else {
