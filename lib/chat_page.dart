@@ -947,7 +947,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
     if (buttonClicks <= 3) {
-      closestLocationData = await findClosestLocations(midpoint, buttonClicks);
+      closestLocationData = await findClosestLocation(midpoint, buttonClicks);
     } else {
       _sendWaitMessageFromBarkBuddy();
       return;
@@ -985,7 +985,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
           googleMapsLinkTrimmed);*/
       alreadyFoundCounter++;
       closestLocationData =
-      await findClosestLocations(midpoint, buttonClicks + alreadyFoundCounter);
+      await findClosestLocation(midpoint, buttonClicks + alreadyFoundCounter);
 
       closestLocationMidPoint = closestLocationData![0];
       closestLocationName = closestLocationData[1];
@@ -1086,13 +1086,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
     return radian * 180 / pi;
   }
 
-  Future<List<String?>?> findClosestLocations(Position midpoint,
-      int index) async {
+  Future<List<String?>?> findClosestLocation(
+      Position midpoint, int index) async {
     final parksCollection = FirebaseFirestore.instance.collection('parks');
 
     List<String?> closestLocations = [];
-    List<double> distances = [];
-    double maxDistance = double.infinity;
+    double minDistance = double.infinity;
 
     final snapshot = await parksCollection.get();
     snapshot.docs.forEach((doc) {
@@ -1106,25 +1105,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
           coordinates.longitude,
         );
 
-        if (distance < maxDistance) {
-          // Insert the new location and distance at the correct position
-          int insertionIndex = 0;
-          while (insertionIndex < distances.length &&
-              distance < distances[insertionIndex]) {
-            insertionIndex++;
-          }
-
-          distances.insert(insertionIndex, distance);
-          closestLocations.insert(
-              insertionIndex * 2, doc['mid_point'] as String?);
-          closestLocations.insert(
-              insertionIndex * 2 + 1, doc['od_gis_id'] as String?);
-
-          // If the list exceeds the desired number of locations, remove the last element
-          if (closestLocations.length > index * 2) {
-            closestLocations.removeRange(index * 2, closestLocations.length);
-            distances.removeLast();
-          }
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestLocations.insert(0, doc['mid_point'] as String?);
+          closestLocations.insert(1, doc['od_gis_id'] as String?);
+        } else if (closestLocations.length >= index * 2) {
+          closestLocations.insert(index * 2, doc['mid_point'] as String?);
+          closestLocations.insert(index * 2 + 1, doc['od_gis_id'] as String?);
         }
       }
     });
@@ -1154,6 +1141,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     );
   }
 }
+
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String friendName;
