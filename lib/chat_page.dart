@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
@@ -151,10 +151,9 @@ class _ChatPageState extends State<ChatPage> {
                                 String latestMessage = messages.isNotEmpty
                                     ? messages.first['message'] ?? ''
                                     : '';
-                                Timestamp latestMessageTimeStamp =
-                                    messages.isNotEmpty
-                                        ? messages.first['timestamp'] ?? ''
-                                        : basicTimestamp;
+                                Timestamp latestMessageTimeStamp = messages.isNotEmpty
+                                    ? (messages.first['timestamp'] as Timestamp? ?? basicTimestamp)
+                                    : basicTimestamp;
                                 String timestampConverted;
                                 if (latestMessageTimeStamp != '' &&
                                     latestMessageTimeStamp != basicTimestamp) {
@@ -483,6 +482,7 @@ class MatchChatPage extends StatefulWidget {
 class _MatchChatPageState extends State<MatchChatPage> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _chatStream;
   final TextEditingController _messageController = TextEditingController();
+  late SharedPreferences _prefs;
   int buttonClicks = 0;
   bool isChatWindowActive = false;
 
@@ -490,8 +490,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
   void initState() {
     super.initState();
     isChatWindowActive = true;
+
     setCurrentFriend(widget.friendId);
     final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+
     String firstCheck = widget.friendId + currentUserUid;
     String secondCheck = currentUserUid + widget.friendId;
 
@@ -509,12 +511,17 @@ class _MatchChatPageState extends State<MatchChatPage> {
       }
     });
 
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        _prefs = prefs;
+        buttonClicks = _prefs.getInt('buttonClicks') ?? 0;
+      });
 
-    _chatStream.listen((snapshot) {
-      print(snapshot.docs.toString());
-      if (snapshot.docs.isEmpty) {
-        _recommendLocation();
-      }
+      _chatStream.listen((snapshot) {
+        if (snapshot.docs.isEmpty) {
+          _recommendLocation();
+        }
+      });
     });
   }
 
@@ -882,25 +889,42 @@ class _MatchChatPageState extends State<MatchChatPage> {
     String? closestLocationMidPoint;
     String? closestLocationName;
     Position? otherUserLocation;
-    DateTime timestamp = DateTime.now();
-    print("försöker rekommendera");
+    DateTime timestamp;
+    String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    String firstCheck = (currentUserUid! + currentFriend);
+    String secondCheck = (currentFriend + currentUserUid!);
     await for (final position in otherUserLocationStream) {
       otherUserLocation = position;
       break; // Stop listening after receiving the first position
     }
 
-    print(currentUserLocation!.toString() + otherUserLocation!.toString());
-
     if (currentUserLocation == null || otherUserLocation == null) {
       return;
     }
+    // Fetch the latest message timestamp from recommendation_data collection
+    final recommendationsCollection = FirebaseFirestore.instance.collection('recommendation_data');
+    final query = recommendationsCollection
+        .where('recommendationId', whereIn: [firstCheck, secondCheck])
+        .orderBy('timestamp', descending: true)
+        .limit(1);
+    final querySnapshot = await query.get();
 
+    if (querySnapshot.docs.isNotEmpty) {
+      final latestRecommendation = querySnapshot.docs.first;
+      timestamp = (latestRecommendation['timestamp'] as Timestamp).toDate();
+      // Use the retrieved timestamp for further processing
+    } else {
+      // No recommendation found with the given recommendationIds
+      timestamp = DateTime.fromMicrosecondsSinceEpoch(10000);
+      print('No matching recommendation found.');
+    }
     if (buttonClicks == 0 || timestamp?.day != DateTime.now().day) {
       // Set the timestamp to the current time and reset buttonClicks
       timestamp = DateTime.now();
       buttonClicks = 1;
     } else {
       buttonClicks++;
+      _prefs.setInt('buttonClicks', buttonClicks);
     }
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
@@ -934,7 +958,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
         FirebaseAuth.instance.currentUser!.uid,
         googleMapsLinkTrimmed,
         timestamp);
-    print('islocationrecommended' + isLocationRecommended.toString());
     if (isLocationRecommended) {
       _sendMessageFromBarkBuddy(
           'This location was already recommended in the last 24 hours.',
@@ -979,6 +1002,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
+
 
     return querySnapshot.docs.isNotEmpty;
   }
