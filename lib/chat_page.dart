@@ -484,7 +484,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
   final TextEditingController _messageController = TextEditingController();
   late SharedPreferences _prefs;
   int buttonClicks = 0;
-  int buttonClicks1 = 0;
   int buttonClicks2 = 0;
   bool isChatWindowActive = false;
   bool isFirstRecommendation = true;
