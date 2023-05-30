@@ -508,7 +508,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
         }
       }
     });
+
+
     _chatStream.listen((snapshot) {
+      print(snapshot.docs.toString());
       if (snapshot.docs.isEmpty) {
         _recommendLocation();
       }
@@ -732,7 +735,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         widget.friendId,
       ],
       'messageId': (currentUserID + widget.friendId),
-      'senderId': 'bark-buddy',
+      'senderId': 'BarkBuddy',
       'receiverId': widget.friendId,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
@@ -753,12 +756,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
         widget.friendId,
       ],
       'messageId': (currentUserID + widget.friendId),
-      'senderId': 'bark-buddy-wait-message',
+      'senderId': 'BarkBuddy-wait-message',
       'receiverId': widget.friendId,
       'message':
           'That is all the recommendations for today, check back tomorrow!',
       'timestamp': FieldValue.serverTimestamp(),
-      'senderName': 'Bark-buddy',
+      'senderName': 'BarkBuddy',
       'read' : false,
       'profilePicture': 'assets/images/logoWhiteBg.png',
       'color': colorHex,
@@ -776,7 +779,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     } else if (timestamp != null && isPlaceRecommendation) {
       final dateTime = timestamp.toDate();
       final formatter = DateFormat('MMM d, HH:mm');
-      const ownerName = 'Bark-Buddy';
+      const ownerName = 'BarkBuddy';
       final formattedTimestamp = formatter.format(dateTime);
       return '$formattedTimestamp - ${ownerName ?? 'Unknown'}';
     }
@@ -880,10 +883,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
     String? closestLocationName;
     Position? otherUserLocation;
     DateTime timestamp = DateTime.now();
+    print("försöker rekommendera");
     await for (final position in otherUserLocationStream) {
       otherUserLocation = position;
       break; // Stop listening after receiving the first position
     }
+
+    print(currentUserLocation!.toString() + otherUserLocation!.toString());
 
     if (currentUserLocation == null || otherUserLocation == null) {
       return;
@@ -911,7 +917,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     if (closestLocationMidPoint == null || closestLocationName == null) {
       _sendMessageFromBarkBuddy(
           'Unable to find a recommended location.',
-          'bark-buddy',
+          'BarkBuddy',
           'assets/images/logoWhiteBg.png',
           Colors.red,
           'googleMapsLinkTrimmed');
@@ -928,10 +934,11 @@ class _MatchChatPageState extends State<MatchChatPage> {
         FirebaseAuth.instance.currentUser!.uid,
         googleMapsLinkTrimmed,
         timestamp);
+    print('islocationrecommended' + isLocationRecommended.toString());
     if (isLocationRecommended) {
       _sendMessageFromBarkBuddy(
           'This location was already recommended in the last 24 hours.',
-          'bark-buddy',
+          'BarkBuddy',
           'assets/images/logoWhiteBg.png',
           Colors.red,
           googleMapsLinkTrimmed);
@@ -946,6 +953,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         'link': googleMapsLinkTrimmed,
         'timestamp': FieldValue.serverTimestamp(),
         'participants': [currentFriend, currentUser.uid],
+        'recommendationId' : (currentUser.uid + currentFriend),
       };
       final userRecommendationsCollection =
           FirebaseFirestore.instance.collection('recommendation_data');
@@ -954,7 +962,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     final message =
         'Hey, I recommend visiting $closestLocationName  $googleMapsLinkTrimmed';
-    _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png',
+    _sendMessageFromBarkBuddy(message, 'BarkBuddy', 'assets/images/logo.png',
         Colors.red, googleMapsLinkTrimmed);
   }
 
@@ -964,10 +972,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
       String googleMapsLinkTrimmed,
       DateTime recommendationTimestamp) async {
     final userRecommendationsCollection =
-        FirebaseFirestore.instance.collection('user_recommendations');
+        FirebaseFirestore.instance.collection('recommendation_data');
     final querySnapshot = await userRecommendationsCollection
-        .where('participants',
-            arrayContainsAny: [currentFriend, currentUserUID])
+        .where('recommendationId',
+                whereIn: [currentFriend + currentUserUID, currentUserUID + currentFriend])
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
