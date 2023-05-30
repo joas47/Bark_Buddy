@@ -46,15 +46,18 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
       appBar: AppBar(
         title: const Text('Dog Profile'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
+          currentUser
+              ? IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsPage()),
+                    );
+                  },
+                )
+              : Container(),
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(

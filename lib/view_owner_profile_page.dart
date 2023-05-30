@@ -25,15 +25,18 @@ class ViewOwnerProfile extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Owner profile'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
+          currentUser
+              ? IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsPage()),
+                    );
+                  },
+                )
+              : Container(),
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
