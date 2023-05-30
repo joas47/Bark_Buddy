@@ -484,6 +484,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
   final TextEditingController _messageController = TextEditingController();
   late SharedPreferences _prefs;
   int buttonClicks = 0;
+  int buttonClicks1 = 0;
+  int buttonClicks2 = 0;
   bool isChatWindowActive = false;
 
   @override
@@ -493,6 +495,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     setCurrentFriend(widget.friendId);
     final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+    int buttonClicks1;
 
     String firstCheck = widget.friendId + currentUserUid;
     String secondCheck = currentUserUid + widget.friendId;
@@ -514,7 +517,14 @@ class _MatchChatPageState extends State<MatchChatPage> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _prefs = prefs;
-        buttonClicks = _prefs.getInt('buttonClicks') ?? 0;
+        buttonClicks1 = _prefs.getInt('buttonClicks' + currentFriend) ?? 0;
+        buttonClicks2 = _prefs.getInt(currentFriend + 'buttonClicks') ?? 0;
+        if (buttonClicks1 < buttonClicks2) {
+          buttonClicks = buttonClicks2;
+        } else {
+          buttonClicks = buttonClicks1;
+
+          }
       });
 
       _chatStream.listen((snapshot) {
@@ -890,6 +900,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     String? closestLocationName;
     Position? otherUserLocation;
     DateTime timestamp;
+    int alreadyFoundCounter = 0;
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
     String firstCheck = (currentUserUid! + currentFriend);
     String secondCheck = (currentFriend + currentUserUid!);
@@ -924,7 +935,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
       buttonClicks = 1;
     } else {
       buttonClicks++;
-      _prefs.setInt('buttonClicks', buttonClicks);
+      _prefs.setInt('buttonClicks' + currentFriend + currentUserUid, buttonClicks);
+      _prefs.setInt( currentFriend + 'buttonClicks' + currentUserUid, buttonClicks);
     }
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
@@ -947,10 +959,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
           'googleMapsLinkTrimmed');
       return;
     }
-
     String googleMapsLink =
         'https://maps.google.com/?q=$closestLocationMidPoint';
-    final String googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
+    String googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
+
 
     // Check if the location was recommended in the last 24 hours
     final isLocationRecommended = await checkIfLocationRecommendedBefore(
@@ -959,14 +971,21 @@ class _MatchChatPageState extends State<MatchChatPage> {
         googleMapsLinkTrimmed,
         timestamp);
     if (isLocationRecommended) {
-      _sendMessageFromBarkBuddy(
+      /*_sendMessageFromBarkBuddy(
           'This location was already recommended in the last 24 hours.',
           'BarkBuddy',
           'assets/images/logoWhiteBg.png',
           Colors.red,
-          googleMapsLinkTrimmed);
-      return;
+          googleMapsLinkTrimmed);*/
+          alreadyFoundCounter++;
+          closestLocationData = await findClosestLocation(midpoint, buttonClicks + alreadyFoundCounter);
+          closestLocationMidPoint = closestLocationData![0];
+          closestLocationName = closestLocationData[1];
+          closestLocationName ??= 'this dog-friendly spot at';
+          googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
+          googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
     }
+
 
     // Store the recommendation in Firestore
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -1002,6 +1021,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
+    print(querySnapshot.docs.toString());
 
 
     return querySnapshot.docs.isNotEmpty;
