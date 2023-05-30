@@ -34,13 +34,15 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
             }
             Map<String, dynamic> data = snapshot.data!.data()! as Map<String, dynamic>;
             List<dynamic> friendRequests = data['friendrequests'];
-            return Column(
-              children: [
+            return Padding(
+                padding: const EdgeInsets.only(top: 100), // adjust the value as per your need
+            child: Column(
+            children: [
                 Visibility(
                   visible: friendRequests.isEmpty,
                   child: Container(
                       alignment: Alignment.center,
-                      margin: const EdgeInsets.symmetric(vertical: 60),
+                      margin: const EdgeInsets.symmetric(vertical: 100),
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -164,6 +166,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                   ),
                 ),
               ],
+            ),
             );
           },
         ),
