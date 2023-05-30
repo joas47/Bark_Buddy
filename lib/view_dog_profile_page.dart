@@ -195,17 +195,17 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                 child: currentUser
                     ? ElevatedButton.icon(
                   icon: const Icon(Icons.add_location),
-                  label: const Text('Add location'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddLocationPage(),
-                      ),
-                    );
-                  },
-                )
-                    : SizedBox(),
+                        label: const Text('Add location'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddLocationPage(),
+                            ),
+                          );
+                        },
+                      )
+                    : const SizedBox(),
               ),
               Align(
                 alignment: Alignment.topRight,

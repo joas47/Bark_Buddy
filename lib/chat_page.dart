@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
-import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:intl/intl.dart';
@@ -96,11 +94,11 @@ class _ChatPageState extends State<ChatPage> {
                   String firstCheck = allUsers[index] + currentUserUid;
                   String secondCheck = currentUserUid + allUsers[index];
 
-                  final _chatStream = FirebaseFirestore.instance
-                      .collection('chatMessages')
-                      .where('messageId', whereIn: [firstCheck, secondCheck])
-                      .orderBy('timestamp', descending: true)
-                      .snapshots();
+                  final chatStream = FirebaseFirestore.instance
+                        .collection('chatMessages')
+                        .where('messageId', whereIn: [firstCheck, secondCheck])
+                        .orderBy('timestamp', descending: true)
+                        .snapshots();
                   return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                     stream: usersStream,
                     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
@@ -128,35 +126,55 @@ class _ChatPageState extends State<ChatPage> {
                           String? dogName = dogNameSnapshot.data;
 
                           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                            stream: _chatStream,
-                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> chatSnapshot) {
-                              if (chatSnapshot.hasError) {
-                                return const Text('Something went wrong');
-                              }
-                              if (chatSnapshot.connectionState == ConnectionState.waiting) {
-                                return const Text("Loading");
-                              }
-                              List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = chatSnapshot.data!.docs.cast<QueryDocumentSnapshot<Map<String, dynamic>>>();
+                            stream: chatStream,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<
+                                          QuerySnapshot<Map<String, dynamic>>>
+                                      chatSnapshot) {
+                                if (chatSnapshot.hasError) {
+                                  return const Text('Something went wrong');
+                                }
+                                if (chatSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Text("Loading");
+                                }
+                                List<
+                                        QueryDocumentSnapshot<
+                                            Map<String, dynamic>>> messages =
+                                    chatSnapshot.data!.docs.cast<
+                                        QueryDocumentSnapshot<
+                                            Map<String, dynamic>>>();
 
-                              Timestamp basictimestamp = Timestamp.fromMicrosecondsSinceEpoch(1000);
+                                Timestamp basicTimestamp =
+                                    Timestamp.fromMicrosecondsSinceEpoch(1000);
 
-                              String latestMessage = messages.isNotEmpty ? messages.first['message'] ?? '' : '';
-                              Timestamp latestMessageTimeStamp = messages.isNotEmpty ? messages.first['timestamp'] ?? '' : basictimestamp;
-                              String timestampConverted;
-                              if (latestMessageTimeStamp !='' && latestMessageTimeStamp != basictimestamp){
-                                DateTime dateTime = latestMessageTimeStamp.toDate();
+                                String latestMessage = messages.isNotEmpty
+                                    ? messages.first['message'] ?? ''
+                                    : '';
+                                Timestamp latestMessageTimeStamp =
+                                    messages.isNotEmpty
+                                        ? messages.first['timestamp'] ?? ''
+                                        : basicTimestamp;
+                                String timestampConverted;
+                                if (latestMessageTimeStamp != '' &&
+                                    latestMessageTimeStamp != basicTimestamp) {
+                                  DateTime dateTime =
+                                      latestMessageTimeStamp.toDate();
 
-                                timestampConverted = DateFormat.Hm().format(dateTime);
-                              } else if (latestMessageTimeStamp == basictimestamp){
-                                timestampConverted = '';
-                              } else {
-                                timestampConverted = 'error';
-                              }
-                              if (latestMessage.length > 20) {
-                                latestMessage = '${latestMessage.substring(0, 20)}...';
-                              }
+                                  timestampConverted =
+                                      DateFormat.Hm().format(dateTime);
+                                } else if (latestMessageTimeStamp ==
+                                    basicTimestamp) {
+                                  timestampConverted = '';
+                                } else {
+                                  timestampConverted = 'error';
+                                }
+                                if (latestMessage.length > 20) {
+                                  latestMessage =
+                                      '${latestMessage.substring(0, 20)}...';
+                                }
 
-                              bool isRead = messages.isNotEmpty ? messages.first['read'] ?? false : false;
+                                bool isRead = messages.isNotEmpty ? messages.first['read'] ?? false : false;
                               bool isBold = messages.isNotEmpty && messages.first['messageId'] == firstCheck;
 
                               TextStyle latestMessageStyle = TextStyle(
@@ -218,15 +236,12 @@ class _ChatPageState extends State<ChatPage> {
                                   children: [
                                     IconButton(
                                       onPressed: () {
-                                        _showActivityLevelInfoSheet(usersFriendId);
-                                      },
+                                        _showChatWindow(usersFriendId);
+                                        },
                                       icon: const Icon(Icons.menu),
                                     ),
                                   ],
                                 ),
-                                onLongPress: () {
-                                  // TODO: make something with this? (low priority)
-                                },
                               );
                             },
                           );
@@ -237,17 +252,17 @@ class _ChatPageState extends State<ChatPage> {
                 },
               );
             } else {
-              return ListTile(
-                title: Text('No friends or matches'),
-              );
-            }
+              return const ListTile(
+                  title: Text('No friends or matches'),
+                );
+              }
           },
         ),
       ),
     ),);
   }
 
-  void _showActivityLevelInfoSheet(String friendId) async {
+  void _showChatWindow(String friendId) async {
     bool isFriend = false;
 
     final userStream = FirebaseFirestore.instance
@@ -290,7 +305,7 @@ class _ChatPageState extends State<ChatPage> {
                             data['matches'].contains(friendId)) {
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              fixedSize: Size(200, 30),
+                              fixedSize: const Size(200, 30),
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
@@ -352,7 +367,7 @@ class _ChatPageState extends State<ChatPage> {
 
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              fixedSize: Size(200, 30),
+                              fixedSize: const Size(200, 30),
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
@@ -416,7 +431,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(200, 30),
+                        fixedSize: const Size(200, 30),
                       ),
                       onPressed: () {
                         DatabaseHandler.block(friendId);
@@ -431,7 +446,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        fixedSize: Size(200, 30),
+                        fixedSize: const Size(200, 30),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
@@ -507,8 +522,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
         friendName: widget.friendName,
         onRecommendLocationPressed: () {
           _recommendLocation();
-          // Handle the recommend location button press here
-          // Add the code to trigger the recommend location functionality
         },
       ),
       body: Column(
@@ -518,7 +531,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
               stream: _chatStream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Text('Something went wrong');
+                  return const Text('Something went wrong');
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Text('Loading');
@@ -531,7 +544,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     bool isPlaceRecommendation = false;
-                    final messageData = messages[index].data()!;
+                    final messageData = messages[index].data();
                     final senderId = messageData['senderId'] as String;
                     final messageText = messageData['message'];
                     final timestamp = messageData['timestamp'] as Timestamp?;
@@ -571,7 +584,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return CircularProgressIndicator();
+                                  return const CircularProgressIndicator();
                                 }
                                 final profilePictureUrl = snapshot.data;
                                 if (isPlaceRecommendation) {
@@ -587,18 +600,19 @@ class _MatchChatPageState extends State<MatchChatPage> {
                                 }
                               },
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             isPlaceRecommendation && link != null
                                 ? RichText(
                                     text: TextSpan(
                                       children: <TextSpan>[
                                         TextSpan(
                                           text: getMainText(messageText),
-                                          style: TextStyle(color: Colors.white),
+                                          style: const TextStyle(
+                                              color: Colors.white),
                                         ),
                                         TextSpan(
                                             text: getLastTwoWords(messageText),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 decoration:
                                                     TextDecoration.underline),
@@ -612,8 +626,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
                                     ),
                                   )
                                 : Text(
-                                    messageText,
-                                    style: TextStyle(color: Colors.white),
+                              messageText,
+                                    style: const TextStyle(color: Colors.white),
                                   ),
                             FutureBuilder<String?>(
                               future: _formatTimestamp(
@@ -621,7 +635,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return Text(
+                                  return const Text(
                                     'Loading...',
                                     style: TextStyle(color: Colors.white),
                                   );
@@ -630,7 +644,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                                     snapshot.data ?? 'Unknown';
                                 return Text(
                                   formattedTimestamp,
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                 );
                               },
                             ),
@@ -650,7 +664,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Type a message...',
                     ),
                   ),
@@ -661,7 +675,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                     _messageController.clear();
                     _sendMessage(message);
                   },
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                 ),
               ],
             ),
@@ -799,7 +813,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
   }
 
-  // Implement the following helper methods based on your existing code and location database access:
   String currentFriend = 'null';
 
   void setCurrentFriend(String friendId) {
@@ -867,14 +880,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
     String? closestLocationName;
     Position? otherUserLocation;
     DateTime timestamp = DateTime.now();
-    bool resetToday = false;
     await for (final position in otherUserLocationStream) {
       otherUserLocation = position;
       break; // Stop listening after receiving the first position
     }
 
     if (currentUserLocation == null || otherUserLocation == null) {
-      // Error handling code
       return;
     }
 
@@ -882,7 +893,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
       // Set the timestamp to the current time and reset buttonClicks
       timestamp = DateTime.now();
       buttonClicks = 1;
-      resetToday = true;
     } else {
       buttonClicks++;
     }
@@ -1078,7 +1088,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       leading: IconButton(
-        icon: Icon(Icons.arrow_back),
+        icon: const Icon(Icons.arrow_back),
         onPressed: () {
           Navigator.of(context).pop();
         },
@@ -1087,7 +1097,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         TextButton(
           onPressed: onRecommendLocationPressed,
-          child: Text(
+          child: const Text(
             'Recommend a new location',
             style: TextStyle(color: Colors.white),
           ),
