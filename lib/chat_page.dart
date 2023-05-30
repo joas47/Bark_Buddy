@@ -1117,7 +1117,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       return null;
     }
     return closestLocations.length >= index * 2
-        ? closestLocations.sublist((index - 1) * 2, index * 2 + 6)
+        ? closestLocations.sublist((index - 1) * 2, index * 2 + 1)
         : null;
   }
 
