@@ -318,7 +318,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   } else {
                     return Container(
                         alignment: Alignment.center,
-                        margin: const EdgeInsets.symmetric(vertical: 60),
+                        margin: const EdgeInsets.symmetric(vertical: 192),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
