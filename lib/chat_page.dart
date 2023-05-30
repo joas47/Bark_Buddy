@@ -1031,7 +1031,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     print(querySnapshot2.docs.toString());
 
 
-    return (querySnapshot1.docs.isNotEmpty && querySnapshot2.docs.isNotEmpty);
+    return (querySnapshot1.docs.isNotEmpty || querySnapshot2.docs.isNotEmpty);
   }
 
   Position calculateMidpoint(Position location1, Position location2) {
