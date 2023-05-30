@@ -946,8 +946,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
-    if (buttonClicks <= 3) {
-      closestLocationData = await findClosestLocation(midpoint, buttonClicks);
+    if (buttonClicks < 3) {
+      closestLocationData = await findClosestLocation(midpoint, buttonClicks + 1);
     } else {
       _sendWaitMessageFromBarkBuddy();
       return;
@@ -985,7 +985,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
           googleMapsLinkTrimmed);*/
       alreadyFoundCounter++;
       closestLocationData =
-      await findClosestLocation(midpoint, buttonClicks + alreadyFoundCounter);
+      await findClosestLocation(midpoint, buttonClicks + 1 + alreadyFoundCounter);
 
       closestLocationMidPoint = closestLocationData![0];
       closestLocationName = closestLocationData[1];
@@ -1119,7 +1119,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
     if (closestLocations.isEmpty) {
       return null;
     }
-
     return closestLocations.length >= index * 2
         ? closestLocations.sublist((index - 1) * 2, index * 2 + 6)
         : null;
