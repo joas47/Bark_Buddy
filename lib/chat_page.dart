@@ -901,7 +901,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     String? closestLocationName;
     Position? otherUserLocation;
     DateTime timestamp;
-    int alreadyFoundCounter = 0;
+    int alreadyFoundCounter = 1;
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
     String firstCheck = (currentUserUid! + currentFriend);
     String secondCheck = (currentFriend + currentUserUid!);
@@ -947,7 +947,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
     if (buttonClicks < 3) {
-      closestLocationData = await findClosestLocation(midpoint, buttonClicks + 1);
+      closestLocationData = await findClosestLocation(midpoint, buttonClicks);
     } else {
       _sendWaitMessageFromBarkBuddy();
       return;
@@ -985,7 +985,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
           googleMapsLinkTrimmed);*/
       alreadyFoundCounter++;
       closestLocationData =
-      await findClosestLocation(midpoint, buttonClicks + 1 + alreadyFoundCounter);
+      await findClosestLocation(midpoint, buttonClicks + alreadyFoundCounter);
 
       closestLocationMidPoint = closestLocationData![0];
       closestLocationName = closestLocationData[1];
