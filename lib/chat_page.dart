@@ -487,7 +487,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
   int buttonClicks1 = 0;
   int buttonClicks2 = 0;
   bool isChatWindowActive = false;
-  bool isFirstRecommendation = false;
+  bool isFirstRecommendation = true;
 
   @override
   void initState() {
@@ -531,7 +531,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
       _chatStream.listen((snapshot) {
         if (snapshot.docs.isEmpty) {
           _recommendLocation();
-          isFirstRecommendation = true;
         }
       });
     });
