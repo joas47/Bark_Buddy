@@ -2,6 +2,7 @@ import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:cross_platform_test/make_owner_profile_page.dart';
+import 'package:cross_platform_test/password_reset.dart';
 import 'package:cross_platform_test/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,13 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 16.0),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ResetPage()));
+                },
+                child: const Text('Forgotten Password? reset here.'),
+              ),
+              const SizedBox(height: 0.2),
               TextButton(
                 onPressed: () {
                   Navigator.push(
