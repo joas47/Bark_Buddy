@@ -484,7 +484,9 @@ class _MatchChatPageState extends State<MatchChatPage> {
   final TextEditingController _messageController = TextEditingController();
   late SharedPreferences _prefs;
   int buttonClicks = 0;
+  int buttonClicks2 = 0;
   bool isChatWindowActive = false;
+  bool isFirstRecommendation = true;
 
   @override
   void initState() {
@@ -493,6 +495,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     setCurrentFriend(widget.friendId);
     final currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+    int buttonClicks1;
 
     String firstCheck = widget.friendId + currentUserUid;
     String secondCheck = currentUserUid + widget.friendId;
@@ -504,7 +507,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .snapshots();
 
     _chatStream.listen((QuerySnapshot<Map<String, dynamic>> snapshot) {
-      for (QueryDocumentSnapshot<Map<String, dynamic>> messageSnapshot in snapshot.docs) {
+      for (QueryDocumentSnapshot<
+          Map<String, dynamic>> messageSnapshot in snapshot.docs) {
         if (isChatWindowActive && messageSnapshot['messageId'] == firstCheck) {
           messageSnapshot.reference.update({'read': true});
         }
@@ -514,7 +518,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _prefs = prefs;
-        buttonClicks = _prefs.getInt('buttonClicks') ?? 0;
+        buttonClicks1 = _prefs.getInt('buttonClicks' + currentFriend) ?? 0;
+        buttonClicks2 = _prefs.getInt(currentFriend + 'buttonClicks') ?? 0;
+        if (buttonClicks1 < buttonClicks2) {
+          buttonClicks = buttonClicks2;
+        } else {
+          buttonClicks = buttonClicks1;
+        }
       });
 
       _chatStream.listen((snapshot) {
@@ -582,8 +592,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
                           color: isPlaceRecommendation
                               ? Colors.red[400]
                               : isSender
-                                  ? Colors.blue
-                                  : Colors.grey,
+                              ? Colors.blue
+                              : Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -605,7 +615,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
                                 } else {
                                   return CircleAvatar(
                                     backgroundImage:
-                                        NetworkImage(profilePictureUrl ?? ''),
+                                    NetworkImage(profilePictureUrl ?? ''),
                                   );
                                 }
                               },
@@ -613,32 +623,32 @@ class _MatchChatPageState extends State<MatchChatPage> {
                             const SizedBox(height: 8),
                             isPlaceRecommendation && link != null
                                 ? RichText(
-                                    text: TextSpan(
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          text: getMainText(messageText),
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
-                                        TextSpan(
-                                            text: getLastTwoWords(messageText),
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                decoration:
-                                                    TextDecoration.underline),
-                                            recognizer: TapGestureRecognizer()
-                                              ..onTap = () {
-                                                Uri linkToMaps =
-                                                    Uri.parse(link);
-                                                launchUrl(linkToMaps);
-                                              }),
-                                      ],
-                                    ),
-                                  )
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: getMainText(messageText),
+                                    style: const TextStyle(
+                                        color: Colors.white),
+                                  ),
+                                  TextSpan(
+                                      text: getLastTwoWords(messageText),
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          decoration:
+                                          TextDecoration.underline),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Uri linkToMaps =
+                                          Uri.parse(link);
+                                          launchUrl(linkToMaps);
+                                        }),
+                                ],
+                              ),
+                            )
                                 : Text(
                               messageText,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
+                              style: const TextStyle(color: Colors.white),
+                            ),
                             FutureBuilder<String?>(
                               future: _formatTimestamp(
                                   timestamp, senderId, isPlaceRecommendation),
@@ -694,6 +704,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       ),
     );
   }
+
   @override
   void dispose() {
     isChatWindowActive = false;
@@ -729,7 +740,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       'receiverId': widget.friendId,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
-      'read' : false,
+      'read': false,
     });
   }
 
@@ -749,7 +760,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       'senderName': senderName,
       'profilePicture': profilePicture,
       'link': link,
-      'read' : false,
+      'read': false,
       'color': '#${color.value.toRadixString(16)}',
     });
   }
@@ -766,17 +777,17 @@ class _MatchChatPageState extends State<MatchChatPage> {
       'senderId': 'BarkBuddy-wait-message',
       'receiverId': widget.friendId,
       'message':
-          'That is all the recommendations for today, check back tomorrow!',
+      'That is all the recommendations for today, check back tomorrow!',
       'timestamp': FieldValue.serverTimestamp(),
       'senderName': 'BarkBuddy',
-      'read' : false,
+      'read': false,
       'profilePicture': 'assets/images/logoWhiteBg.png',
       'color': colorHex,
     });
   }
 
-  Future<String> _formatTimestamp(
-      Timestamp? timestamp, String senderId, bool isPlaceRecommendation) async {
+  Future<String> _formatTimestamp(Timestamp? timestamp, String senderId,
+      bool isPlaceRecommendation) async {
     if (timestamp != null && !isPlaceRecommendation) {
       final dateTime = timestamp.toDate();
       final formatter = DateFormat('MMM d, HH:mm');
@@ -832,7 +843,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
   Future<Position?> getCurrentUserLocation() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     final userData =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    await FirebaseFirestore.instance.collection('users').doc(userId).get();
 
     if (userData.exists) {
       final data = userData.data();
@@ -884,12 +895,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
   void _recommendLocation() async {
     final currentUserLocation = await getCurrentUserLocation();
     final Stream<Position?> otherUserLocationStream =
-        getOtherUserLocation(currentFriend);
+    getOtherUserLocation(currentFriend);
     List<String?>? closestLocationData;
     String? closestLocationMidPoint;
     String? closestLocationName;
     Position? otherUserLocation;
     DateTime timestamp;
+    int alreadyFoundCounter = 0;
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
     String firstCheck = (currentUserUid! + currentFriend);
     String secondCheck = (currentFriend + currentUserUid!);
@@ -902,7 +914,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
       return;
     }
     // Fetch the latest message timestamp from recommendation_data collection
-    final recommendationsCollection = FirebaseFirestore.instance.collection('recommendation_data');
+    final recommendationsCollection = FirebaseFirestore.instance.collection(
+        'recommendation_data');
     final query = recommendationsCollection
         .where('recommendationId', whereIn: [firstCheck, secondCheck])
         .orderBy('timestamp', descending: true)
@@ -918,17 +931,22 @@ class _MatchChatPageState extends State<MatchChatPage> {
       timestamp = DateTime.fromMicrosecondsSinceEpoch(10000);
       print('No matching recommendation found.');
     }
-    if (buttonClicks == 0 || timestamp?.day != DateTime.now().day) {
+    if (buttonClicks == 0 || timestamp?.day != DateTime
+        .now()
+        .day) {
       // Set the timestamp to the current time and reset buttonClicks
       timestamp = DateTime.now();
       buttonClicks = 1;
     } else {
       buttonClicks++;
-      _prefs.setInt('buttonClicks', buttonClicks);
+      _prefs.setInt(
+          'buttonClicks' + currentFriend + currentUserUid, buttonClicks);
+      _prefs.setInt(
+          currentFriend + 'buttonClicks' + currentUserUid, buttonClicks);
     }
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
-    if (buttonClicks <= 3) {
+    if (buttonClicks < 3) {
       closestLocationData = await findClosestLocation(midpoint, buttonClicks);
     } else {
       _sendWaitMessageFromBarkBuddy();
@@ -947,10 +965,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
           'googleMapsLinkTrimmed');
       return;
     }
-
     String googleMapsLink =
         'https://maps.google.com/?q=$closestLocationMidPoint';
-    final String googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
+    String googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
+
 
     // Check if the location was recommended in the last 24 hours
     final isLocationRecommended = await checkIfLocationRecommendedBefore(
@@ -958,15 +976,20 @@ class _MatchChatPageState extends State<MatchChatPage> {
         FirebaseAuth.instance.currentUser!.uid,
         googleMapsLinkTrimmed,
         timestamp);
-    if (isLocationRecommended) {
-      _sendMessageFromBarkBuddy(
-          'This location was already recommended in the last 24 hours.',
-          'BarkBuddy',
-          'assets/images/logoWhiteBg.png',
-          Colors.red,
-          googleMapsLinkTrimmed);
-      return;
+    if (isLocationRecommended || isFirstRecommendation) {
+      alreadyFoundCounter++;
+      closestLocationData =
+      await findClosestLocation(midpoint, buttonClicks + alreadyFoundCounter);
+
+      closestLocationMidPoint = closestLocationData![0];
+      closestLocationName = closestLocationData[1];
+      closestLocationName ??= 'this dog-friendly spot at';
+      googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
+      googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
+      isFirstRecommendation = false;
     }
+    print(closestLocationData?.length.toString());
+
 
     // Store the recommendation in Firestore
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -976,10 +999,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
         'link': googleMapsLinkTrimmed,
         'timestamp': FieldValue.serverTimestamp(),
         'participants': [currentFriend, currentUser.uid],
-        'recommendationId' : (currentUser.uid + currentFriend),
+        'recommendationId': (currentUser.uid + currentFriend),
       };
       final userRecommendationsCollection =
-          FirebaseFirestore.instance.collection('recommendation_data');
+      FirebaseFirestore.instance.collection('recommendation_data');
       await userRecommendationsCollection.add(recommendationData);
     }
 
@@ -989,22 +1012,29 @@ class _MatchChatPageState extends State<MatchChatPage> {
         Colors.red, googleMapsLinkTrimmed);
   }
 
-  Future<bool> checkIfLocationRecommendedBefore(
-      String currentFriend,
+  Future<bool> checkIfLocationRecommendedBefore(String currentFriend,
       String currentUserUID,
       String googleMapsLinkTrimmed,
       DateTime recommendationTimestamp) async {
     final userRecommendationsCollection =
-        FirebaseFirestore.instance.collection('recommendation_data');
-    final querySnapshot = await userRecommendationsCollection
+    FirebaseFirestore.instance.collection('recommendation_data');
+    final querySnapshot1 = await userRecommendationsCollection
         .where('recommendationId',
-                whereIn: [currentFriend + currentUserUID, currentUserUID + currentFriend])
+        isEqualTo: (currentFriend + currentUserUID))
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
+    final querySnapshot2 = await userRecommendationsCollection
+        .where('recommendationId',
+        isEqualTo: (currentUserUID + currentFriend))
+        .where('link', isEqualTo: googleMapsLinkTrimmed)
+        .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
+        .get();
+    print(querySnapshot1.docs.toString());
+    print(querySnapshot2.docs.toString());
 
 
-    return querySnapshot.docs.isNotEmpty;
+    return (querySnapshot1.docs.isNotEmpty || querySnapshot2.docs.isNotEmpty);
   }
 
   Position calculateMidpoint(Position location1, Position location2) {
@@ -1086,7 +1116,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
 
     return closestLocations.length >= index * 2
-        ? closestLocations.sublist((index - 1) * 2, index * 2 + 1)
+        ? closestLocations.sublist((index - 1) * 2, index * 2 + 6)
         : null;
   }
 
@@ -1106,6 +1136,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     );
   }
 }
+
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String friendName;
