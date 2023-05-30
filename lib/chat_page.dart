@@ -735,7 +735,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         widget.friendId,
       ],
       'messageId': (currentUserID + widget.friendId),
-      'senderId': 'bark-buddy',
+      'senderId': 'BarkBuddy',
       'receiverId': widget.friendId,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
@@ -756,12 +756,12 @@ class _MatchChatPageState extends State<MatchChatPage> {
         widget.friendId,
       ],
       'messageId': (currentUserID + widget.friendId),
-      'senderId': 'bark-buddy-wait-message',
+      'senderId': 'BarkBuddy-wait-message',
       'receiverId': widget.friendId,
       'message':
           'That is all the recommendations for today, check back tomorrow!',
       'timestamp': FieldValue.serverTimestamp(),
-      'senderName': 'Bark-buddy',
+      'senderName': 'BarkBuddy',
       'read' : false,
       'profilePicture': 'assets/images/logoWhiteBg.png',
       'color': colorHex,
@@ -779,7 +779,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     } else if (timestamp != null && isPlaceRecommendation) {
       final dateTime = timestamp.toDate();
       final formatter = DateFormat('MMM d, HH:mm');
-      const ownerName = 'Bark-Buddy';
+      const ownerName = 'BarkBuddy';
       final formattedTimestamp = formatter.format(dateTime);
       return '$formattedTimestamp - ${ownerName ?? 'Unknown'}';
     }
@@ -917,7 +917,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     if (closestLocationMidPoint == null || closestLocationName == null) {
       _sendMessageFromBarkBuddy(
           'Unable to find a recommended location.',
-          'bark-buddy',
+          'BarkBuddy',
           'assets/images/logoWhiteBg.png',
           Colors.red,
           'googleMapsLinkTrimmed');
@@ -938,7 +938,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     if (isLocationRecommended) {
       _sendMessageFromBarkBuddy(
           'This location was already recommended in the last 24 hours.',
-          'bark-buddy',
+          'BarkBuddy',
           'assets/images/logoWhiteBg.png',
           Colors.red,
           googleMapsLinkTrimmed);
@@ -953,6 +953,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         'link': googleMapsLinkTrimmed,
         'timestamp': FieldValue.serverTimestamp(),
         'participants': [currentFriend, currentUser.uid],
+        'recommendationId' : (currentUser.uid + currentFriend),
       };
       final userRecommendationsCollection =
           FirebaseFirestore.instance.collection('recommendation_data');
@@ -961,7 +962,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
 
     final message =
         'Hey, I recommend visiting $closestLocationName  $googleMapsLinkTrimmed';
-    _sendMessageFromBarkBuddy(message, 'bark-buddy', 'assets/images/logo.png',
+    _sendMessageFromBarkBuddy(message, 'BarkBuddy', 'assets/images/logo.png',
         Colors.red, googleMapsLinkTrimmed);
   }
 
@@ -973,8 +974,8 @@ class _MatchChatPageState extends State<MatchChatPage> {
     final userRecommendationsCollection =
         FirebaseFirestore.instance.collection('recommendation_data');
     final querySnapshot = await userRecommendationsCollection
-        .where('participants',
-            arrayContainsAny: [currentFriend, currentUserUID])
+        .where('recommendationId',
+                whereIn: [currentFriend + currentUserUID, currentUserUID + currentFriend])
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
