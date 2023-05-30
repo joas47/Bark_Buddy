@@ -487,6 +487,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
   int buttonClicks1 = 0;
   int buttonClicks2 = 0;
   bool isChatWindowActive = false;
+  bool isFirstRecommendation = true;
 
   @override
   void initState() {
@@ -946,7 +947,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
-    if (buttonClicks <= 3) {
+    if (buttonClicks < 3) {
       closestLocationData = await findClosestLocation(midpoint, buttonClicks);
     } else {
       _sendWaitMessageFromBarkBuddy();
@@ -976,13 +977,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         FirebaseAuth.instance.currentUser!.uid,
         googleMapsLinkTrimmed,
         timestamp);
-    if (isLocationRecommended) {
-      /*_sendMessageFromBarkBuddy(
-          'This location was already recommended in the last 24 hours.',
-          'BarkBuddy',
-          'assets/images/logoWhiteBg.png',
-          Colors.red,
-          googleMapsLinkTrimmed);*/
+    if (isLocationRecommended || isFirstRecommendation) {
       alreadyFoundCounter++;
       closestLocationData =
       await findClosestLocation(midpoint, buttonClicks + alreadyFoundCounter);
@@ -992,6 +987,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       closestLocationName ??= 'this dog-friendly spot at';
       googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
       googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
+      isFirstRecommendation = false;
     }
     print(closestLocationData?.length.toString());
 
