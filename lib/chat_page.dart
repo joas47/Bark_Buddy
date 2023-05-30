@@ -508,7 +508,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
         }
       }
     });
+
+
     _chatStream.listen((snapshot) {
+      print(snapshot.docs.toString());
       if (snapshot.docs.isEmpty) {
         _recommendLocation();
       }
@@ -880,10 +883,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
     String? closestLocationName;
     Position? otherUserLocation;
     DateTime timestamp = DateTime.now();
+    print("försöker rekommendera");
     await for (final position in otherUserLocationStream) {
       otherUserLocation = position;
       break; // Stop listening after receiving the first position
     }
+
+    print(currentUserLocation!.toString() + otherUserLocation!.toString());
 
     if (currentUserLocation == null || otherUserLocation == null) {
       return;
@@ -928,6 +934,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
         FirebaseAuth.instance.currentUser!.uid,
         googleMapsLinkTrimmed,
         timestamp);
+    print('islocationrecommended' + isLocationRecommended.toString());
     if (isLocationRecommended) {
       _sendMessageFromBarkBuddy(
           'This location was already recommended in the last 24 hours.',
@@ -964,7 +971,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       String googleMapsLinkTrimmed,
       DateTime recommendationTimestamp) async {
     final userRecommendationsCollection =
-        FirebaseFirestore.instance.collection('user_recommendations');
+        FirebaseFirestore.instance.collection('recommendation_data');
     final querySnapshot = await userRecommendationsCollection
         .where('participants',
             arrayContainsAny: [currentFriend, currentUserUID])
