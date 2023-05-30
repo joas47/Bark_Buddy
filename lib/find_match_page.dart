@@ -62,11 +62,13 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
-    String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUserUid).first;
+    String? myDogPicUrl = await DatabaseHandler
+        .getDogPic(currentUserUid)
+        .first;
     String? matchDogPicURL = '';
     String matchOwnerName = '';
     final currentUserDoc =
-        FirebaseFirestore.instance.collection('users').doc(currentUserUid);
+    FirebaseFirestore.instance.collection('users').doc(currentUserUid);
 
     // Fetch user data from Firestore
     final matchOwnerDoc = await FirebaseFirestore.instance
@@ -77,7 +79,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
       //print("if user doc exists...");
       matchOwnerName = matchOwnerDoc.data()?['name'] ?? '';
       matchDogPicURL =
-          await DatabaseHandler.getDogPic(matchOwnerID).first ?? '';
+          await DatabaseHandler
+              .getDogPic(matchOwnerID)
+              .first ?? '';
       //print(matchOwnerName + " " + matchDogPicURL);
       // remove from pendingLikes
       final batch = FirebaseFirestore.instance.batch();
@@ -116,7 +120,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   CircleAvatar(
                     radius: 50,
                     backgroundImage:
-                        myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
+                    myDogPicUrl != null ? NetworkImage(myDogPicUrl) : null,
                     child: myDogPicUrl == null ? Text('No picture') : null,
                   ),
                   CircleAvatar(
@@ -147,10 +151,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MatchChatPage(
-                                friendId: matchOwnerID,
-                                friendName: matchOwnerName,
-                              ),
+                              builder: (context) =>
+                                  MatchChatPage(
+                                    friendId: matchOwnerID,
+                                    friendName: matchOwnerName,
+                                  ),
                             ),
                           );
                         },
@@ -192,11 +197,11 @@ class _FindMatchPageState extends State<FindMatchPage> {
     super.initState();
     final currentUserDoc = FirebaseAuth.instance.currentUser?.uid;
     DocumentReference reference =
-        FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
+    FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
     reference.snapshots().listen((querySnapshot) {
       setState(() {
         Map<String, dynamic> currentUserData =
-            querySnapshot.data() as Map<String, dynamic>;
+        querySnapshot.data() as Map<String, dynamic>;
         if (currentUserData.containsKey("pendingMatches")) {
           _pendingMatchesField = querySnapshot.get("pendingMatches");
           if (_pendingMatchesField.isNotEmpty) {
@@ -211,7 +216,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
   @override
   Widget build(BuildContext context) {
     final usersStream =
-        FirebaseFirestore.instance.collection('users').snapshots();
+    FirebaseFirestore.instance.collection('users').snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Match'),
@@ -262,7 +267,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   "21",
                   "22",
                   "23",
-                ].asMap().entries.map((e) {
+                ]
+                    .asMap()
+                    .entries
+                    .map((e) {
                   return ClockLabel.fromIndex(
                     idx: e.key,
                     length: 24,
@@ -281,24 +289,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
             //const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(width: 18),
-                const Text('Filter: '),
-                IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return _filterDialog(context);
-                      },
-                    );
-                  },
-                ),
-                // You can place other children here as required
-                //_filterDropdown(),
-                //_buildSubcategoryDropdown(),
-              ],
             ),
             StreamBuilder(
               stream: usersStream,
@@ -308,13 +298,13 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   final userDocs = userSnapshot.data!.docs;
                   // the current user's document, for easy access
                   DocumentSnapshot currentUserDoc = userDocs.firstWhere(
-                      (element) =>
-                          element.id == FirebaseAuth.instance.currentUser!.uid);
+                          (element) =>
+                      element.id == FirebaseAuth.instance.currentUser!.uid);
                   _currentUserDocCopy = currentUserDoc;
                   // remove the current user from the list of potential matches (shouldn't match with yourself)
                   userDocs.remove(currentUserDoc);
                   Map<String, dynamic>? ownerData =
-                      currentUserDoc.data() as Map<String, dynamic>?;
+                  currentUserDoc.data() as Map<String, dynamic>?;
                   // until the user has set their availability, they shouldn't be able to see any matches
                   if (_isAvailabilityValid(currentUserDoc)) {
                     if (!ownerData!.containsKey(
@@ -350,7 +340,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                   if (userDocs.isEmpty) {
                     return Container(
                         alignment: Alignment.center,
-                        margin: const EdgeInsets.symmetric(vertical: 0),
+                        margin: const EdgeInsets.symmetric(vertical: 193),
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
@@ -385,7 +375,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
                       DocumentSnapshot ownerDoc = userDocs[itemIndex];
                       Map<String, dynamic>? ownerData =
-                          ownerDoc.data() as Map<String, dynamic>?;
+                      ownerDoc.data() as Map<String, dynamic>?;
                       if (!ownerData!.containsKey('dogs')) {
                         return const Text('Error: user has no dog!!');
                       }
@@ -412,7 +402,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                           // Should never happen, but just in case.
                           // You should never be able to create a dog without a picture.
                           Map<String, dynamic>? dogData =
-                              dogDoc.data() as Map<String, dynamic>?;
+                          dogDoc.data() as Map<String, dynamic>?;
                           if (!dogData!.containsKey('pictureUrls') ||
                               dogData['pictureUrls'] == null ||
                               dogData['pictureUrls'].isEmpty) {
@@ -436,217 +426,6 @@ class _FindMatchPageState extends State<FindMatchPage> {
     );
   }
 
-  AlertDialog _filterDialog(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Filter Options'),
-      content: SingleChildScrollView(
-        child: ListBody(
-          children: <Widget>[
-            ExpansionTile(
-              maintainState: true,
-              title: const Text('Dogs'),
-              children: <Widget>[
-                ExpansionTile(
-                  maintainState: true,
-                  title: const Text('Size'),
-                  children: <Widget>[
-                    FilterCheckbox(
-                      title: 'Small',
-                      initialValue: _showSmallDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowSmallDogs = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Medium',
-                      initialValue: _showMediumDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowMediumDogs = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Large',
-                      initialValue: _showLargeDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowLargeDogs = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                ExpansionTile(
-                  maintainState: true,
-                  title: const Text('Gender'),
-                  children: <Widget>[
-                    FilterCheckbox(
-                      title: 'Male',
-                      initialValue: _showMaleDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowMaleDogs = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Female',
-                      initialValue: _showFemaleDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowFemaleDogs = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Neutered',
-                      initialValue: _showNeuteredDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowNeuteredDogs = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                ExpansionTile(
-                  maintainState: true,
-                  title: const Text('Activity level'),
-                  children: <Widget>[
-                    FilterCheckbox(
-                      title: 'Low',
-                      initialValue: _showLowActDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowLowActDogs = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Medium',
-                      initialValue: _showMediumActDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowMediumActDogs = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'High',
-                      initialValue: _showHighActDogs,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowHighActDogs = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            ExpansionTile(
-              maintainState: true,
-              title: const Text('Owners'),
-              children: <Widget>[
-                ExpansionTile(
-                  maintainState: true,
-                  title: const Text('Age'),
-                  children: <Widget>[
-                    FilterCheckbox(
-                      title: '18 - 24',
-                      initialValue: _showOwnersAge18to24,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowOwnersAge18to24 = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: '25 - 35',
-                      initialValue: _showOwnersAge25to35,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowOwnersAge25to35 = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: '36+',
-                      initialValue: _showOwnersAgeAbove35,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowOwnersAgeAbove35 = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                ExpansionTile(
-                  maintainState: true,
-                  title: const Text('Gender'),
-                  children: <Widget>[
-                    FilterCheckbox(
-                      title: 'Male',
-                      initialValue: _showOwnerGenderMale,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowOwnerGenderMale = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Female',
-                      initialValue: _showOwnerGenderFemale,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowOwnerGenderFemale = value;
-                        });
-                      },
-                    ),
-                    FilterCheckbox(
-                      title: 'Other',
-                      initialValue: _showOwnerGenderOther,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _updatedShowOwnerGenderOther = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text('Apply'),
-          onPressed: () {
-            Navigator.of(context).pop();
-            _applyFilter();
-          },
-        ),
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-            _loadSavedFilter();
-          },
-        ),
-        TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _resetFilter();
-            },
-            child: const Text('Reset')),
-      ],
-    );
-  }
-
   void _refineMatches(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs,
       DocumentSnapshot currentUserDoc) {
@@ -661,7 +440,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
     // filter out users based on their availability
     Set<DocumentSnapshot> removeSomeMore =
-        _filterOutBasedOnAvailability(userDocs, currentUserDoc);
+    _filterOutBasedOnAvailability(userDocs, currentUserDoc);
     userDocs.removeWhere((element) => removeSomeMore.contains(element));
 
     // sort userDocs by distance from current user
@@ -718,7 +497,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
     String currentUserEndTime = currentUserDoc['availability']['endTime'];
 
     TimeRange currUserTR =
-        _convertToTimeRange(currentUserStartTime, currentUserEndTime);
+    _convertToTimeRange(currentUserStartTime, currentUserEndTime);
 
     for (var doc in userDocs) {
       if (!_isAvailabilityValid(doc)) {
@@ -824,7 +603,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       }
 
       Map<String, dynamic> currentUserData =
-          currentUserDoc.data() as Map<String, dynamic>;
+      currentUserDoc.data() as Map<String, dynamic>;
 
       // removes users that are already matched with the current user
       if (currentUserData.containsKey('matches') &&
@@ -863,7 +642,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
               );
             },
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.6,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.6,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
@@ -929,7 +711,8 @@ class _FindMatchPageState extends State<FindMatchPage> {
               ),
               const SizedBox(width: 5),
               Text(
-                  "${_distanceBetweenTwoUsers(currentUserDoc, ownerDoc)} km away",
+                  "${_distanceBetweenTwoUsers(
+                      currentUserDoc, ownerDoc)} km away",
                   style: const TextStyle(color: Colors.white, fontSize: 18)),
             ]),
           ),
@@ -1088,63 +871,4 @@ class _FindMatchPageState extends State<FindMatchPage> {
     });
   }
 
-// WIP filter (HARD)
-// Set<DocumentSnapshot<Object?>> _filterOutBasedOnFilter(
-//     List<QueryDocumentSnapshot<Map<String, dynamic>>> userDocs) {
-//   Set<DocumentSnapshot<Object?>> filteredUserDocs = {};
-//
-//   Query query = FirebaseFirestore.instance.collection('Dogs').where('Size', isNotEqualTo: 'Medium');
-//
-//   query.get().then((querySnapshot) {
-//     for (var doc in querySnapshot.docs) {
-//       filteredUserDocs.add(doc);
-//     }
-//     print("filteredUserDocs length: ${filteredUserDocs.length}");
-//   }).catchError((error) {
-//     // Handle any errors
-//     print("Error occurred during Firestore query: $error");
-//   });
-//
-//   return filteredUserDocs;
-// }
-}
-
-class FilterCheckbox extends StatefulWidget {
-  final String title;
-  final bool initialValue;
-  final Function(bool) onChanged;
-
-  const FilterCheckbox({
-    super.key,
-    required this.title,
-    required this.initialValue,
-    required this.onChanged,
-  });
-
-  @override
-  _FilterCheckboxState createState() => _FilterCheckboxState();
-}
-
-class _FilterCheckboxState extends State<FilterCheckbox> {
-  late bool _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.initialValue;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CheckboxListTile(
-      title: Text(widget.title),
-      value: _value,
-      onChanged: (newValue) {
-        setState(() {
-          _value = newValue!;
-        });
-        widget.onChanged(newValue!);
-      },
-    );
-  }
 }
