@@ -520,6 +520,31 @@ class _FindMatchPageState extends State<FindMatchPage> {
   }
 
   bool _availabilityOverlaps(TimeRange userTR, TimeRange otherTR) {
+    DateTime userStartTime = _getTimeDateTime(userTR.startTime);
+    DateTime userEndTime = _getTimeDateTime(userTR.endTime);
+    DateTime otherStartTime = _getTimeDateTime(otherTR.startTime);
+    DateTime otherEndTime = _getTimeDateTime(otherTR.endTime);
+
+    if (userStartTime.isAfter(otherEndTime) ||
+        userEndTime.isBefore(otherStartTime)) {
+      return false;
+    }
+
+    DateTime overlapStart =
+        userStartTime.isAfter(otherStartTime) ? userStartTime : otherStartTime;
+    DateTime overlapEnd =
+        userEndTime.isBefore(otherEndTime) ? userEndTime : otherEndTime;
+
+    Duration overlapDuration = overlapEnd.difference(overlapStart);
+    return overlapDuration >= const Duration(minutes: 30);
+  }
+
+  DateTime _getTimeDateTime(TimeOfDay time) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  }
+
+/*  bool _availabilityOverlaps(TimeRange userTR, TimeRange otherTR) {
     if (userTR.endTime.hour < otherTR.startTime.hour ||
         (userTR.endTime.hour == otherTR.startTime.hour &&
             userTR.endTime.minute < otherTR.startTime.minute)) {
@@ -531,7 +556,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
       return false;
     }
     return true;
-  }
+  }*/
 
   TimeRange _convertToTimeRange(String startTimeString, String endTimeString) {
     final startTimeParts = startTimeString.split(':');
