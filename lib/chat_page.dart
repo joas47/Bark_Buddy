@@ -984,7 +984,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
           closestLocationName ??= 'this dog-friendly spot at';
           googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
           googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
-      return;
     }
 
 
