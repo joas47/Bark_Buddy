@@ -753,16 +753,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content:
-                    Text('like has been sent'),
+                    Text('Like has been sent'),
                   ),
                 );
                 DatabaseHandler.sendLike(ownerDoc.id);
               },
             ),
-
           ],
         ),
-
       ],
     );
   }
