@@ -15,7 +15,6 @@ class AddLocationPage extends StatefulWidget {
   _AddLocationPageState createState() => _AddLocationPageState();
 }
 
-// TODO: remove all print statements before we're done
 class _AddLocationPageState extends State<AddLocationPage> {
   late GoogleMapController mapController;
   bool _showThanksDialog = false;
@@ -85,14 +84,13 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
-      //print('Address data: ${data['address']}'); // print the entire address data
       var locationType = data['address']?['waterway'];
       if (locationType != null) {
         // If the 'waterway' key exists in the address, then it's a water body.
         return true;
       }
     } else {
-      //print('Failed to load location data');
+
     }
 
     // If we reach here, then it's not a water body.
@@ -104,7 +102,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
     bool isWater = await _isLocationWater(latLng.latitude, latLng.longitude);
     if(isWater){
-      //print("Location is on water, not adding");
+
       return;
     }
     // Catch the PlatformException thrown when no address information is found
@@ -117,7 +115,6 @@ class _AddLocationPageState extends State<AddLocationPage> {
           Text('No address information found for tapped location, not adding'),
         ),
       );
-      //print('No address information found for tapped location, not adding');
       return;
     }
 
@@ -284,7 +281,6 @@ class _AddLocationPageState extends State<AddLocationPage> {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
       Placemark place = placemarks[0];
-      print (place);
       String street = place.street ?? '';
       String postalCode = place.postalCode ?? '';
       String subLocality = place.subLocality ?? '';
