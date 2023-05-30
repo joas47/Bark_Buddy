@@ -370,6 +370,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                         ));
                   }
                   /*// TODO: Special case: what to do if there's only one potential match to show?
+                  // we can just add one empty slide stating that there is only one match.
               if (userDocs.length == 1) {
                 DocumentSnapshot ownerDoc = userDocs.first;
                 final dogDoc = FirebaseFirestore.instance
@@ -963,7 +964,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 color: Colors.redAccent,
               ),
               onPressed: () {
-                // TODO: give feedback when liking a dog, right now it just disappears
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content:
+                    Text('like has been sent'),
+                  ),
+                );
                 DatabaseHandler.sendLike(ownerDoc.id);
               },
             ),
