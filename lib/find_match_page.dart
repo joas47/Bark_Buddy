@@ -369,7 +369,9 @@ class _FindMatchPageState extends State<FindMatchPage> {
                 return _buildPotentialMatch(context, userDocs.first, dogDoc);
               }*/
                   // begins the process of displaying the matches
-                  return CarouselSlider.builder(
+                return Padding(
+                padding: const EdgeInsets.only(top: 20),
+                  child: CarouselSlider.builder(
                     itemCount: userDocs.length,
                     // loops through the list of potential matches one by one
                     itemBuilder: (context, int itemIndex, int pageViewIndex) {
@@ -414,6 +416,7 @@ class _FindMatchPageState extends State<FindMatchPage> {
                       );
                     },
                     options: CarouselOptions(height: 600),
+                  ),
                   );
                 } else {
                   return const Text("No data");
