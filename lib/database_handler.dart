@@ -278,7 +278,16 @@ class DatabaseHandler {
       'age': age,
       'surname': lName,
       'about': bio,
-      'picture': profilePic
+      'picture': profilePic,
+      'friendrequests': [],
+      'friends': [],
+      'matches': [],
+      'blockedUsers': [],
+      'blockedBy': [],
+      'pendingLikes': [],
+      'receivedLikes': [],
+      'pendingMatches': [],
+      'availability': [],
     });
   }
 
