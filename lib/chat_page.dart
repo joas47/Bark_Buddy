@@ -1015,16 +1015,23 @@ class _MatchChatPageState extends State<MatchChatPage> {
       DateTime recommendationTimestamp) async {
     final userRecommendationsCollection =
         FirebaseFirestore.instance.collection('recommendation_data');
-    final querySnapshot = await userRecommendationsCollection
+    final querySnapshot1 = await userRecommendationsCollection
         .where('recommendationId',
-                whereIn: [currentFriend + currentUserUID, currentUserUID + currentFriend])
+        isEqualTo: (currentFriend + currentUserUID))
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
-    print(querySnapshot.docs.toString());
+    final querySnapshot2 = await userRecommendationsCollection
+        .where('recommendationId',
+        isEqualTo: (currentUserUID + currentFriend))
+        .where('link', isEqualTo: googleMapsLinkTrimmed)
+        .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
+        .get();
+    print(querySnapshot1.docs.toString());
+    print(querySnapshot2.docs.toString());
 
 
-    return querySnapshot.docs.isNotEmpty;
+    return (querySnapshot1.docs.isNotEmpty && querySnapshot2.docs.isNotEmpty);
   }
 
   Position calculateMidpoint(Position location1, Position location2) {
