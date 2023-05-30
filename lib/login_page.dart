@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ResetPage()));
                 },
-                child: const Text('Forgot password?'),
+                child: const Text('Forgotten Password? reset here.'),
               ),
               const SizedBox(height: 0.2),
               TextButton(
