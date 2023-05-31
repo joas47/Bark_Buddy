@@ -48,10 +48,10 @@ class _ChatPageState extends State<ChatPage> {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
-            if (snapshot.connectionState == ConnectionState.waiting) {
+/*            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
-            }
-            Map<String, dynamic>? data =
+            }*/
+              Map<String, dynamic>? data =
             snapshot.data?.data() as Map<String, dynamic>?;
             if (data != null) {
               List<dynamic> friends = data['friends'] ?? [];
@@ -105,10 +105,10 @@ class _ChatPageState extends State<ChatPage> {
                       if (userSnapshot.hasError) {
                         return const Text('Something went wrong');
                       }
-                      if (userSnapshot.connectionState == ConnectionState.waiting) {
+/*                      if (userSnapshot.connectionState == ConnectionState.waiting) {
                         return const Text("Loading");
-                      }
-                      Map<String, dynamic>? userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+                      }*/
+                        Map<String, dynamic>? userData = userSnapshot.data?.data() as Map<String, dynamic>?;
 
                       if (userData == null) {
                         return const Text('User not found');
@@ -120,10 +120,10 @@ class _ChatPageState extends State<ChatPage> {
                           if (dogNameSnapshot.hasError) {
                             return const Text('Something went wrong: user has no dog');
                           }
-                          if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
+/*                          if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
                             return const Text("Loading");
-                          }
-                          String? dogName = dogNameSnapshot.data;
+                          }*/
+                            String? dogName = dogNameSnapshot.data;
 
                           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                             stream: chatStream,
@@ -134,10 +134,10 @@ class _ChatPageState extends State<ChatPage> {
                                 if (chatSnapshot.hasError) {
                                   return const Text('Something went wrong');
                                 }
-                                if (chatSnapshot.connectionState ==
+/*                                if (chatSnapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const Text("Loading");
-                                }
+                                }*/
                                 List<
                                         QueryDocumentSnapshot<
                                             Map<String, dynamic>>> messages =
@@ -294,10 +294,10 @@ class _ChatPageState extends State<ChatPage> {
                           return const Text('Something went wrong');
                         }
 
-                        if (snapshot.connectionState ==
+/*                        if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const CircularProgressIndicator();
-                        }
+                        }*/
 
                         Map<String, dynamic>? data = snapshot.data?.data();
                         if (data != null && data['matches'] != null &&
@@ -354,10 +354,10 @@ class _ChatPageState extends State<ChatPage> {
                           return const Text('Something went wrong');
                         }
 
-                        if (snapshot.connectionState ==
+/*                        if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const CircularProgressIndicator();
-                        }
+                        }*/
 
                         Map<String, dynamic>? data = snapshot.data?.data();
                         if (data != null && data['friends'] != null) {
@@ -554,9 +554,9 @@ class _MatchChatPageState extends State<MatchChatPage> {
                 if (snapshot.hasError) {
                   return const Text('Something went wrong');
                 }
-                if (snapshot.connectionState == ConnectionState.waiting) {
+/*                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Text('Loading');
-                }
+                }*/
 
                 final messages = snapshot.data!.docs;
 
@@ -603,10 +603,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
                             FutureBuilder<String?>(
                               future: _getSenderProfilePicture(senderId),
                               builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
+/*                                if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const CircularProgressIndicator();
-                                }
+                                }*/
                                 final profilePictureUrl = snapshot.data;
                                 if (isPlaceRecommendation) {
                                   return const CircleAvatar(
@@ -654,13 +654,13 @@ class _MatchChatPageState extends State<MatchChatPage> {
                               future: _formatTimestamp(
                                   timestamp, senderId, isPlaceRecommendation),
                               builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
+/*                                if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const Text(
                                     'Loading...',
                                     style: TextStyle(color: Colors.white),
                                   );
-                                }
+                                }*/
                                 final formattedTimestamp =
                                     snapshot.data ?? 'Unknown';
                                 return Text(

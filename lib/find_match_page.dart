@@ -421,13 +421,13 @@ class _FindMatchPageState extends State<FindMatchPage>
                             return const Text(
                                 'Something went wrong: user has no dog probably');
                           }
-                          if (dogSnapshot.connectionState ==
+/*                          if (dogSnapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
                               child: CircularProgressIndicator(),
                             );
-                          }
-                          final dogDoc = dogSnapshot.data!;
+                          }*/
+                            final dogDoc = dogSnapshot.data!;
                           // check if the dog document has a field called 'pictureUrls'.
                           // If not, display an error message.
                           // Should never happen, but just in case.

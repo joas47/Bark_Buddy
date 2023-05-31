@@ -28,14 +28,14 @@ class BarkBuddy extends StatelessWidget {
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+    /*          if (snapshot.connectionState == ConnectionState.waiting) {
             // Firebase authentication state is still loading
-            return const Scaffold(
+           return const Scaffold(
               body: Center(
                 child: CircularProgressIndicator(),
               ),
             );
-          } else {
+          } else {*/
             if (snapshot.hasData) {
               // User is signed in, navigate to StartPage
               return const HomePage();
@@ -44,8 +44,8 @@ class BarkBuddy extends StatelessWidget {
               return const LoginPage();
             }
           }
-        },
-      ),
+        // },
+          ),
     );
   }
 }
