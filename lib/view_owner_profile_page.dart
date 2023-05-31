@@ -163,10 +163,9 @@ class ViewOwnerProfile extends StatelessWidget {
                   child: StreamBuilder<String?>(
                     stream: DatabaseHandler.getDogPic(userId),
                     builder: (context, snapshot) {
-/*                      if (snapshot.connectionState == ConnectionState.waiting) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
-                      } else */
-                      if (snapshot.hasData && snapshot.data != null) {
+                      } else if (snapshot.hasData && snapshot.data != null) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CircleAvatar(
