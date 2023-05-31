@@ -37,7 +37,6 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
             List<dynamic> friendRequests = data['friendrequests'];
             return Padding(
               padding: const EdgeInsets.only(top: 15),
-              // adjust the value as per your need
               child: Column(
                 children: [
                   Visibility(

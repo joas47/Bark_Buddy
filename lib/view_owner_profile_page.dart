@@ -7,6 +7,7 @@ import 'settings_page.dart';
 
 class ViewOwnerProfile extends StatelessWidget {
   String? userId;
+
   ViewOwnerProfile({Key? key, this.userId = 'defaultValue'}) : super(key: key);
 
   bool currentUser = false;
@@ -102,13 +103,11 @@ class ViewOwnerProfile extends StatelessWidget {
                   SizedBox(
                     width: 300.0,
                     child: Wrap(
-                      spacing: 10.0, // Adjust the spacing between tags as needed
-                      // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
+                      spacing: 10.0,
                       children: [
                         if (gender != null)
                           Chip(
                             label: Text('• $gender'),
-                            // Add any additional styling properties for the chip as needed
                           ),
                       ],
                     ),
@@ -141,17 +140,17 @@ class ViewOwnerProfile extends StatelessWidget {
                 left: 10.0,
                 child: currentUser
                     ? ElevatedButton.icon(
-                  icon: const Icon(Icons.add_location),
-                  label: const Text('Add location'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddLocationPage(),
-                      ),
-                    );
-                  },
-                )
+                        icon: const Icon(Icons.add_location),
+                        label: const Text('Add location'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddLocationPage(),
+                            ),
+                          );
+                        },
+                      )
                     : SizedBox(),
               ),
               Align(
@@ -221,30 +220,28 @@ class ViewOwnerProfile extends StatelessWidget {
                       ) as ImageProvider<Object>,*/
                         ),
                   ),
-          Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-         child: Text(
-                    '$name $surname, ${age.toString()}',
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      '$name $surname, ${age.toString()}',
+                      style: const TextStyle(
+                        fontSize: 22.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-          ),
-                    SizedBox(
+                  SizedBox(
                     width: 300.0,
                     child: Wrap(
-                    spacing: 10.0, // Adjust the spacing between tags as needed
-                    // runSpacing: 1.0, // Adjust the spacing between rows of tags as needed
-                    children: [
-                    if (gender != null)
-                    Chip(
-                    label: Text('• $gender'),
-                    // Add any additional styling properties for the chip as needed
+                      spacing: 10.0,
+                      children: [
+                        if (gender != null)
+                          Chip(
+                            label: Text('• $gender'),
+                          ),
+                      ],
                     ),
-          ],
-          ),
-          ),
+                  ),
                   const SizedBox(height: 10.0),
                   SizedBox(
                     width: 300.0,

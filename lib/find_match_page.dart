@@ -56,7 +56,7 @@ class _FindMatchPageState extends State<FindMatchPage>
   bool _updatedShowOwnerGenderOther = false;
   bool _updatedShowOwnerGenderMale = false;
   bool _updatedShowOwnerGenderFemale = false;
-  bool disableSwipe = false; // Flag variable to control swipe behavior
+  bool disableSwipe = false;
 
   List<dynamic> _pendingMatchesField = [];
 

@@ -36,7 +36,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   List<String> _profilePicUrls = [];
   List<String> _updatedProfilePicUrls = [];
 
-  final List<String> _genderOptions = ['Female', 'Male']; // Micke
+  final List<String> _genderOptions = ['Female', 'Male'];
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
   final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
@@ -57,8 +57,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    //DatabaseHandler.getOwnerProfileData();
-
     final dummyStream = FirebaseFirestore.instance
         .collection('Dogs')
         .doc(_dogId ?? 'dummy')

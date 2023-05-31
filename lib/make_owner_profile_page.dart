@@ -70,9 +70,10 @@ class _MakeOwnerProfilePageState extends State<MakeOwnerProfilePage> {
                         },
                       ),
                     ),
-                    Text(option,
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    Text(
+                              option,
+                              style: const TextStyle(fontSize: 16),
+                            ),
                     const SizedBox(width: 16.0),
                   ],
                 ))
