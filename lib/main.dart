@@ -1,3 +1,4 @@
+import 'package:cross_platform_test/database_reset.dart';
 import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +12,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+/*  DatabaseReset databaseReset = DatabaseReset();
+  databaseReset.resetEssentialFieldsInUserCollection();*/
   // Run the app
   runApp(const BarkBuddy());
 }
@@ -28,14 +31,10 @@ class BarkBuddy extends StatelessWidget {
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-    /*          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             // Firebase authentication state is still loading
-           return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          } else {*/
+            return const CircularProgressIndicator();
+          } else {
             if (snapshot.hasData) {
               // User is signed in, navigate to StartPage
               return const HomePage();
@@ -44,8 +43,8 @@ class BarkBuddy extends StatelessWidget {
               return const LoginPage();
             }
           }
-        // },
-          ),
+        },
+      ),
     );
   }
 }
