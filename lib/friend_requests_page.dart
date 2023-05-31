@@ -36,7 +36,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                 snapshot.data!.data()! as Map<String, dynamic>;
             List<dynamic> friendRequests = data['friendrequests'];
             return Padding(
-              padding: const EdgeInsets.only(top: 100),
+              padding: const EdgeInsets.only(top: 15),
               // adjust the value as per your need
               child: Column(
                 children: [
@@ -48,10 +48,13 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          Image.asset('assets/images/BarkBuddyChatBubble.png',
+                      Padding(
+                      padding: const EdgeInsets.only(top: 70),
+                         child: Image.asset('assets/images/BarkBuddyChatBubble.png',
                               scale: 1.2),
+                    ),
                           const Padding(
-                            padding: EdgeInsets.fromLTRB(35, 125, 60, 10),
+                            padding: EdgeInsets.fromLTRB(35, 190, 60, 10),
                             child: Text(
                               'No pending friend requests.',
                               style: TextStyle(
