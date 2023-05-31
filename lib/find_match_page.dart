@@ -5,9 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 import 'package:cross_platform_test/chat_page.dart';
+import 'notification_helper.dart';
 
 import 'dart:async';
 
@@ -18,8 +20,8 @@ class FindMatchPage extends StatefulWidget {
   State<FindMatchPage> createState() => _FindMatchPageState();
 }
 
-class _FindMatchPageState extends State<FindMatchPage> {
-
+class _FindMatchPageState extends State<FindMatchPage>
+    with WidgetsBindingObserver {
   late DocumentSnapshot _currentUserDocCopy;
 
   bool _userFilterAplied = false;
@@ -58,14 +60,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
 
   List<dynamic> _pendingMatchesField = [];
 
+  bool _isInForeground = true;
+
   Future<void> _showMatchDialog(BuildContext context) async {
     String matchOwnerID = _pendingMatchesField.first;
 
     String? currentUserUid = FirebaseAuth.instance.currentUser?.uid;
 
-    String? myDogPicUrl = await DatabaseHandler
-        .getDogPic(currentUserUid)
-        .first;
+    String? myDogPicUrl = await DatabaseHandler.getDogPic(currentUserUid).first;
     String? matchDogPicURL = '';
     String matchOwnerName = '';
     final currentUserDoc =
@@ -96,6 +98,10 @@ class _FindMatchPageState extends State<FindMatchPage> {
       _pendingMatchesField.remove(matchOwnerID);
     }
     //print(_pendingMatchesField.toString());
+    // if app is not in foreground, show push-notification
+    if (!_isInForeground) {
+      _showNotification();
+    }
 
     await showDialog(
       context: context,
@@ -196,13 +202,14 @@ class _FindMatchPageState extends State<FindMatchPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final currentUserDoc = FirebaseAuth.instance.currentUser?.uid;
     DocumentReference reference =
-    FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
+        FirebaseFirestore.instance.collection('users').doc(currentUserDoc);
     reference.snapshots().listen((querySnapshot) {
       setState(() {
         Map<String, dynamic> currentUserData =
-        querySnapshot.data() as Map<String, dynamic>;
+            querySnapshot.data() as Map<String, dynamic>;
         if (currentUserData.containsKey("pendingMatches")) {
           _pendingMatchesField = querySnapshot.get("pendingMatches");
           if (_pendingMatchesField.isNotEmpty) {
@@ -215,9 +222,37 @@ class _FindMatchPageState extends State<FindMatchPage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _isInForeground = true;
+        print("app in resumed");
+        break;
+      case AppLifecycleState.inactive:
+        _isInForeground = false;
+        print("app in inactive");
+        break;
+      case AppLifecycleState.paused:
+        _isInForeground = false;
+        print("app in paused");
+        break;
+      case AppLifecycleState.detached:
+        _isInForeground = false;
+        print("app in detached");
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final usersStream =
-    FirebaseFirestore.instance.collection('users').snapshots();
+        FirebaseFirestore.instance.collection('users').snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Match'),
@@ -894,4 +929,12 @@ class _FindMatchPageState extends State<FindMatchPage> {
     });
   }
 
+  void _showNotification() {
+    NotificationHelper.showNotification(
+      id: 0,
+      title: 'You have a new match!',
+      body: 'Send a message right now!.',
+      payload: 'notification_payload',
+    );
+  }
 }
