@@ -947,7 +947,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
     }
 
     final midpoint = calculateMidpoint(currentUserLocation, otherUserLocation);
-    if (buttonClicks < 3) {
+    if (buttonClicks < 5) {
       closestLocationData = await findClosestLocation(midpoint, buttonClicks);
     } else {
       _sendWaitMessageFromBarkBuddy();
@@ -988,6 +988,7 @@ class _MatchChatPageState extends State<MatchChatPage> {
       googleMapsLink = 'https://maps.google.com/?q=$closestLocationMidPoint';
       googleMapsLinkTrimmed = googleMapsLink.replaceAll(' ', '');
       isFirstRecommendation = false;
+      buttonClicks++;
     }
     print(closestLocationData?.length.toString());
 
