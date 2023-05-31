@@ -29,9 +29,9 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
-            if (snapshot.connectionState == ConnectionState.waiting) {
+/*            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
-            }
+            }*/
             Map<String, dynamic> data = snapshot.data!.data()! as Map<String, dynamic>;
             List<dynamic> friendRequests = data['friendrequests'];
             return Padding(
@@ -78,10 +78,10 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                             if (friendSnapshot.hasError) {
                               return const Text('Something went wrong');
                             }
-                            if (friendSnapshot.connectionState == ConnectionState.waiting) {
+/*                            if (friendSnapshot.connectionState == ConnectionState.waiting) {
                               return const Text("Loading");
-                            }
-                            Map<String, dynamic> friendData = friendSnapshot.data!.data() as Map<String, dynamic>;
+                            }*/
+                              Map<String, dynamic> friendData = friendSnapshot.data!.data() as Map<String, dynamic>;
 
                             return StreamBuilder<String?>(
                               stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
@@ -89,10 +89,10 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                                 if (dogNameSnapshot.hasError) {
                                   return const Text('Something went wrong');
                                 }
-                                if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
+/*                                if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
                                   return const Text("Loading");
-                                }
-                                String? dogName = dogNameSnapshot.data;
+                                }*/
+                                  String? dogName = dogNameSnapshot.data;
 
                                 return ListTile(
                                   title: RichText(

@@ -103,13 +103,14 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       );
                     },
                     child: CircleAvatar(
-                      radius: 100.0,
-                      backgroundImage: pictureUrls.isNotEmpty
-                          ? NetworkImage(pictureUrls[0])
-                          : const AssetImage(
+                        radius: 100.0,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: pictureUrls.isNotEmpty
+                            ? NetworkImage(pictureUrls[0])
+                            : null /*const AssetImage(
                         'assets/images/placeholder-dog-image2.png',
-                      ) as ImageProvider<Object>,
-                    ),
+                      ) as ImageProvider<Object>,*/
+                        ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -223,9 +224,10 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                   child: StreamBuilder<String?>(
                     stream: DatabaseHandler.getOwnerPicStream(userId!),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
+/*                      if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
-                      } else if (snapshot.hasData && snapshot.data != null) {
+                      } else */
+                      if (snapshot.hasData && snapshot.data != null) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CircleAvatar(
@@ -237,8 +239,9 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                         return const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: CircleAvatar(
+                            backgroundColor: Colors.grey,
                             radius: 50.0,
-                            backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),
+                            /*backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),*/
                           ),
                         );
                       }
@@ -261,13 +264,14 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
                       );
                     },
                     child: CircleAvatar(
-                      radius: 100.0,
-                      backgroundImage: pictureUrls.isNotEmpty
-                          ? NetworkImage(pictureUrls[0])
-                          : const AssetImage(
+                        radius: 100.0,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: pictureUrls.isNotEmpty
+                            ? NetworkImage(pictureUrls[0])
+                            : null /*const AssetImage(
                               'assets/images/placeholder-dog-image2.png',
-                            ) as ImageProvider<Object>,
-                    ),
+                            ) as ImageProvider<Object>,*/
+                        ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),

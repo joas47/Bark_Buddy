@@ -56,9 +56,9 @@ class _FriendPageState extends State<FriendPage> {
                   if (snapshot.hasError) {
                     return const Text('Something went wrong');
                   }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+/*                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Text("Loading");
-                  }
+                  }*/
                   int counter = 0;
                   if (snapshot.data != null) {
                     Map<String, dynamic>? data = snapshot.data!.data();
@@ -106,9 +106,9 @@ class _FriendPageState extends State<FriendPage> {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
-            if (snapshot.connectionState == ConnectionState.waiting) {
+/*            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text("Loading");
-            }
+            }*/
             Map<String, dynamic> data =
                 snapshot.data!.data()! as Map<String, dynamic>;
 
@@ -129,10 +129,10 @@ class _FriendPageState extends State<FriendPage> {
                       if (friendSnapshot.hasError) {
                         return const Text('Something went wrong');
                       }
-                      if (friendSnapshot.connectionState ==
+/*                      if (friendSnapshot.connectionState ==
                           ConnectionState.waiting) {
                         return const Text("Loading");
-                      }
+                      }*/
 
                       DocumentSnapshot<Object?> friendSnapshotData =
                       friendSnapshot.data!;
@@ -148,10 +148,10 @@ class _FriendPageState extends State<FriendPage> {
                             return const Text(
                                 'Something went wrong: user has no dog');
                           }
-                          if (dogNameSnapshot.connectionState ==
+/*                          if (dogNameSnapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Text("Loading");
-                          }
+                          }*/
                           String? dogName = dogNameSnapshot.data;
 
                           return _buildFriendRow(context, friendId, friendData,
