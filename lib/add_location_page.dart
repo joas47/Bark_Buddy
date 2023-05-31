@@ -27,9 +27,9 @@ class _AddLocationPageState extends State<AddLocationPage> {
   String _currentAddress = '';
   String? _locationPic = '';
 
-  // Initialize to a default location
+  // Initialize to a default location,(Sweden)
   LatLng _center = LatLng(59.334591, 18.063240);
-  bool _uploading = false; // Variable to control the state of uploading
+  bool _uploading = false;
   final TextEditingController _bioController = TextEditingController();
 
   void _onMapCreated(GoogleMapController controller) {
@@ -59,7 +59,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
       }
     } else if (permission == LocationPermission.deniedForever) {
       return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+          'Location permissions are permanently denied, Needed for user live location.');
     }
     Position position = await Geolocator.getCurrentPosition();
     _center = LatLng(position.latitude, position.longitude);
@@ -86,14 +86,9 @@ class _AddLocationPageState extends State<AddLocationPage> {
       Map<String, dynamic> data = jsonDecode(response.body);
       var locationType = data['address']?['waterway'];
       if (locationType != null) {
-        // If the 'waterway' key exists in the address, then it's a water body.
         return true;
       }
-    } else {
-
     }
-
-    // If we reach here, then it's not a water body.
     return false;
   }
 
@@ -102,12 +97,11 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
     bool isWater = await _isLocationWater(latLng.latitude, latLng.longitude);
     if(isWater){
-
       return;
     }
-    // Catch the PlatformException thrown when no address information is found
     try {
       await _getAddressFromLatLng(latLng.latitude, latLng.longitude);
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -120,13 +114,12 @@ class _AddLocationPageState extends State<AddLocationPage> {
 
 
     await _getAddressFromLatLng(latLng.latitude, latLng.longitude).catchError((error) async {
-      // This will catch the error thrown when no address is found for the provided coordinates
       print('Error occurred while getting address: $error');
 
     });
 
     setState(() {
-      _showThanksDialog = false; // Reset the dialog state
+      _showThanksDialog = false;
       _center = latLng;
       _lat = latLng.latitude;
       _long = latLng.longitude;
@@ -136,7 +129,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
-          // If _uploading is true, show a dialog with a progress indicator
+
           if (_uploading) {
             return AlertDialog(
               content: Column(
@@ -287,7 +280,6 @@ class _AddLocationPageState extends State<AddLocationPage> {
       String administrativeArea = place.administrativeArea ?? '';
       String country = place.country ?? '';
 
-      // Check if certain fields are empty, throw an exception if they are
       if(street.isEmpty || administrativeArea.isEmpty || country.isEmpty) {
         throw Exception('Invalid location');
       }
