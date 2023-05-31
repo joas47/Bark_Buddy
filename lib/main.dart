@@ -24,6 +24,7 @@ class BarkBuddy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'BarkBuddy',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
