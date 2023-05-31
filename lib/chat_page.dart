@@ -990,7 +990,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
       isFirstRecommendation = false;
       buttonClicks++;
     }
-    print(closestLocationData?.length.toString());
 
 
     // Store the recommendation in Firestore
@@ -1032,8 +1031,6 @@ class _MatchChatPageState extends State<MatchChatPage> {
         .where('link', isEqualTo: googleMapsLinkTrimmed)
         .where('timestamp', isGreaterThanOrEqualTo: recommendationTimestamp)
         .get();
-    print(querySnapshot1.docs.toString());
-    print(querySnapshot2.docs.toString());
 
 
     return (querySnapshot1.docs.isNotEmpty || querySnapshot2.docs.isNotEmpty);
