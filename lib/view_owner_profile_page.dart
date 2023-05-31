@@ -177,7 +177,7 @@ class ViewOwnerProfile extends StatelessWidget {
                         return const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: CircleAvatar(
-                            backgroundColor: Colors.grey,
+                            backgroundColor: Colors.white,
                             radius: 50.0,
 /*                            backgroundImage: AssetImage(
                               'assets/images/placeholder-dog-image.png',
