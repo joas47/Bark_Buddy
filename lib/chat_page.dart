@@ -134,10 +134,11 @@ class _ChatPageState extends State<ChatPage> {
                                 if (chatSnapshot.hasError) {
                                   return const Text('Something went wrong');
                                 }
-/*                                if (chatSnapshot.connectionState ==
+                                if (chatSnapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return const Text("Loading");
-                                }*/
+                                  return const CircularProgressIndicator();
+                                  // return const Text("Loading");
+                                }
                                 List<
                                         QueryDocumentSnapshot<
                                             Map<String, dynamic>>> messages =
