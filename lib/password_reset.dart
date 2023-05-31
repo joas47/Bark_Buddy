@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -70,7 +69,7 @@ class _ResetPageState extends State<ResetPage> {
 
                       if (user.isEmpty) {
                         try {
-                          // No user with such email
+                          // Error for email not found
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('No user with such email.'),
