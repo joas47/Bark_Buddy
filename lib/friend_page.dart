@@ -56,9 +56,9 @@ class _FriendPageState extends State<FriendPage> {
                   if (snapshot.hasError) {
                     return const Text('Something went wrong');
                   }
-/*                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text("Loading");
-                  }*/
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
                   int counter = 0;
                   if (snapshot.data != null) {
                     Map<String, dynamic>? data = snapshot.data!.data();
@@ -69,7 +69,7 @@ class _FriendPageState extends State<FriendPage> {
                   }
                   return counter != 0
                       ? Positioned(
-                    right: 11,
+                          right: 11,
                     top: 11,
                     child: Container(
                       padding: const EdgeInsets.all(2),
@@ -130,10 +130,10 @@ class _FriendPageState extends State<FriendPage> {
                       if (friendSnapshot.hasError) {
                         return const Text('Something went wrong');
                       }
-/*                      if (friendSnapshot.connectionState ==
+                      if (friendSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return const Text("Loading");
-                      }*/
+                        return const CircularProgressIndicator();
+                      }
 
                       DocumentSnapshot<Object?> friendSnapshotData =
                       friendSnapshot.data!;

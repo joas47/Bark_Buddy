@@ -46,22 +46,22 @@ class _ChatPageState extends State<ChatPage> {
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
-              return const Text('Something went wrong');
-            }
-/*            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading");
-            }*/
+                return const Text('Something went wrong');
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
               Map<String, dynamic>? data =
-            snapshot.data?.data() as Map<String, dynamic>?;
-            if (data != null) {
-              List<dynamic> friends = data['friends'] ?? [];
-              List<dynamic> matches = data['matches'] ?? [];
-              List<dynamic> allUsers = [...friends, ...matches];
+                  snapshot.data?.data() as Map<String, dynamic>?;
+              if (data != null) {
+                List<dynamic> friends = data['friends'] ?? [];
+                List<dynamic> matches = data['matches'] ?? [];
+                List<dynamic> allUsers = [...friends, ...matches];
 
-              if (allUsers.isEmpty) {
-                return Container(
-                  alignment: Alignment.center,
-                  margin: const EdgeInsets.symmetric(vertical: 60),
+                if (allUsers.isEmpty) {
+                  return Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(vertical: 60),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -103,30 +103,37 @@ class _ChatPageState extends State<ChatPage> {
                     stream: usersStream,
                     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                       if (userSnapshot.hasError) {
-                        return const Text('Something went wrong');
-                      }
-/*                      if (userSnapshot.connectionState == ConnectionState.waiting) {
-                        return const Text("Loading");
-                      }*/
-                        Map<String, dynamic>? userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+                          return const Text('Something went wrong');
+                        }
+                        if (userSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        Map<String, dynamic>? userData =
+                            userSnapshot.data?.data() as Map<String, dynamic>?;
 
-                      if (userData == null) {
-                        return const Text('User not found');
-                      }
+                        if (userData == null) {
+                          return const Text('User not found');
+                        }
 
-                      return StreamBuilder<String?>(
-                        stream: _MatchChatPageState.getDogNameFromOwnerID(usersFriendId),
-                        builder: (BuildContext context, AsyncSnapshot<String?> dogNameSnapshot) {
-                          if (dogNameSnapshot.hasError) {
-                            return const Text('Something went wrong: user has no dog');
-                          }
-/*                          if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
-                            return const Text("Loading");
-                          }*/
+                        return StreamBuilder<String?>(
+                          stream: _MatchChatPageState.getDogNameFromOwnerID(
+                              usersFriendId),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String?> dogNameSnapshot) {
+                            if (dogNameSnapshot.hasError) {
+                              return const Text(
+                                  'Something went wrong: user has no dog');
+                            }
+                            if (dogNameSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
                             String? dogName = dogNameSnapshot.data;
 
-                          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                            stream: chatStream,
+                            return StreamBuilder<
+                                QuerySnapshot<Map<String, dynamic>>>(
+                              stream: chatStream,
                               builder: (BuildContext context,
                                   AsyncSnapshot<
                                           QuerySnapshot<Map<String, dynamic>>>
@@ -295,10 +302,10 @@ class _ChatPageState extends State<ChatPage> {
                           return const Text('Something went wrong');
                         }
 
-/*                        if (snapshot.connectionState ==
+                        if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const CircularProgressIndicator();
-                        }*/
+                        }
 
                         Map<String, dynamic>? data = snapshot.data?.data();
                         if (data != null && data['matches'] != null &&
@@ -355,10 +362,10 @@ class _ChatPageState extends State<ChatPage> {
                           return const Text('Something went wrong');
                         }
 
-/*                        if (snapshot.connectionState ==
+                        if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const CircularProgressIndicator();
-                        }*/
+                        }
 
                         Map<String, dynamic>? data = snapshot.data?.data();
                         if (data != null && data['friends'] != null) {
@@ -555,9 +562,9 @@ class _MatchChatPageState extends State<MatchChatPage> {
                 if (snapshot.hasError) {
                   return const Text('Something went wrong');
                 }
-/*                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Text('Loading');
-                }*/
+                }
 
                 final messages = snapshot.data!.docs;
 
@@ -604,10 +611,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
                             FutureBuilder<String?>(
                               future: _getSenderProfilePicture(senderId),
                               builder: (context, snapshot) {
-/*                                if (snapshot.connectionState ==
+                                if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const CircularProgressIndicator();
-                                }*/
+                                }
                                 final profilePictureUrl = snapshot.data;
                                 if (isPlaceRecommendation) {
                                   return const CircleAvatar(
@@ -655,13 +662,10 @@ class _MatchChatPageState extends State<MatchChatPage> {
                               future: _formatTimestamp(
                                   timestamp, senderId, isPlaceRecommendation),
                               builder: (context, snapshot) {
-/*                                if (snapshot.connectionState ==
+                                if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return const Text(
-                                    'Loading...',
-                                    style: TextStyle(color: Colors.white),
-                                  );
-                                }*/
+                                  return const CircularProgressIndicator();
+                                }
                                 final formattedTimestamp =
                                     snapshot.data ?? 'Unknown';
                                 return Text(

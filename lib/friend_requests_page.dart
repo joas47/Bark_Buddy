@@ -29,20 +29,22 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
-/*            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading");
-            }*/
-            Map<String, dynamic> data = snapshot.data!.data()! as Map<String, dynamic>;
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            Map<String, dynamic> data =
+                snapshot.data!.data()! as Map<String, dynamic>;
             List<dynamic> friendRequests = data['friendrequests'];
             return Padding(
-                padding: const EdgeInsets.only(top: 100), // adjust the value as per your need
-            child: Column(
-            children: [
-                Visibility(
-                  visible: friendRequests.isEmpty,
-                  child: Container(
-                      alignment: Alignment.center,
-                      margin: const EdgeInsets.symmetric(vertical: 100),
+              padding: const EdgeInsets.only(top: 100),
+              // adjust the value as per your need
+              child: Column(
+                children: [
+                  Visibility(
+                    visible: friendRequests.isEmpty,
+                    child: Container(
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.symmetric(vertical: 100),
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -76,33 +78,40 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                           stream: usersStream,
                           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> friendSnapshot) {
                             if (friendSnapshot.hasError) {
-                              return const Text('Something went wrong');
-                            }
-/*                            if (friendSnapshot.connectionState == ConnectionState.waiting) {
-                              return const Text("Loading");
-                            }*/
-                              Map<String, dynamic> friendData = friendSnapshot.data!.data() as Map<String, dynamic>;
+                                return const Text('Something went wrong');
+                              }
+                              if (friendSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              }
+                              Map<String, dynamic> friendData =
+                                  friendSnapshot.data!.data()
+                                      as Map<String, dynamic>;
 
-                            return StreamBuilder<String?>(
-                              stream: DatabaseHandler.getDogNameFromOwnerID(friendId),
-                              builder: (BuildContext context, AsyncSnapshot<String?> dogNameSnapshot) {
-                                if (dogNameSnapshot.hasError) {
-                                  return const Text('Something went wrong');
-                                }
-/*                                if (dogNameSnapshot.connectionState == ConnectionState.waiting) {
-                                  return const Text("Loading");
-                                }*/
+                              return StreamBuilder<String?>(
+                                stream: DatabaseHandler.getDogNameFromOwnerID(
+                                    friendId),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<String?> dogNameSnapshot) {
+                                  if (dogNameSnapshot.hasError) {
+                                    return const Text('Something went wrong');
+                                  }
+                                  if (dogNameSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  }
                                   String? dogName = dogNameSnapshot.data;
 
-                                return ListTile(
-                                  title: RichText(
-                                    text: TextSpan(
-                                      text: "${friendData['name']} ",
-                                      style: DefaultTextStyle.of(context).style,
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          text: "($dogName)",
-                                          style: TextStyle(
+                                  return ListTile(
+                                    title: RichText(
+                                      text: TextSpan(
+                                        text: "${friendData['name']} ",
+                                        style:
+                                            DefaultTextStyle.of(context).style,
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: "($dogName)",
+                                            style: TextStyle(
                                             fontStyle: FontStyle.italic,
                                             fontSize: DefaultTextStyle.of(context).style.fontSize!,
                                           ),
