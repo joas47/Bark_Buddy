@@ -1,11 +1,10 @@
+import 'package:cross_platform_test/database_reset.dart';
+import 'package:cross_platform_test/home_page.dart';
 import 'package:cross_platform_test/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//should see this
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
-// for the MatchChatPage
-//import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   // Firebase initialization
@@ -13,6 +12,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+/*  DatabaseReset databaseReset = DatabaseReset();
+  databaseReset.resetEssentialFieldsInUserCollection();*/
   // Run the app
   runApp(const BarkBuddy());
 }
@@ -23,82 +24,28 @@ class BarkBuddy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Bark Buddy',
-        theme: ThemeData(
-          primarySwatch: Colors.blueGrey,
-        ),
-        home: const LoginPage());
-  }
-}
-
-// with some basic API calls
-/*class MatchChatPage extends StatelessWidget {
-  final String matchId;
-
-  MatchChatPage({required this.matchId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Match Chat'),
+      debugShowCheckedModeBanner: false,
+      title: 'BarkBuddy',
+      theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('messages')
-                  .where('matchId', isEqualTo: matchId)
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                List<DocumentSnapshot> docs = snapshot.data!.docs;
-                List<Widget> messages = docs.map((doc) {
-                  Map<String, dynamic> data = doc.data() as Map<String,
-                      dynamic>;
-                  return ListTile(
-                    title: Text(data['message']),
-                    subtitle: Text(data['sender']),
-                  );
-                }).toList();
-
-                return ListView(
-                  reverse: true,
-                  children: messages,
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Enter a message...',
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    // TODO: Implement send message functionality.
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Firebase authentication state is still loading
+            return const CircularProgressIndicator();
+          } else {
+            if (snapshot.hasData) {
+              // User is signed in, navigate to StartPage
+              return const HomePage();
+            } else {
+              // User is not signed in, navigate to LoginPage
+              return const LoginPage();
+            }
+          }
+        },
       ),
     );
   }
 }
-*/

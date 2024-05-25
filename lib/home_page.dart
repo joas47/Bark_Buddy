@@ -1,26 +1,28 @@
 import 'package:cross_platform_test/find_match_page.dart';
 import 'package:cross_platform_test/friend_page.dart';
-import 'package:cross_platform_test/match_chat_page.dart';
+import 'package:cross_platform_test/chat_page.dart';
 import 'package:cross_platform_test/start_page.dart';
 import 'package:cross_platform_test/view_dog_profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'location_handler.dart';
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _showStartPage = true;
+  bool _buttonDisabled = true;
 
-  final List<Widget> _pages = [
-    const MatchChatPage(),
-    const FindMatchPage(),
-    const FriendPage(),
-    const ViewDogProfilePage(),
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
   ];
 
   @override
@@ -32,58 +34,112 @@ class _HomePageState extends State<HomePage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      if (_selectedIndex != 4) {
-        _showStartPage = false;
-      }
+      _showStartPage = false; // Hide the StartPage when any item is tapped
+      _buttonDisabled = false;
     });
+
+    if (!_showStartPage) {
+      // Pop until only the initial route remains in the current tab
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+    }
+
+    LocationHandler.grabAndSaveLocation();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Offstage(
-            offstage: _showStartPage,
-            child: _pages[_selectedIndex],
-          ),
-          Offstage(
-            offstage: !_showStartPage,
-            child: StartPage(
-              onNavigate: () {
-                setState(() {
-                  _showStartPage = false;
-                });
-              },
-              onStart: () {},
+    return WillPopScope(
+      onWillPop: () async {
+        final isFirstRouteInCurrentTab = !await _navigatorKeys[_selectedIndex].currentState!.maybePop();
+        if (isFirstRouteInCurrentTab) {
+          // if not on the "home" index, select the "home" tab
+          if (_selectedIndex != 0) {
+            _onItemTapped(0);
+            return false;
+          }
+        }
+        return isFirstRouteInCurrentTab;
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            // add the start page
+            Offstage(
+              offstage: !_showStartPage,
+              child: StartPage(
+                onNavigate: () {
+                  setState(() {
+                    _showStartPage = false;
+                  });
+                },
+                onStart: () {
+                  setState(() {
+                    _selectedIndex = 1;
+                    _showStartPage = false;
+                  });
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Theme.of(context).colorScheme.background,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Match-chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pets),
-            label: 'Find match',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Friends',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+            ...List<Widget>.generate(_navigatorKeys.length, (index) {
+              return Offstage(
+                offstage: _selectedIndex != index || _showStartPage,
+                child: Navigator(
+                  key: _navigatorKeys[index],
+                  initialRoute: '/',
+                  onGenerateRoute: (routeSettings) {
+                    return MaterialPageRoute(
+                      builder: (_) => _getPage(index),
+                    );
+                  },
+                ),
+              );
+            }),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          // currentIndex: (_selectedIndex != -1) ? 0 : _selectedIndex,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: _buttonDisabled == true ? Colors.grey[600] :
+          Theme.of(context).colorScheme.background,
+          selectedFontSize: _buttonDisabled == true ? 12.0 : 16.0,
+          // ignoreItems: _showStartPage,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat),
+              label: 'Chat',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.pets),
+              label: 'Find match',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people),
+              label: 'Friends',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _getPage(int index) {
+    switch (index) {
+      case 0:
+        return const ChatPage();
+      case 1:
+        return const FindMatchPage();
+      case 2:
+        return const FriendPage();
+      case 3:
+        return ViewDogProfilePage(userId: FirebaseAuth.instance.currentUser?.uid);
+      default:
+        return const ChatPage();
+    }
   }
 }

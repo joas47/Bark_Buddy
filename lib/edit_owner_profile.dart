@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'database_handler.dart';
 import 'image_handler.dart';
-import 'dart:io';
 class EditOwnerProfilePage extends StatefulWidget {
   const EditOwnerProfilePage({super.key});
 
@@ -26,6 +25,10 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   String? _updatedBio;
   String? _updatedProfilePic;
 
+  // _isImageUploading is used to prevent the user from pressing
+  // the save button before the image is uploaded and resized
+  bool _isImageUploading = false;
+
   final List<String> _genderOptions = ['Man', 'Woman', 'Other'];
 
   final _formKey = GlobalKey<FormState>();
@@ -35,16 +38,15 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
   Widget build(BuildContext context) {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
 
+    final userStream =
+        FirebaseFirestore.instance.collection('users').doc(userUid).snapshots();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit profile'),
+        title: const Text('Edit owner profile'),
       ),
       body: SingleChildScrollView(
         child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(userUid)
-              .snapshots(),
+          stream: userStream,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator();
@@ -82,22 +84,24 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                       child: _formUI(name, surname, about, age, gender, about),
                     ),
                     const SizedBox(height: 16.0),
-                    // TODO: move this Text so it's next to the radio buttons instead of above.
-                    const Text('Kön'),
+
+                    const Text('Gender', style: TextStyle(fontSize: 18),),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _genderOptions
                           .map((option) => Row(
-                                children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _gender,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _gender = value.toString();
-                                      });
-                                    },
-                                  ),
+                                children:  [Transform.scale(
+                        scale: 1.4,
+                        child: Radio(
+                          value: option,
+                          groupValue: _gender,
+                          onChanged: (value) {
+                            setState(() {
+                              _gender = value.toString();
+                            });
+                          },
+                        ),
+                                ),
                                   Text(option),
                                   const SizedBox(width: 16.0),
                                 ],
@@ -109,13 +113,24 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                     const SizedBox(height: 16.0),
                     Builder(builder: (BuildContext context) {
                       return ElevatedButton(
-                        onPressed: () {
+                          style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 40),
+                          ),
+                      onPressed: () {
+                          if (_isImageUploading) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please wait until the image is uploaded.'),
+                              ),
+                            );
+                            return;
+                          }
                           if (_validateInputs() &&
                               _gender.isNotEmpty &&
                               _profilePic != null) {
-                            if (_updatedProfilePic != null) {
-                              _profilePic = _updatedProfilePic;
-                            }
                             if (_updatedFName != null) {
                               _fName = _updatedFName!;
                             }
@@ -127,6 +142,9 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                             }
                             if (_updatedBio != null) {
                               _bio = _updatedBio!;
+                            }
+                            if (_updatedProfilePic != null) {
+                              _profilePic = _updatedProfilePic;
                             }
                             DatabaseHandler.updateUser(_fName, _lName, _gender,
                                 _age, _bio, _profilePic, dogRef);
@@ -140,7 +158,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
                             );
                           }
                         },
-                        child: const Text('Save profile'),
+                        child: const Text('Save profile', style: TextStyle(fontSize: 20),),
                       );
                     }),
                   ],
@@ -166,6 +184,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: const InputDecoration(
           labelText: 'First name',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -184,6 +203,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: const InputDecoration(
           labelText: 'Last name',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -203,6 +223,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         },
         decoration: const InputDecoration(
           labelText: 'Age',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
@@ -224,6 +245,7 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
         maxLines: 8,
         decoration: InputDecoration(
           labelText: 'About you',
+          labelStyle: TextStyle(fontSize: 18),
           hintText: bio,
           border: const OutlineInputBorder(),
         ),
@@ -252,37 +274,41 @@ class _EditOwnerProfilePageState extends State<EditOwnerProfilePage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          'Upload profile picture',
+          'Update profile picture:',
           style: TextStyle(fontSize: 18.0),
         ),
         const SizedBox(width: 16.0),
         IconButton(
           onPressed: () async {
             // show dialog with options to choose image or take a new one
-            final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+            final selectedImage = await ImageUtils.showImageSourceDialog(context);
 
             // upload image to Firebase Storage
             if (selectedImage != null) {
-              final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage, storageUrl);
               setState(() {
-                _updatedProfilePic = imageUrl;
+                _isImageUploading = true;
               });
+              final imageUrl = await ImageUtils.uploadImageToFirebase(
+                  selectedImage[0], storageUrl, ImageType.owner);
+              if (mounted) {
+                setState(() {
+                  _updatedProfilePic = imageUrl;
+                  _isImageUploading = false;
+                });
+              }
             }
           },
-          icon: _profilePic == null || _profilePic!.isEmpty
-              ? const Icon(Icons.add_a_photo)
-              : CircleAvatar(
-            backgroundImage: _profilePic!.startsWith('http')
-                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-            radius: 30,
-            child: _profilePic!.isEmpty || _profilePic == null
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),
-        )
+          icon: _isImageUploading
+              ? const CircularProgressIndicator()
+              : _updatedProfilePic != null
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : _profilePic != null
+                      ? CircleAvatar(
+                          backgroundImage: NetworkImage(_profilePic!),
+                          radius: 30,
+                          child: const Icon(Icons.check, color: Colors.white))
+                      : const Icon(Icons.add_a_photo),
+        ),
       ],
     );
   }

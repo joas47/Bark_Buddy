@@ -1,168 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cross_platform_test/add_location_page.dart';
 import 'package:cross_platform_test/database_handler.dart';
 import 'package:cross_platform_test/settings_page.dart';
 import 'package:cross_platform_test/view_owner_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'database_handler.dart';
 
-import 'edit_dog_profile_page.dart';
-
-/*class ViewDogProfilePage extends StatelessWidget {
-  const ViewDogProfilePage({super.key});
-
-
-  @override
-  Widget build(BuildContext context) {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dog profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsPage()));
-            },
-          ),
-        ],
-      ),
-
-      // TODO: This is a lot of reading from the database. Is there a better way?
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(userUid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-
-            final userData = snapshot.data!;
-            final dog = userData.get('dogs');
-
-            return Stack(alignment: Alignment.center, children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: ElevatedButton(
-                        child: const Text('Add place'),
-                        onPressed: () {},
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: AssetImage(
-                              'assets/images/placeholder-dog-image2.png'),
-                        ),
-                      ),
-                    ),
-                  ]),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  InkWell(
-                      onTap: () async {
-                        await showDialog(
-                            context: context,
-                            builder: (context) => const ImageDialog(
-                                  imagePaths: [
-                                    'assets/images/placeholder-dog-image.png',
-                                    'assets/images/placeholder-dog-image2.png',
-                                  ],
-                                  initialIndex: 0, // Display second image first
-                                ));
-                      },
-                      child: const CircleAvatar(
-                        radius: 100.0,
-                        backgroundImage:
-// TODO: get this information from the database
-
-                            AssetImage(
-                                'assets/images/placeholder-dog-image2.png'),
-                      )),
-                  Text(
-                    name + ' ' + surname,
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    //height: 500.0,
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 1,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                          // TODO: get this information from the database
-                          hintText: '• ' + gender! + '\n• ' + age.toString(),
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => const EditOwnerProfile()));
-                            },
-                          )),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  SizedBox(
-                    //height: 500.0,
-                    width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        // TODO: get this information from the database
-                        hintText: '• ' + about!,
-                        border: OutlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ]);
-          }),
-    );
-  }
-}*/
 
 class ViewDogProfilePage extends StatefulWidget {
-  const ViewDogProfilePage({Key? key}) : super(key: key);
+  String? userId;
+  ViewDogProfilePage({Key? key, this.userId = 'defaultValue'}) : super(key: key);
 
   @override
-  _ViewDogProfilePageState createState() => _ViewDogProfilePageState();
+  _ViewDogProfilePageState createState() => _ViewDogProfilePageState(userId);
 }
 
 class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
   String? _dogId;
+  String? userId;
+  bool currentUser = false;
+  _ViewDogProfilePageState(this.userId);
+
+  List<String> pictureUrls = [];
 
   @override
   void initState() {
     super.initState();
-    DatabaseHandler.getDogId3().listen((dogId) {
+    DatabaseHandler.getDogId(userId).listen((dogId) {
       setState(() {
         _dogId = dogId;
       });
@@ -171,22 +35,40 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (userId == FirebaseAuth.instance.currentUser?.uid) {
+      currentUser = true;
+    }
+    final dummyStream = FirebaseFirestore.instance
+        .collection('Dogs')
+        .doc(_dogId ?? 'dummy')
+        .snapshots();
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('View Dog Profile'),
-        ),
-        body: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Dogs')
-              .doc(_dogId ?? 'dummy')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-            if (!snapshot.data!.exists) {
-              return const Text('Document does not exist');
-            }
+      appBar: AppBar(
+        title: const Text('Dog Profile'),
+        actions: [
+          currentUser
+              ? IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsPage()),
+                    );
+                  },
+                )
+              : Container(),
+        ],
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: dummyStream,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+          if (!snapshot.data!.exists) {
+            return const Text('This owner has no dog yet.');
+          }
 
           final dogData = snapshot.data!;
           final activityLevel = dogData.get('Activity Level');
@@ -195,134 +77,289 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
           final breed = dogData.get('Breed') as String?;
           final gender = dogData.get('Gender') as String?;
           final isCastrated = dogData.get('Is castrated') as bool?;
+          final isCastratedText = isCastrated != null ? (isCastrated ? 'Is Castrated' : 'Not Castrated') : '';
           final name = dogData.get('Name');
           final size = dogData.get('Size') as String?;
-          final String? profilePic = dogData.get('picture') as String?;
+          final List<dynamic>? profilePic = dogData.get('pictureUrls') as List<dynamic>?;
+
+          if (profilePic != null && profilePic.isNotEmpty) {
+            pictureUrls = List<String>.from(profilePic);
+          }
 
           return Stack(
             alignment: Alignment.center,
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: ElevatedButton(
-                      child: const Text('Add location'),
-                      onPressed: () {},
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: InkWell(
-                      onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ViewOwnerProfile(),
-                            ),
-                          );
-                        },
-                        // TODO: if an owner edits their profile picture, it should be updated here as well
-                        // now it only updates changing to another page in the bottom navigation bar
-                        // or when the app is restarted
-                        // might be fixed with a StreamBuilder instead of a FutureBuilder
-                        child: FutureBuilder<String?>(
-                          future: DatabaseHandler.getOwnerPic(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            } else if (snapshot.hasData &&
-                                snapshot.data != null) {
-                              return CircleAvatar(
-                                radius: 50.0,
-                                backgroundImage: NetworkImage(snapshot.data!),
-                              );
-                            } else {
-                            return CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: AssetImage(
-                                'assets/images/placeholder-profile-image.png',
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  CircleAvatar(
-                    radius: 100.0,
-                    backgroundImage: profilePic != null
-                        ? NetworkImage(profilePic)
-                        : AssetImage(
-                      'assets/images/placeholder-profile-image.png',
-                    ) as ImageProvider<Object>,
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ImageDialog(
+                          pictureUrls: pictureUrls,
+                          initialIndex: 0,
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                        radius: 100.0,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: pictureUrls.isNotEmpty
+                            ? NetworkImage(pictureUrls[0])
+                            : null /*const AssetImage(
+                        'assets/images/placeholder-dog-image2.png',
+                      ) as ImageProvider<Object>,*/
+                        ),
                   ),
-                  Text(
-                    name ?? '',
-                    style: const TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name ?? '',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          ', ${age.toString()}',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (gender == 'Male')
+                          const Icon(
+                            Icons.male,
+                            size: 30.0,
+                            color: Colors.black,
+                          )
+                        else if (gender == 'Female')
+                          const Icon(
+                            Icons.female,
+                            size: 30.0,
+                            color: Colors.black,
+                          ),
+                      ],
                     ),
                   ),
                   SizedBox(
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 1,
-                      maxLines: 6,
-                      decoration: InputDecoration(
-                        // TODO: Display this information in a better way, e.g. "activitylevel + "activity level"
-                          hintText: '• ${breed ?? ''}\n'
-                            '• ${gender ?? ''}\n'
-                            '• ${age.toString()} years\n'
-                            '• ${size ?? ''}\n'
-                            '• ${activityLevel ?? ''}\n'
-                            '• ${isCastrated ?? ''}',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditDogProfilePage()));
-                          },
-                        ),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Wrap(
+                      spacing: 10.0,
+                      children: [
+                        if (breed != null)
+                          Chip(
+                            label: Text('• $breed'),
+                          ),
+                        if (size != null)
+                          Chip(
+                            label: Text('• $size'),
+                          ),
+                        if (activityLevel != null)
+                          Chip(
+                            label: Text('• $activityLevel activity level'),
+                          ),
+                        if (isCastrated != null)
+                          Chip(
+                            label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 10.0),
                   SizedBox(
-                    //height: 500.0,
                     width: 300.0,
-                    child: TextField(
-                      readOnly: true,
-                      minLines: 5,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        hintText: '• ' + bio!,
-                        border: OutlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.0,
-                      ),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        TextField(
+                          readOnly: true,
+                          minLines: 5,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText: '• $bio',
+                            border: const OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Positioned(
+                top: 10.0,
+                left: 10.0,
+                child: currentUser
+                    ? ElevatedButton.icon(
+                  icon: const Icon(Icons.add_location),
+                        label: const Text('Add location'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddLocationPage(),
+                            ),
+                          );
+                        },
+                      )
+                    : const SizedBox(),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ViewOwnerProfile(userId: userId)),
+                    );
+                  },
+                  child: StreamBuilder<String?>(
+                    stream: DatabaseHandler.getOwnerPicStream(userId!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            radius: 50.0,
+                            backgroundImage: NetworkImage(snapshot.data!),
+                          ),
+                        );
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            radius: 50.0,
+                            /*backgroundImage: AssetImage('assets/images/placeholder-profile-image.png'),*/
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ImageDialog(
+                          pictureUrls: pictureUrls,
+                          initialIndex: 0,
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                        radius: 100.0,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: pictureUrls.isNotEmpty
+                            ? NetworkImage(pictureUrls[0])
+                            : null /*const AssetImage(
+                              'assets/images/placeholder-dog-image2.png',
+                            ) as ImageProvider<Object>,*/
+                        ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name ?? '',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          ', ${age.toString()}',
+                          style: const TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (gender == 'Male')
+                          const Icon(
+                            Icons.male,
+                            size: 30.0,
+                            color: Colors.black,
+                          )
+                        else if (gender == 'Female')
+                          const Icon(
+                            Icons.female,
+                            size: 30.0,
+                            color: Colors.black,
+                          ),
+                      ],
                     ),
                   ),
+                  SizedBox(
+                    width: 300.0,
+                    child: Wrap(
+                      spacing: 10.0,
+                      children: [
+                        if (breed != null)
+                          Chip(
+                            label: Text('• $breed'),
+                          ),
+                        if (size != null)
+                          Chip(
+                            label: Text('• $size'),
+                          ),
+                        if (activityLevel != null)
+                          Chip(
+                            label: Text('• $activityLevel activity level'),
+                          ),
+                        if (isCastrated != null)
+                          Chip(
+                            label: Text(isCastrated ? '• Castrated' : '• Not castrated'),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  SizedBox(
+                    width: 300.0,
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        TextField(
+                          readOnly: true,
+                          minLines: 5,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText: '• $bio',
+                            border: const OutlineInputBorder(),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ],
           );
         },
-      )
+      ),
     );
   }
+
 
   void getDogID(void Function(String) onDogID) {
     final userUid = FirebaseAuth.instance.currentUser?.uid;
@@ -341,10 +378,10 @@ class _ViewDogProfilePageState extends State<ViewDogProfilePage> {
 }
 
 class ImageDialog extends StatefulWidget {
-  const ImageDialog({Key? key, required this.imagePaths, this.initialIndex = 0})
+  const ImageDialog({Key? key, required this.pictureUrls, this.initialIndex = 0})
       : super(key: key);
 
-  final List<String> imagePaths;
+  final List<String> pictureUrls;
   final int initialIndex;
 
   @override
@@ -360,7 +397,7 @@ class _ImageDialogState extends State<ImageDialog> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
-    _totalImages = widget.imagePaths.length;
+    _totalImages = widget.pictureUrls.length;
     _pageController = PageController(initialPage: _currentIndex);
   }
 
@@ -383,7 +420,7 @@ class _ImageDialogState extends State<ImageDialog> {
                 return Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: ExactAssetImage(widget.imagePaths[index]),
+                      image: NetworkImage(widget.pictureUrls[index]),
                       fit: BoxFit.fitHeight,
                     ),
                   ),

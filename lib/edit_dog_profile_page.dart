@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cross_platform_test/make_dog_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,18 +20,23 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   int _age = -1;
   String _bio = '';
   String _size = '';
-  String? _profilePic = '';
+
   bool _isCastrated = false;
   bool _initCastraded = false;
   String _activity = '';
-
   String? _updatedName;
   String? _updatedBreed;
   int? _updatedAge;
   String? _updatedBio;
-  String? _updatedProfilePic;
 
-  final List<String> _genderOptions = ['She', 'He'];
+  // _isImageUploading is used to prevent the user from pressing
+  // the save button before the image is uploaded and resized
+  bool _isImageUploading = false;
+
+  List<String> _profilePicUrls = [];
+  List<String> _updatedProfilePicUrls = [];
+
+  final List<String> _genderOptions = ['Female', 'Male'];
   final List<String> _activityOptions = ['Low', 'Medium', 'High'];
   final List<String> _sizeOptions = ['Small', 'Medium', 'Large'];
 
@@ -44,7 +48,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   @override
   void initState() {
     super.initState();
-    DatabaseHandler.getDogId3().listen((dogId) {
+    DatabaseHandler.getDogId(FirebaseAuth.instance.currentUser?.uid).listen((dogId) {
       setState(() {
         _dogId = dogId;
       });
@@ -53,19 +57,17 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    //DatabaseHandler.getOwnerProfileData();
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-
+    final dummyStream = FirebaseFirestore.instance
+        .collection('Dogs')
+        .doc(_dogId ?? 'dummy')
+        .snapshots();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Dog profile'),
       ),
       body: SingleChildScrollView(
         child: StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('Dogs')
-                .doc(_dogId ?? 'dummy')
-                .snapshots(),
+            stream: dummyStream,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const CircularProgressIndicator();
@@ -101,195 +103,249 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               if (_size.isEmpty) {
                 _size = size;
               }
-              final String? profilePic = dogData.get('picture') as String?;
-              _profilePic = profilePic;
 
-              return Stack(alignment: Alignment.center, children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 16.0),
-                    Form(
-                      key: _formKey,
-                      autovalidateMode: _autoValidate
-                          ? AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      child: _formUI(name, breed, age, bio),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Text("Gender"),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _genderOptions
-                          .map((option) => Row(
-                                children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _gender,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _gender = value.toString();
-                                      });
-                                    },
-                                  ),
-                                  Text(option),
-                                  const SizedBox(width: 10.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                    CheckboxListTile(
-                      // TODO: shrink size
-                      title: const Text('Castrated'),
-                      value: _isCastrated,
-                      onChanged: (value) {
-                        setState(() {
-                          _isCastrated = value!;
-                        });
-                      },
-                    ),
-                    Row(
+              final List<dynamic>? profilePicUrlsDynamic =
+              dogData.get('pictureUrls') as List<dynamic>?;
+              final List<String>? profilePicUrls =
+              profilePicUrlsDynamic?.map((item) => item as String).toList();
+              _profilePicUrls = profilePicUrls!;
+
+              return Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Activity Level"),
-                        // TODO: add a tooltip // this is done but i decided to keep the comment anyway
-                        IconButton(
-                          icon: const Icon(Icons.help_outline),
-                          onPressed: () {
-                            // Call the callback function to show the info sheet.
-                            _showActivityLevelInfoSheet();
-                          },
+                        const SizedBox(height: 16.0),
+                        Form(
+                          key: _formKey,
+                          autovalidateMode: _autoValidate
+                              ? AutovalidateMode.onUserInteraction
+                              : AutovalidateMode.disabled,
+                          child: _formUI(name, breed, age, bio),
                         ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _activityOptions
-                          .map((option) => Row(
-                                children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _activity,
+                        const SizedBox(height: 16.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Column(
+                              children: [
+                                const Text(
+                                  'Gender',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: _genderOptions
+                                      .map((option) => Row(
+                                    children: [Transform.scale(
+                                      scale: 1.4,
+                                      child: Radio(
+                                        value: option,
+                                        groupValue: _gender,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _gender = value.toString();
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                      Text(option),
+                                      const SizedBox(width: 10.0),
+                                    ],
+                                  ))
+                                      .toList(),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Castrated?',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                Transform.scale(
+                                  scale: 1.3,
+                                  child: Checkbox(
+                                    value: _isCastrated,
                                     onChanged: (value) {
                                       setState(() {
-                                        _activity = value.toString();
+                                        _isCastrated = value!;
                                       });
                                     },
                                   ),
-                                  Text(option),
-                                  const SizedBox(width: 16.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                    const SizedBox(height: 16.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Size"),
-                        // TODO: add a tooltip // this is done but i decided to keep the comment anyway
-                        IconButton(
-                          icon: const Icon(Icons.help_outline),
-                          onPressed: () {
-                            // Call the callback function to show the info sheet.
-                            _showSizeInfoSheet();
-                          },
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _sizeOptions
-                          .map((option) => Row(
-                                children: [
-                                  Radio(
-                                    value: option,
-                                    groupValue: _size,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _size = value.toString();
-                                      });
-                                    },
-                                  ),
-                                  Text(option),
-                                  const SizedBox(width: 16.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                    SizedBox(
-                      //height: 500.0,
-                      //width: 300.0,
-                      child: TextField(
-                        controller: TextEditingController(text: _bio),
-                        keyboardType: TextInputType.multiline,
-                        minLines: 4,
-                        maxLines: 5,
-                        decoration: const InputDecoration(
-                          hintText: 'About your dog',
-                          border: OutlineInputBorder(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Activity level',
+                              style: TextStyle(fontSize: 18),
+                            ),
+
+                            IconButton(
+                              icon: const Icon(Icons.help_outline),
+                              onPressed: () {
+                                _showActivityLevelInfoSheet();
+                              },
+                            ),
+                          ],
                         ),
-                        style: const TextStyle(
-                          fontSize: 18.0,
-                        ),
-                        onChanged: (value) {
-                          _updatedBio = value;
-                        },
-                      ),
-                    ),
-                    _buildImageUploadButton(),
-                    const SizedBox(height: 16.0),
-                    // TODO: move this Text so it's next to the radio buttons instead of above.
-                    const SizedBox(height: 16.0),
-                    Builder(builder: (BuildContext context) {
-                      return ElevatedButton(
-                        onPressed: () {
-                          // TODO: uncomment this
-                          if (_validateInputs() &&
-                              _gender.isNotEmpty &&
-                              _profilePic != null) {
-                            if (_updatedBio != null) {
-                              _bio = _updatedBio!;
-                            }
-                            if (_updatedName != null) {
-                              _name = _updatedName!;
-                            }
-                            if (_updatedBreed != null) {
-                              _breed = _updatedBreed!;
-                            }
-                            if (_updatedAge != null) {
-                              _age = _updatedAge!;
-                            }
-                            if (_updatedProfilePic != null) {
-                              _profilePic = _updatedProfilePic!;
-                            }
-                            DatabaseHandler.updateDog(
-                                _name,
-                                _breed,
-                                _gender,
-                                _age,
-                                _bio,
-                                _profilePic,
-                                _size,
-                                _isCastrated,
-                                _activity,
-                                _dogId!);
-                            Navigator.pop(context);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'You must fill out all the fields before continuing.'),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: _activityOptions
+                              .map((option) => Row(
+                            children: [
+                              Transform.scale(
+                                scale: 1.4,
+                                child: Radio(
+                                  value: option,
+                                  groupValue: _activity,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _activity = value.toString();
+                                    });
+                                  },
+                                ),
                               ),
-                            );
-                          }
-                        },
-                        child: const Text('Save profile'),
-                      );
-                    }),
-                  ],
-                ),
-              ]);
+                              Text(option),
+                              const SizedBox(width: 16.0),
+                            ],
+                          ))
+                              .toList(),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Size',
+                              style: TextStyle(fontSize: 18),
+                            ),
+
+                            IconButton(
+                              icon: const Icon(Icons.help_outline),
+                              onPressed: () {
+                                _showSizeInfoSheet();
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: _sizeOptions
+                              .map((option) => Row(
+                            children: [Transform.scale(
+                              scale: 1.4,
+                              child: Radio(
+                                value: option,
+                                groupValue: _size,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _size = value.toString();
+                                  });
+                                },
+                              ),
+                            ),
+
+                              Text(option),
+                              const SizedBox(width: 16.0),
+                            ],
+                          ))
+                              .toList(),
+                        ),
+                        SizedBox(
+                          child: TextField(
+                            controller: TextEditingController(text: _bio),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 4,
+                            maxLines: 5,
+                            decoration: const InputDecoration(
+                              hintText: 'About your dog',
+                              border: OutlineInputBorder(),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 18.0,
+                            ),
+                            onChanged: (value) {
+                              _updatedBio = value;
+                            },
+                          ),
+                        ),
+
+                        _buildImageUploadButton(),
+                        const SizedBox(height: 16.0),
+                        Builder(builder: (BuildContext context) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 20.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 40,
+                                ),
+                              ),
+                              onPressed: () {
+                                if (_isImageUploading) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please wait until the image is uploaded.'),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                if (_validateInputs() &&
+                                    _gender.isNotEmpty &&
+                                    _profilePicUrls != null) {
+                                  if (_updatedBio != null) {
+                                    _bio = _updatedBio!;
+                                  }
+                                  if (_updatedName != null) {
+                                    _name = _updatedName!;
+                                  }
+                                  if (_updatedBreed != null) {
+                                    _breed = _updatedBreed!;
+                                  }
+                                  if (_updatedAge != null) {
+                                    _age = _updatedAge!;
+                                  }
+                                  if (_updatedProfilePicUrls != null) {
+                                    _profilePicUrls = _updatedProfilePicUrls!;
+                                  }
+                                  DatabaseHandler.updateDog(
+                                      _name,
+                                      _breed,
+                                      _gender,
+                                      _age,
+                                      _bio,
+                                      _profilePicUrls,
+                                      _size,
+                                      _isCastrated,
+                                      _activity,
+                                      _dogId!);
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('You must fill out all the fields before continuing.'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text(
+                                'Save profile',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ]);
             }),
       ),
     );
@@ -304,13 +360,13 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('Info', style: Theme.of(context).textTheme.titleLarge),
-              Text('Small dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('up to 10kg'),
-              Text('Medium dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('10 - 25kg'),
-              Text('Large dog', style: Theme.of(context).textTheme.bodyLarge),
-              Text('More than 25kg'),
+              Text('Size info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Small dog:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Up to 10 kg'),
+              Text('Medium dog:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Between 10 - 25 kg'),
+              Text('Large dog:', style: Theme.of(context).textTheme.bodyLarge),
+              Text('More than 25 kg'),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -333,18 +389,18 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('Info', style: Theme.of(context).textTheme.titleLarge),
+              Text('Activity info', style: Theme.of(context).textTheme.titleLarge),
               Text('Low activity level:',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who prefer shorter walks'),
+              const Text('For dogs who prefer shorter walks.'),
               Text('Moderate activity level:',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who need a moderate amount of exercise and '
-                  'will be happy with a 1-2 hour walk. '),
+              const Text('For dogs who need a moderate amount of \n exercise and'
+                  'will be happy with a 1-2 hour walk.'),
               Text('High activity level: ',
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('For dogs who require a large amount of exercise. '
-                  'For example longer walks or activities such as running or swimming.'),
+              const Text('For dogs who require a large amount of exercise. \n '
+                  'For example longer walks or activities such as \n running or swimming.'),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -369,7 +425,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
           return null;
         },
         decoration: InputDecoration(
-          labelText: 'First name',
+          labelText: 'Name',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -388,6 +445,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'Breed',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.name,
@@ -407,6 +465,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         },
         decoration: InputDecoration(
           labelText: 'Age',
+          labelStyle: TextStyle(fontSize: 18),
           border: OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
@@ -442,29 +501,42 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
         IconButton(
           onPressed: () async {
             // show dialog with options to choose image or take a new one
-            final selectedImage =
-            await ImageUtils.showImageSourceDialog(context);
+            final selectedImages = await ImageUtils.showImageSourceDialog(context, maxImages: 5);
 
-            // upload image to Firebase Storage
-            if (selectedImage != null) {
-              final imageUrl = await ImageUtils.uploadImageToFirebase(
-                  selectedImage, storageUrl);
+            if (selectedImages != null && selectedImages.isNotEmpty) {
               setState(() {
-                _updatedProfilePic = imageUrl;
+                _isImageUploading = true;
+              });
+
+              for (final selectedImage in selectedImages) {
+                final imageUrl = await ImageUtils.uploadImageToFirebase(
+                    selectedImage, storageUrl, ImageType.dog);
+
+                if (mounted) {
+                  setState(() {
+                    _updatedProfilePicUrls.add(imageUrl!);
+                  });
+                }
+              }
+
+              setState(() {
+                _isImageUploading = false;
               });
             }
           },
-          icon: _profilePic == null || _profilePic!.isEmpty
+          icon: _profilePicUrls.isEmpty
               ? const Icon(Icons.add_a_photo)
               : CircleAvatar(
-            backgroundImage: _profilePic!.startsWith('http')
-                ? NetworkImage(_profilePic!) as ImageProvider<Object>?
-                : FileImage(File(_profilePic!)) as ImageProvider<Object>?,
-            radius: 30,
-            child: _profilePic!.isEmpty || _profilePic == null
-                ? const CircularProgressIndicator()
-                : const Icon(Icons.check, color: Colors.white),
-          ),
+                  backgroundImage: _profilePicUrls[0].startsWith('http')
+                      ? NetworkImage(_profilePicUrls[0])
+                      : FileImage(File(_profilePicUrls[0]))
+                          as ImageProvider<Object>?,
+                  radius: 30,
+                  child: _isImageUploading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.check, color: Colors.white),
+                ),
+
         )
       ],
     );
